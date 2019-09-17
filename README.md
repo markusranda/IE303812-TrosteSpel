@@ -4,8 +4,9 @@ This is the game client
 
 
 #How to run
-<i>mvn clean
 
-mvn package</i>
+<b>mvn clean
 
-run <i>game.bat/game.sh</i> in the <i>target/Client-x.x-SNAPSHOT-release</i> directory
+mvn package</b>
+
+run <b>game.bat/game.sh</b> in the <b>target/Client-x.x-SNAPSHOT-release</b> directory
