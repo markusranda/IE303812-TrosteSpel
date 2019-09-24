@@ -22,6 +22,7 @@ public class Game extends StateBasedGame {
 
     public static final String SERVER_ADDRESS = "markus-sanntid.northeurope.cloudapp.azure.com";
     public static final int SERVER_UDP_PORT = 7080;
+    public static final int SERVER_TCP_PORT = 7083;
 
     private static AppGameContainer container;
 
