@@ -33,6 +33,13 @@ public class NetworkController {
         tcpSocket = new Socket(Game.SERVER_ADDRESS, Game.SERVER_TCP_PORT);
         out = new PrintWriter(tcpSocket.getOutputStream(), true);
         in = new BufferedReader(new InputStreamReader(tcpSocket.getInputStream()));
+    }
+
+    public void sendGameState() {
+
+    }
+
+    public void receiveGameState() {
 
     }
 }
