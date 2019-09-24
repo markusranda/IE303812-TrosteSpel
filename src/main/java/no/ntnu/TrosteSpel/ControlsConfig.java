@@ -19,11 +19,14 @@ public class ControlsConfig {
     private int left;
     private int right;
 
+    private int debug;
+
     public void setDefault() {
         up = Input.KEY_W;
         down = Input.KEY_S;
         left = Input.KEY_A;
         right = Input.KEY_D;
+        debug = Input.KEY_F3;
     }
 
 
@@ -58,5 +61,9 @@ public class ControlsConfig {
 
     public int right() {
         return right;
+    }
+
+    public int debug() {
+        return debug;
     }
 }

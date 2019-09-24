@@ -4,8 +4,10 @@ This is the game client
 
 
 #How to run
-<i>mvn clean
 
-mvn package</i>
+ - mvn clean package
 
-run <i>game.bat/game.sh</i> in the <i>target/Client-x.x-SNAPSHOT-release</i> directory
+ - add <i>target/Client-x.x-SNAPSHOT-release/Client-x.x-SNAPSHOT/lib</i> 
+ as a library (Project structure -> libraries)
+ 
+ - run <i>target/Client-x.x-SNAPSHOT-release/Client-x.x-SNAPSHOT/Client-x.x-SNAPSHOT.jar</i>

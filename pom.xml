@@ -10,7 +10,7 @@
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<main.class>no.ntnu.TrosteSpel.Game</main.class>
+		<main.class>no.ntnu.TrosteSpel.MainGameState</main.class>
 	</properties>
 
 	<dependencies>
@@ -22,7 +22,19 @@
 	</dependencies>
 
 	<build>
+
 		<plugins>
+
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<configuration>
+					<source>1.8</source>
+					<target>1.8</target>
+					<encoding>UTF-8</encoding>
+				</configuration>
+			</plugin>
+
 			<plugin>
 				<groupId>com.googlecode.mavennatives</groupId>
 				<artifactId>maven-nativedependencies-plugin</artifactId>
@@ -63,7 +75,7 @@
 						</goals>
 						<configuration>
 							<descriptors>
-								<descriptor>${project.basedir}/src/main/assembly/assembly.xml</descriptor>
+								<descriptor>src/main/assembly/assembly.xml</descriptor>
 							</descriptors>
 						</configuration>
 					</execution>
