@@ -24,6 +24,7 @@ public class NetworkedPlayerController extends ObjectController {
         float dv = 100 * delta;
         displacement.x = 0;
         displacement.y = 0;
+
         if (Gdx.input.isKeyPressed(keys.up)) {
             displacement.y += dv;
         }
@@ -36,15 +37,30 @@ public class NetworkedPlayerController extends ObjectController {
         if (Gdx.input.isKeyPressed(keys.right)) {
             displacement.x += dv;
         }
-        String s = "hello" + Gdx.input.isKeyPressed(keys.up);
-        byte[] buffer = s.getBytes();
-        DatagramPacket packet = new DatagramPacket(
-                buffer, buffer.length, ServerConnection.address, ServerConnection.port);
-        try {
-            ServerConnection.socket.send(packet);
-        } catch (IOException e) {
-            e.printStackTrace();
+        if (Gdx.input.isKeyPressed(keys.attackUp)) {
+            displacement.x += dv;
         }
+        if (Gdx.input.isKeyPressed(keys.attackDown)) {
+            displacement.x += dv;
+        }
+        if (Gdx.input.isKeyPressed(keys.attackLeft)) {
+            displacement.x += dv;
+        }
+        if (Gdx.input.isKeyPressed(keys.attackRight)) {
+            displacement.x += dv;
+        }
+        if (Gdx.input.isKeyPressed(keys.action1)) {
+            displacement.x += dv;
+        }
+        if (Gdx.input.isKeyPressed(keys.action2)) {
+            displacement.x += dv;
+        }
+        if (Gdx.input.isKeyPressed(keys.action3)) {
+            displacement.x += dv;
+        }
+
+
+
         return displacement;
     }
 }

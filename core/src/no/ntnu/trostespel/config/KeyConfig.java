@@ -9,8 +9,6 @@ public class KeyConfig extends Config {
     public int right;
     public int left;
     public int down;
-    public int attack;
-    public int defend;
 
     public int attackUp;
     public int attackRight;
@@ -36,6 +34,8 @@ public class KeyConfig extends Config {
     public int toggleFPS;
     public int toggleVector;
     public int toggleMenu;
+
+    public int[] remoteCommands;
 
     public void loadDefault() {
         //player

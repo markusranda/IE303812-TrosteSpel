@@ -42,7 +42,6 @@ public class MainGameState extends ScreenAdapter {
 
     private void update(float delta) {
         player.update(delta);
-
     }
 
     private void draw() {
