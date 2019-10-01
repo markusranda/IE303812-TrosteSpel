@@ -1,4 +1,4 @@
-package no.ntnu.trostespel.network;
+package no.ntnu.trostespel.networking;
 
 import com.badlogic.gdx.utils.Json;
 import com.badlogic.gdx.utils.JsonWriter;
