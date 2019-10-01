@@ -2,22 +2,9 @@ package no.ntnu.trostespel.config;
 
 import com.badlogic.gdx.Input.Keys;
 
-public class KeyConfig extends Config {
+public class KeyConfig extends PlayerKeyConfig {
 
     //---player controls---
-    public int up;
-    public int right;
-    public int left;
-    public int down;
-
-    public int attackUp;
-    public int attackRight;
-    public int attackLeft;
-    public int attackDown;
-
-    public int action1;
-    public int action2;
-    public int action3;
 
     //---UI controls---
     public int toggleHUD;
@@ -38,22 +25,8 @@ public class KeyConfig extends Config {
     public int[] remoteCommands;
 
     public void loadDefault() {
+        super.loadDeafult();
         //player
-        up = Keys.W;
-        right = Keys.D;
-        left = Keys.A;
-        down = Keys.S;
-
-        attackUp = Keys.UP;
-        attackRight = Keys.RIGHT;
-        attackLeft = Keys.LEFT;
-        attackDown = Keys.DOWN;
-
-        action1 = Keys.SPACE;
-        action2 = Keys.E;
-        action3 = Keys.SHIFT_LEFT;
-
-
         //ui
         toggleHUD = Keys.H;
 

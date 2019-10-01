@@ -19,7 +19,8 @@ public class ServerConnection {
 
     }
 
-    public static void load() {
+    public static void loadDefault() {
+        port = 7080;
         props = new Properties();
         try {
             props.load(new FileReader(Gdx.files.getLocalStoragePath() + File.separator + "server.properties"));
@@ -27,7 +28,7 @@ public class ServerConnection {
             e.printStackTrace();
         }
         String savedHost= props.getProperty("host");
-        if (savedHost == "localhost") {
+        if (savedHost.equals("localhost")) {
             try {
                 host = InetAddress.getLocalHost();
             } catch (UnknownHostException e) {

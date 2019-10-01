@@ -10,6 +10,9 @@ import no.ntnu.trostespel.config.KeyConfig;
 import no.ntnu.trostespel.controller.NetworkedPlayerController;
 import no.ntnu.trostespel.controller.ObjectController;
 import no.ntnu.trostespel.entity.Player;
+import no.ntnu.trostespel.networking.UserInputManager;
+
+import java.io.IOException;
 
 public class MainGameState extends ScreenAdapter {
 

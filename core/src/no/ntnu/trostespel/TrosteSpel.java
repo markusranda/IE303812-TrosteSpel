@@ -5,6 +5,7 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import no.ntnu.trostespel.config.Assets;
 import no.ntnu.trostespel.config.KeyConfig;
 import no.ntnu.trostespel.config.ServerConnection;
+import no.ntnu.trostespel.networking.UserInputManager;
 
 import static no.ntnu.trostespel.config.Assets.img;
 
@@ -21,7 +22,7 @@ public class TrosteSpel extends Game {
     public void create() {
         // load textures
         Assets.load();
-        ServerConnection.load();
+        ServerConnection.loadDefault();
         batch = new SpriteBatch();
         setScreen(new MainGameState(this));
     }
