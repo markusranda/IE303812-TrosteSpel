@@ -6,7 +6,7 @@ public class Connector extends CommunicationManager {
         String result = null;
 
         try {
-
+            socket = new Socket()
         } catch () {
 
         }
