@@ -3,7 +3,6 @@ package no.ntnu.trostespel.controller;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.math.Vector2;
 import no.ntnu.trostespel.config.KeyConfig;
-import no.ntnu.trostespel.config.ServerConnection;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
