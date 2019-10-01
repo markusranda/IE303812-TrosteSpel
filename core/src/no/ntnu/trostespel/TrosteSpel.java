@@ -4,6 +4,7 @@ import com.badlogic.gdx.Game;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import no.ntnu.trostespel.config.Assets;
 import no.ntnu.trostespel.config.KeyConfig;
+import no.ntnu.trostespel.config.ServerConnection;
 
 import static no.ntnu.trostespel.config.Assets.img;
 
