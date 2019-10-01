@@ -1,14 +1,19 @@
 package no.ntnu.trostespel.networking;
 
-public interface ServerConnector {
+import java.io.*;
+import java.net.InetAddress;
+import java.net.Socket;
+import java.net.UnknownHostException;
 
+public class ServerConnector {
 
-    public String connect();
+    public ServerConnector() throws Exception {
+        TCPClient client = new TCPClient(
+                InetAddress.getByName("192.168.50.50"),
+                Integer.parseInt("7083"));
 
-    public int test1();
+        Thread t = new Thread(client);
+        t.start();
 
-    public int test2();
-
-    public boolean sendUserInput();
-
+    }
 }
