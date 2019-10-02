@@ -1,38 +1,21 @@
 package no.ntnu.trostespel.networking;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.utils.Json;
-import com.badlogic.gdx.utils.JsonWriter;
-import com.google.gson.ExclusionStrategy;
 import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.stream.JsonReader;
 import no.ntnu.trostespel.config.KeyConfig;
-import no.ntnu.trostespel.config.PlayerKeyConfig;
 import no.ntnu.trostespel.config.ServerConnection;
-import no.ntnu.trostespel.entity.Player;
-import org.apache.commons.beanutils.DynaProperty;
-import org.apache.commons.beanutils.WrapDynaBean;
 
-import javax.jws.soap.SOAPBinding;
-import javax.xml.crypto.Data;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.StringReader;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
-import java.net.Socket;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 
-
+/**
+ * Handles all inputs that should be processed by the server
+ */
 public class UserInputManager {
 
-    private Gson gson;
     private UserInputManagerModel model;
     private int length;
-    private byte[] buffer;
     private DatagramPacket packet;
     private DatagramSocket socket;
 
@@ -44,7 +27,6 @@ public class UserInputManager {
         length  = jsonStr.getBytes().length;
         this.socket = socket;
         packet = new DatagramPacket(jsonStr.getBytes(), length, ServerConnection.host, ServerConnection.port);
-
     }
 
 

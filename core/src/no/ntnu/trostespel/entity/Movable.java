@@ -6,14 +6,16 @@ import com.badlogic.gdx.math.Vector2;
 import no.ntnu.trostespel.controller.ObjectController;
 
 public abstract class Movable extends GameObject {
-    public final Vector2 velocity = null;
+
     public Vector2 displacement;
-    public final Vector2 accel = null;
-
     public ObjectController objectController;
+    boolean moving = false;
+    int direction = 1;
+    Vector2 previousPos;
 
-    public Movable(float x, float y, float width, float height, Rectangle rect, Texture texture, ObjectController objectController) {
-        super(x, y, width, height, rect, texture);
+    public Movable(Vector2 pos, float width, float height, Rectangle rect, Texture texture, ObjectController objectController) {
+        super(pos, width, height, rect, texture);
+        previousPos = new Vector2().setZero();
         this.objectController = objectController;
 
     }
@@ -21,9 +23,20 @@ public abstract class Movable extends GameObject {
     public void update(float delta) {
         //Update position
         displacement = objectController.update(delta);
-        super.x += displacement.x;
-        super.y += displacement.y;
+        displace(displacement.x, displacement.y);
+        if (!displacement.isZero()) {
+            moving = true;
+            if (displacement.x > 0) {
+                direction = 1;
+            } else if (displacement.x < 0){
+                direction = -1;
+            }
+        } else {
+            moving = false;
+        }
+        previousPos = getPos();
     }
+
 
 
 }

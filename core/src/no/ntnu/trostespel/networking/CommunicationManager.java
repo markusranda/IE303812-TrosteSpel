@@ -16,4 +16,9 @@ public abstract class CommunicationManager implements ServerConnector {
     public boolean sendUserInput() {
         return false;
     }
+
+    @Override
+    public boolean receiveUpdate() {
+        return false;
+    }
 }

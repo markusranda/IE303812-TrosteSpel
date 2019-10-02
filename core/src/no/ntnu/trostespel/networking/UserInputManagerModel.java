@@ -1,5 +1,8 @@
 package no.ntnu.trostespel.networking;
 
+/**
+ * Model for building json object
+ */
 public class UserInputManagerModel {
 
     //TODO: get generated PID from server

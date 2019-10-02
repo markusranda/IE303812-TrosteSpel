@@ -5,6 +5,7 @@ import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.math.Rectangle;
+import com.badlogic.gdx.math.Vector2;
 import no.ntnu.trostespel.config.Assets;
 import no.ntnu.trostespel.config.KeyConfig;
 import no.ntnu.trostespel.controller.NetworkedPlayerController;
@@ -33,8 +34,9 @@ public class MainGameState extends ScreenAdapter {
         KeyConfig keys = new KeyConfig();
         keys.loadDefault();
 
-        ObjectController playerController = new NetworkedPlayerController(keys, 0);
-        player = new Player(800 / 2 - 64 / 2, 20, 64, 64, new Rectangle(), Assets.lemurImage, playerController);
+        ObjectController playerController = new NetworkedPlayerController();
+        Vector2 spawnLocation = new Vector2(800 / 2 - 64 / 2, 50);
+        player = new Player(spawnLocation, Assets.lemurImage, playerController);
 
         // init camera
         camera = new OrthographicCamera();

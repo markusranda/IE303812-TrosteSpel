@@ -1,29 +1,49 @@
 package no.ntnu.trostespel.entity;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Rectangle;
+import com.badlogic.gdx.math.Shape2D;
 import com.badlogic.gdx.math.Vector2;
 
 public abstract class GameObject {
-    private Texture texture;
-    private Rectangle shape;
+    Texture texture;
+    Rectangle shape;
+    float width;
+    float height;
 
-    public float x;
-    public float y;
+    float stateTime;
 
-    public GameObject (float x, float y, float width, float height, Rectangle shape, Texture texture) {
-        this.x = x;
-        this.y = y;
+    private Vector2 pos;
+
+    public GameObject (Vector2 pos, float width, float height, Rectangle shape, Texture texture) {
+        this.pos = pos;
+        this.width = width;
+        this.height = height;
         shape.height = height;
         shape.width = width;
-        shape.x = x;
-        shape.y = y;
+        shape.x = pos.x;
+        shape.y = pos.y;
         this.texture = texture;
         this.shape = shape;
+
+        stateTime = 0;
     }
 
-    public void draw(SpriteBatch batch) {
-        batch.draw(texture, x, y);
+    public abstract void draw(SpriteBatch batch);
+
+    public void setPos(int x, int y) {
+        pos.x = x;
+        pos.y = y;
+    }
+
+    public Vector2 getPos() {
+        return pos;
+    }
+
+    public void displace(float x, float y) {
+        pos.x += x;
+        pos.y += y;
     }
 }

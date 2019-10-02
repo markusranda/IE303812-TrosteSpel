@@ -11,4 +11,6 @@ public interface ServerConnector {
 
     public boolean sendUserInput();
 
+    public boolean receiveUpdate();
+
 }
