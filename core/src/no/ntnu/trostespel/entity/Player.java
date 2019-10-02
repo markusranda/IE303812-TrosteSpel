@@ -16,7 +16,8 @@ public class Player extends Movable {
 
     private static final int FRAME_COLS = 1, FRAME_ROWS = 6;
 
-    public Animation<TextureRegion> run;
+    public Animation<TextureRegion> runHead;
+    public Animation<TextureRegion> runBody;
     private TextureRegion currentFrame;
     private boolean flip = false;
 
@@ -28,15 +29,16 @@ public class Player extends Movable {
 
     public Player(Vector2 pos, Texture texture, ObjectController objectController) {
         super(pos, 72, 90, new Rectangle(), texture, objectController);
-        initAnimation();
+        runHead = initAnimation(Assets.lemurHeadRunSheet);
+        runBody = initAnimation(Assets.lemurBodyRunSheet);
 
     }
 
-    private void initAnimation() {
+    private Animation<TextureRegion> initAnimation(Texture texture) {
         TextureRegion[][] tmp = TextureRegion.split(
-                Assets.lemurRunSheet,
-                Assets.lemurRunSheet.getWidth() / FRAME_ROWS,
-                Assets.lemurRunSheet.getHeight() / FRAME_COLS);
+                texture,
+                texture.getWidth() / FRAME_ROWS,
+                texture.getHeight() / FRAME_COLS);
 
         TextureRegion[] frames = new TextureRegion[FRAME_COLS * FRAME_ROWS];
         int index = 0;
@@ -45,7 +47,7 @@ public class Player extends Movable {
                 frames[index++] = tmp[i][j];
             }
         }
-        run = new Animation<>(0.1f, frames);
+        return new Animation<TextureRegion>(0.1f, frames);
     }
 
     @Override
@@ -58,9 +60,11 @@ public class Player extends Movable {
 
         if (moving) {
             stateTime += Gdx.graphics.getDeltaTime();
-            currentFrame = run.getKeyFrame(stateTime, true);
+            currentFrame = runBody.getKeyFrame(stateTime, true);
             flip = (getDirection() == Direction.left);
             batch.draw(currentFrame, flip ? getPos().x+width : getPos().x, getPos().y, flip ? -width : width, height);
+            batch.draw(runHead.getKeyFrame(0), getPos().x, getPos().y, width, height);
+
         } else {
             batch.draw(texture, flip ? getPos().x+width : getPos().x, getPos().y, flip ? -width : width, height);
         }
