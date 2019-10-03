@@ -1,4 +1,4 @@
-package java.no.ntnu.trostespel;
+package no.ntnu.trostespel;
 
 public class PlayerUpdateProcessor {
 }
