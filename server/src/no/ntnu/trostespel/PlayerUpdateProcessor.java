@@ -15,7 +15,6 @@ public class PlayerUpdateProcessor implements Runnable {
 
     @Override
     public void run() {
-        System.out.println("I be working nigga");
         delta = startTime - System.currentTimeMillis();
     }
 }

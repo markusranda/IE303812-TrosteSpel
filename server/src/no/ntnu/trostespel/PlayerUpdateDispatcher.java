@@ -35,13 +35,15 @@ public class PlayerUpdateDispatcher {
      * @param actions the update to queue
      */
     public void queue(UserInputManagerModel actions) {
-        long pid = actions.pid;
-        if (!players.containsKey(pid)) {
-            Queue<UserInputManagerModel> queue = new Queue<UserInputManagerModel>();
-            queue.addFirst(actions);
-            players.put(pid, queue);
-        } else {
-            players.get(pid).addLast(actions);
+        if (actions != null) {
+            long pid = actions.pid;
+            if (!players.containsKey(pid)) {
+                Queue<UserInputManagerModel> queue = new Queue<UserInputManagerModel>();
+                queue.addFirst(actions);
+                players.put(pid, queue);
+            } else {
+                players.get(pid).addLast(actions);
+            }
         }
     }
 
