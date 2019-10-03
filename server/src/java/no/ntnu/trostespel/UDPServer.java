@@ -1,6 +1,7 @@
 package java.no.ntnu.trostespel;
 
 import com.google.gson.Gson;
+import no.ntnu.trostespel.UserInputManagerModel;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
@@ -26,7 +27,6 @@ public class UDPServer implements Runnable {
         }
         String msg;
         PlayerUpdateDispatcher dispatcher = new PlayerUpdateDispatcher();
-        dispatcher.run();
 
         while (true) {
 
@@ -40,7 +40,7 @@ public class UDPServer implements Runnable {
                 e.printStackTrace();
             }
             Gson gson = new Gson();
-            UserInputManagerModel actions = gson.fromJson(packet.getData(), UserInputManagerModel);
+            UserInputManagerModel actions = gson.fromJson(new String(packet.getData()), UserInputManagerModel.class);
             dispatcher.queue(actions);
         }
     }

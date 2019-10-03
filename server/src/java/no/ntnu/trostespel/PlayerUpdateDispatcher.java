@@ -1,5 +1,11 @@
 package java.no.ntnu.trostespel;
 
+
+import com.badlogic.gdx.utils.IdentityMap;
+import com.badlogic.gdx.utils.ObjectMap;
+import com.badlogic.gdx.utils.Queue;
+import no.ntnu.trostespel.UserInputManagerModel;
+
 import java.util.Iterator;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -12,7 +18,7 @@ import java.util.concurrent.TimeUnit;
  */
 public class PlayerUpdateDispatcher {
 
-    private IdentityMap<long, Queue<UserInputManagerModel>> players;
+    private IdentityMap<Long, Queue<UserInputManagerModel>> players;
 
     ScheduledExecutorService gateKeeper;
 
@@ -20,7 +26,7 @@ public class PlayerUpdateDispatcher {
 
 
     public PlayerUpdateDispatcher() {
-        this.players = new IdentityMap<long, Queue<UserInputManagerModel>>(Config.MAX_PLAYERS);
+        this.players = new IdentityMap<Long, Queue<UserInputManagerModel>>(Config.MAX_PLAYERS);
         processors = Executors.newCachedThreadPool();
         run();
     }
@@ -30,7 +36,7 @@ public class PlayerUpdateDispatcher {
      * @param actions the update to queue
      */
     public void queue(UserInputManagerModel actions) {
-        long pid = actions.getPid();
+        long pid = actions.pid;
         if (!players.containsKey(pid)) {
             Queue<UserInputManagerModel> queue = new Queue<UserInputManagerModel>();
             queue.addFirst(actions);
@@ -54,10 +60,12 @@ public class PlayerUpdateDispatcher {
         return new Runnable() {
             @Override
             public void run() {
+                System.out.println("Running...");
                 long startTime = System.currentTimeMillis();
-                Iterator<Queue<UserInputManagerModel>> it = players.iterator();
+                Iterator<ObjectMap.Entry<Long, Queue<UserInputManagerModel>>> it = players.iterator();
                 while (it.hasNext()) {
-                    Queue actions = it.next();
+                    ObjectMap.Entry<Long, Queue<UserInputManagerModel>> actions = it.next();
+                    //actions.value
 
                 }
             }
