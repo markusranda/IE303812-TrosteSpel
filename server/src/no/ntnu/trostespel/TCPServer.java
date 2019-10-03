@@ -1,8 +1,6 @@
 package no.ntnu.trostespel;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -23,11 +21,20 @@ public class TCPServer implements Runnable {
             String clientAddress = client.getInetAddress().getHostAddress();
             System.out.println("\r\nNew TCP connection from " + clientAddress);
 
-            BufferedReader in = new BufferedReader(
-                    new InputStreamReader(client.getInputStream()));
-            while ((data = in.readLine()) != null) {
-                System.out.println("\r\nMessage from " + clientAddress + ": " + data);
-            }
+            // Receive message from client
+            BufferedReader in = new BufferedReader(new InputStreamReader(client.getInputStream()));
+            data = in.readLine();
+            System.out.println(data);
+
+            // Send the response back to the client.
+            String response = "206";
+            OutputStream os = client.getOutputStream();
+            OutputStreamWriter osw = new OutputStreamWriter(os);
+            BufferedWriter bw = new BufferedWriter(osw);
+            bw.write(response);
+            System.out.println("Message sent to the client is " + response);
+            bw.flush();
+
             client.close();
         } catch (IOException io) {
             run();
