@@ -25,7 +25,7 @@ public class PlayerUpdateDispatcher {
 
 
     public PlayerUpdateDispatcher() {
-        this.players = new IdentityMap<Long, Queue<UserInputManagerModel>>(Config.MAX_PLAYERS);
+        this.players = new IdentityMap<Long, Queue<UserInputManagerModel>>(ServerConfig.MAX_PLAYERS);
         processors = Executors.newCachedThreadPool();
         run();
     }
@@ -51,7 +51,7 @@ public class PlayerUpdateDispatcher {
     private void run() {
         //TODO: BLOCK "players" when dispatching
         gateKeeper = Executors.newSingleThreadScheduledExecutor();
-        gateKeeper.scheduleAtFixedRate(something(), 0, 100000 / Config.TICKRATE, TimeUnit.MICROSECONDS);
+        gateKeeper.scheduleAtFixedRate(something(), 0, 100000 / ServerConfig.TICKRATE, TimeUnit.MICROSECONDS);
 
     }
 
@@ -62,10 +62,9 @@ public class PlayerUpdateDispatcher {
                 long startTime = System.currentTimeMillis();
                 Iterator<ObjectMap.Entry<Long, Queue<UserInputManagerModel>>> it = players.iterator();
                 while (it.hasNext()) {
-                    System.out.println("Running...");
                     ObjectMap.Entry<Long, Queue<UserInputManagerModel>> actions = it.next();
-                    //actions.value
-
+                    processors.submit(new PlayerUpdateProcessor(actions.value, startTime));
+                    it.remove();
                 }
             }
         };

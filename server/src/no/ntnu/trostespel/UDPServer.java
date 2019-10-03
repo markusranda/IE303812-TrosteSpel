@@ -1,6 +1,9 @@
 package no.ntnu.trostespel;
 
+import com.badlogic.gdx.utils.Json;
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.stream.JsonReader;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
@@ -24,7 +27,6 @@ public class UDPServer implements Runnable {
         } catch (UnknownHostException e) {
             e.printStackTrace();
         }
-        String msg;
         PlayerUpdateDispatcher dispatcher = new PlayerUpdateDispatcher();
 
         while (true) {
@@ -38,8 +40,10 @@ public class UDPServer implements Runnable {
             } catch (IOException e) {
                 e.printStackTrace();
             }
-            Gson gson = new Gson();
-            UserInputManagerModel actions = gson.fromJson(new String(packet.getData()), UserInputManagerModel.class);
+            Gson gson = new GsonBuilder().setLenient().create();
+            String data = new String(packet.getData());
+            Json json = new Json();
+            UserInputManagerModel actions = gson.fromJson(data,UserInputManagerModel.class);
             dispatcher.queue(actions);
         }
     }

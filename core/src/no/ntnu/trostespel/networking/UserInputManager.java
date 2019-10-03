@@ -9,6 +9,7 @@ import no.ntnu.trostespel.config.ServerConnection;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
+import java.util.Base64;
 
 /**
  * Handles all inputs that should be processed by the server
