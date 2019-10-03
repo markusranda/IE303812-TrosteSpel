@@ -3,7 +3,6 @@ package no.ntnu.trostespel.networking;
 import java.io.*;
 import java.net.InetAddress;
 import java.net.Socket;
-import java.util.HashMap;
 import java.util.Scanner;
 
 public class ConnectionClient implements Runnable{
@@ -14,15 +13,17 @@ public class ConnectionClient implements Runnable{
 
     private Socket socket;
     private Scanner scanner;
+    String username = "lemurium";
 
-    ConnectionClient(InetAddress serverAddress, int serverPort) throws Exception {
+    public ConnectionClient(InetAddress serverAddress, int serverPort) throws Exception {
         this.socket = new Socket(serverAddress, serverPort);
         this.scanner = new Scanner(System.in);
     }
 
     @Override
     public void run() {
-
+        long result = initialConnect(username);
+        System.out.println(result);
     }
 
     /**
@@ -41,20 +42,25 @@ public class ConnectionClient implements Runnable{
         if (username == null) return -1;
         try {
             System.out.println("\r\nConnected to Server: " + getInetAddress());
-            String result = null;
+            String data = null;
+
+            // Print username to server
             PrintWriter out = new PrintWriter(this.socket.getOutputStream(), true);
-            BufferedReader input = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             out.println(username);
-            while ( result == null ) {
-                result = input.readLine();
+
+            // Get answer from server
+            BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+            while (data == null) {
+                data = in.readLine();
             }
+
             socket.close();
-            return Long.parseLong(result);
+            return Long.parseLong(data);
+
         } catch (IOException e) {
             e.printStackTrace();
             return -2;
         } catch (NumberFormatException nfe) {
-            nfe.printStackTrace();
             return -3;
         }
     }
