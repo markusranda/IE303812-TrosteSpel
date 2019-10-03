@@ -1,10 +1,9 @@
-package java.no.ntnu.trostespel;
+package no.ntnu.trostespel;
 
 
 import com.badlogic.gdx.utils.IdentityMap;
 import com.badlogic.gdx.utils.ObjectMap;
 import com.badlogic.gdx.utils.Queue;
-import no.ntnu.trostespel.UserInputManagerModel;
 
 import java.util.Iterator;
 import java.util.concurrent.ExecutorService;
@@ -60,10 +59,10 @@ public class PlayerUpdateDispatcher {
         return new Runnable() {
             @Override
             public void run() {
-                System.out.println("Running...");
                 long startTime = System.currentTimeMillis();
                 Iterator<ObjectMap.Entry<Long, Queue<UserInputManagerModel>>> it = players.iterator();
                 while (it.hasNext()) {
+                    System.out.println("Running...");
                     ObjectMap.Entry<Long, Queue<UserInputManagerModel>> actions = it.next();
                     //actions.value
 

@@ -1,7 +1,6 @@
-package java.no.ntnu.trostespel;
+package no.ntnu.trostespel;
 
 import com.google.gson.Gson;
-import no.ntnu.trostespel.UserInputManagerModel;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
