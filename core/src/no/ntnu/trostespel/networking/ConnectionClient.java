@@ -15,7 +15,7 @@ public class ConnectionClient implements Runnable{
     private Socket socket;
     private Scanner scanner;
 
-    ConnectionClient(InetAddress serverAddress, int serverPort) throws Exception {
+    public ConnectionClient(InetAddress serverAddress, int serverPort) throws Exception {
         this.socket = new Socket(serverAddress, serverPort);
         this.scanner = new Scanner(System.in);
     }

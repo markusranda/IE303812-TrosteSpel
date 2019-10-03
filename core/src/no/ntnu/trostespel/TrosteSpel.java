@@ -5,6 +5,7 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import no.ntnu.trostespel.config.Assets;
 import no.ntnu.trostespel.config.KeyConfig;
 import no.ntnu.trostespel.config.ServerConnection;
+import no.ntnu.trostespel.networking.ConnectionClient;
 import no.ntnu.trostespel.networking.UserInputManager;
 
 import static no.ntnu.trostespel.config.Assets.img;
@@ -25,6 +26,15 @@ public class TrosteSpel extends Game {
         ServerConnection.loadDefault();
         batch = new SpriteBatch();
         setScreen(new MainGameState(this));
+
+        // Connect to server
+        try {
+            ConnectionClient connectionClient = new ConnectionClient(ServerConnection.host, 7083);
+            connectionClient.run();
+            connectionClient.initialConnect("lemurium");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
 
