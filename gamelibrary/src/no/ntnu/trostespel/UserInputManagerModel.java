@@ -1,4 +1,4 @@
-package no.ntnu.trostespel.networking;
+package no.ntnu.trostespel;
 
 /**
  * Model for building json object

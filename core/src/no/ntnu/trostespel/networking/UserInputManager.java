@@ -2,6 +2,7 @@ package no.ntnu.trostespel.networking;
 
 import com.badlogic.gdx.Gdx;
 import com.google.gson.Gson;
+import no.ntnu.trostespel.UserInputManagerModel;
 import no.ntnu.trostespel.config.KeyConfig;
 import no.ntnu.trostespel.config.ServerConnection;
 
@@ -28,6 +29,7 @@ public class UserInputManager {
         this.socket = socket;
         packet = new DatagramPacket(jsonStr.getBytes(), length, ServerConnection.host, ServerConnection.port);
     }
+
 
 
     public void sendInput() {

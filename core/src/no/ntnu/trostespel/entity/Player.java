@@ -19,6 +19,7 @@ public class Player extends Movable {
     public Animation<TextureRegion> run;
     private TextureRegion currentFrame;
     private boolean flip = false;
+    private Weapon weapon;
 
     private enum Direction {
         right,
@@ -64,6 +65,10 @@ public class Player extends Movable {
         } else {
             batch.draw(texture, flip ? getPos().x+width : getPos().x, getPos().y, flip ? -width : width, height);
         }
+    }
+
+    public Weapon getWeapon() {
+        return weapon;
     }
 
     private Direction getDirection() {

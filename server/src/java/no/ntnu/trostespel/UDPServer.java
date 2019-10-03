@@ -1,7 +1,12 @@
-package no.ntnu.trostespel;
+package java.no.ntnu.trostespel;
+
+import com.google.gson.Gson;
 
 import java.io.IOException;
-import java.net.*;
+import java.net.DatagramPacket;
+import java.net.DatagramSocket;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 
 public class UDPServer implements Runnable {
     private DatagramSocket udpSocket;
@@ -20,6 +25,8 @@ public class UDPServer implements Runnable {
             e.printStackTrace();
         }
         String msg;
+        PlayerUpdateDispatcher dispatcher = new PlayerUpdateDispatcher();
+        dispatcher.run();
 
         while (true) {
 
@@ -32,11 +39,9 @@ public class UDPServer implements Runnable {
             } catch (IOException e) {
                 e.printStackTrace();
             }
-            msg = new String(packet.getData()).trim();
-
-            System.out.println(
-                    "UDP Message from " + packet.getAddress().getHostAddress() + ": " + msg);
-
+            Gson gson = new Gson();
+            UserInputManagerModel actions = gson.fromJson(packet.getData(), UserInputManagerModel);
+            dispatcher.queue(actions);
         }
     }
 }
