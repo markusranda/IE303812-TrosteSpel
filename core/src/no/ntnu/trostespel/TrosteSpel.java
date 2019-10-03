@@ -30,8 +30,8 @@ public class TrosteSpel extends Game {
         // Connect to server
         try {
             ConnectionClient connectionClient = new ConnectionClient(ServerConnection.host, 7083);
-            connectionClient.run();
-            connectionClient.initialConnect("lemurium");
+            Thread connectionClientThread = new Thread(connectionClient, "connectionClient");
+            connectionClientThread.start();
         } catch (Exception e) {
             e.printStackTrace();
         }
