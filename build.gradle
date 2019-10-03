@@ -52,32 +52,34 @@ project(":desktop") {
     }
 }
 
-project(":html") {
-    apply plugin: "java-library"
-    apply plugin: "gwt"
-    apply plugin: "war"
-
-
-    dependencies {
-        implementation project(":core")
-        api "com.badlogicgames.gdx:gdx-backend-gwt:$gdxVersion"
-        api "com.badlogicgames.gdx:gdx:$gdxVersion:sources"
-        api "com.badlogicgames.gdx:gdx-backend-gwt:$gdxVersion:sources"
-        api "com.badlogicgames.gdx:gdx-box2d:$gdxVersion:sources"
-        api "com.badlogicgames.gdx:gdx-box2d-gwt:$gdxVersion:sources"
-        
-    }
-}
 
 project(":core") {
     apply plugin: "java-library"
 
 
     dependencies {
+        implementation project(":gamelibrary")
         api "com.badlogicgames.gdx:gdx:$gdxVersion"
         api "com.badlogicgames.gdx:gdx-box2d:$gdxVersion"
-        compile group: 'com.google.code.gson', name: 'gson', version: '2.7'
-        compile group: 'commons-beanutils', name: 'commons-beanutils', version: '1.9.3'
         
+    }
+}
+
+project(":gamelibrary") {
+    apply plugin: "java-library"
+
+
+    dependencies {
+
+    }
+}
+
+
+project(":server") {
+    apply plugin: "java-library"
+
+
+    dependencies {
+
     }
 }
