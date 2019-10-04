@@ -12,6 +12,8 @@ public class Main {
         TCPServer TCPClient = new TCPServer(7083);
         Thread t1 = new Thread(UDPClient);
         Thread t2 = new Thread(TCPClient);
+        t1.setName("TCPClient");
+        t2.setName("UDPClient");
         t1.start();
         t2.start();
     }

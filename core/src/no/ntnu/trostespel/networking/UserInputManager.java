@@ -2,28 +2,27 @@ package no.ntnu.trostespel.networking;
 
 import com.badlogic.gdx.Gdx;
 import com.google.gson.Gson;
-import no.ntnu.trostespel.UserInputManagerModel;
+import no.ntnu.trostespel.PlayerActions;
 import no.ntnu.trostespel.config.KeyConfig;
 import no.ntnu.trostespel.config.ServerConnection;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
-import java.util.Base64;
 
 /**
  * Handles all inputs that should be processed by the server
  */
 public class UserInputManager {
 
-    private UserInputManagerModel model;
+    private PlayerActions model;
     private int length;
     private DatagramPacket packet;
     private DatagramSocket socket;
 
 
     public UserInputManager(DatagramSocket socket) {
-        model = new UserInputManagerModel();
+        model = new PlayerActions();
         Gson gson = new Gson();
         String jsonStr = gson.toJson(model);
         length  = jsonStr.getBytes().length;

@@ -1,19 +1,14 @@
 package no.ntnu.trostespel;
 
-import com.badlogic.gdx.utils.Json;
 import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.google.gson.JsonSyntaxException;
 import com.google.gson.stream.JsonReader;
-import org.lwjgl.Sys;
 
 import java.io.*;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-import java.util.Arrays;
-import java.util.Base64;
 
 public class UDPServer implements Runnable {
     private DatagramSocket udpSocket;
@@ -54,9 +49,9 @@ public class UDPServer implements Runnable {
             StringReader sr = new StringReader(data);
             JsonReader reader = new JsonReader(sr);
             reader.setLenient(true);
-            UserInputManagerModel actions = null;
+            PlayerActions actions = null;
             try {
-                actions = gson.fromJson(reader, UserInputManagerModel.class);
+                actions = gson.fromJson(reader, PlayerActions.class);
             } catch (JsonSyntaxException e) {
                 e.printStackTrace();
                 System.out.println(data);

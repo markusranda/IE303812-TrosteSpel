@@ -13,23 +13,25 @@ public class ServerTalker {
     private ScheduledExecutorService ticker;
     private UserInputManager manager;
     private DatagramSocket socket;
+    private Runnable emitter;
 
     public ServerTalker() {
-        run();
-    }
-
-    private void run(){
+        ticker = Executors.newSingleThreadScheduledExecutor();
+        this.emitter = emitter();
         try {
             socket = new DatagramSocket();
         } catch (SocketException e) {
             e.printStackTrace();
         }
         manager = new UserInputManager(socket);
-        ticker = Executors.newSingleThreadScheduledExecutor();
-        ticker.scheduleAtFixedRate(something(), 0, 100000 / ServerConfig.TICKRATE, TimeUnit.MICROSECONDS);
+        run();
     }
 
-    private Runnable something() {
+    private void run(){
+        ticker.scheduleAtFixedRate(emitter, 0, 100000 / ServerConfig.TICKRATE, TimeUnit.MICROSECONDS);
+    }
+
+    private Runnable emitter() {
         return () -> {
             manager.sendInput();
         };
