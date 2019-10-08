@@ -25,12 +25,11 @@ public class GameDataTransmitter {
         }
         manager = new UserInputManager(socket);
         manager.setPid(pid);
+        run();
     }
 
     public void run(){
-        if (ticker.isTerminated()) {
             ticker.scheduleAtFixedRate(emitter, 0, 100000 / ServerConfig.TICKRATE, TimeUnit.MICROSECONDS);
-        }
     }
 
 
