@@ -37,7 +37,7 @@ public class TCPServer implements Runnable {
             bw.flush();
 
             Connection connection = new Connection(client.getInetAddress(), Long.parseLong(response));
-            Connections.getInstance().setConnections(connection);
+            Connections.getInstance().setConnection(connection);
             client.close();
         } catch (IOException io) {
             run();

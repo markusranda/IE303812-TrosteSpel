@@ -25,8 +25,13 @@ public class Connections {
         return connections;
     }
 
-    void setConnections(Connection connection) {
+    void setConnection(Connection connection) {
         getConnections().add(connection);
         System.out.println("New connection added: " + connection.getAddress() + " - " + connection.getPlayerId());
+    }
+
+    void removeConnection(Connection connection) {
+        getConnections().remove(connection);
+        System.out.println("Removed connection: " + connection.getAddress());
     }
 }
