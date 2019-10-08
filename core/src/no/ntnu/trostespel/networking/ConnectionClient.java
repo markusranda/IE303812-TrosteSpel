@@ -5,7 +5,7 @@ import java.net.InetAddress;
 import java.net.Socket;
 import java.util.Scanner;
 
-public class ConnectionClient implements Runnable{
+public class ConnectionClient implements Runnable {
 
     public InetAddress getInetAddress() {
         return socket.getInetAddress();
@@ -30,7 +30,7 @@ public class ConnectionClient implements Runnable{
      * Tries to connect to a server with username as parameter, this is the same username
      * that the player wishes to use in the game. This method will return a long value
      * with playerID, or a negative number describing what went wrong.
-     *
+     * <p>
      * -1 : username was null
      * -2 : IOException
      * -3 : Server didn't respond with a number
@@ -39,29 +39,34 @@ public class ConnectionClient implements Runnable{
      * @return playerID or negative number as error code.
      */
     public long initialConnect(String username) {
-        if (username == null) return -1;
-        try {
-            System.out.println("\r\nConnected to Server: " + getInetAddress());
-            String data = null;
+        synchronized (this) {
+            if (username == null) return -1;
+            try {
+                System.out.println("\r\nConnected to Server: " + getInetAddress());
+                String data = null;
 
-            // Print username to server
-            PrintWriter out = new PrintWriter(this.socket.getOutputStream(), true);
-            out.println(username);
+                // Print username to server
+                PrintWriter out = new PrintWriter(this.socket.getOutputStream(), true);
+                out.println(username);
 
-            // Get answer from server
-            BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-            while (data == null) {
-                data = in.readLine();
+                // Get answer from server
+                BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+                while (data == null) {
+                    data = in.readLine();
+                }
+
+                socket.close();
+                notify();
+                return Long.parseLong(data);
+
+            } catch (IOException e) {
+                e.printStackTrace();
+                notify();
+                return -2;
+            } catch (NumberFormatException nfe) {
+                notify();
+                return -3;
             }
-
-            socket.close();
-            return Long.parseLong(data);
-
-        } catch (IOException e) {
-            e.printStackTrace();
-            return -2;
-        } catch (NumberFormatException nfe) {
-            return -3;
         }
     }
 }
