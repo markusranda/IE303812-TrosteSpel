@@ -7,6 +7,7 @@ import no.ntnu.trostespel.config.KeyConfig;
 import no.ntnu.trostespel.config.ServerConnection;
 import no.ntnu.trostespel.entity.Session;
 import no.ntnu.trostespel.networking.ConnectionClient;
+import no.ntnu.trostespel.networking.ServerTalker;
 import no.ntnu.trostespel.networking.UserInputManager;
 
 import java.util.concurrent.Callable;
@@ -40,19 +41,13 @@ public class TrosteSpel extends Game {
 
             Callable<Long> connectionThread = () -> connectionClient.initialConnect(username);
 
-//            Solution to the same problem without callable
-//            Thread connectionThread = new Thread(() -> {
-//                playerID[0] = connectionClient.initialConnect(username);
-//                System.out.println("Not at the end, and my playerID is: " + playerID[0]);
-//            });
-
-            Thread sendDataToServer = new Thread(() -> {
-                // Start sending data to the server
-            });
-
             Future<Long> future = executor.submit(connectionThread);
+            long playerId = future.get();
+            // If no error codes were returned from the connection, go ahead and send data
+            if (playerId > 0) new ServerTalker();
+
             Session session = Session.getInstance();
-            boolean result = session.setPlayerID(future.get());
+            boolean result = session.setPlayerID(playerId);
 
             System.out.println("I'm at the end of the method, and my playerID is: " + session.getPlayerID());
         } catch (Exception e) {
