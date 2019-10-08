@@ -9,6 +9,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
+// TODO: 08.10.2019 This class has not been tested
 public class GameDataTransmitter {
 
     public GameDataTransmitter() { }
