@@ -8,14 +8,14 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-public class ServerTalker {
+public class GameDataTransmitter {
 
     private ScheduledExecutorService ticker;
     private UserInputManager manager;
     private DatagramSocket socket;
     private Runnable emitter;
 
-    public ServerTalker(long pid) {
+    public GameDataTransmitter(long pid) {
         ticker = Executors.newSingleThreadScheduledExecutor();
         this.emitter = emitter();
         try {

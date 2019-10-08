@@ -7,8 +7,7 @@ import no.ntnu.trostespel.config.KeyConfig;
 import no.ntnu.trostespel.config.ServerConnection;
 import no.ntnu.trostespel.entity.Session;
 import no.ntnu.trostespel.networking.ConnectionClient;
-import no.ntnu.trostespel.networking.ServerTalker;
-import no.ntnu.trostespel.networking.UserInputManager;
+import no.ntnu.trostespel.networking.GameDataTransmitter;
 
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
@@ -44,7 +43,7 @@ public class TrosteSpel extends Game {
             Future<Long> future = executor.submit(connectionThread);
             long playerId = future.get();
             // If no error codes were returned from the connection, go ahead and send data
-            if (playerId > 0) new ServerTalker(playerId);
+            if (playerId > 0) new GameDataTransmitter(playerId);
 
             Session session = Session.getInstance();
             boolean result = session.setPlayerID(playerId);
