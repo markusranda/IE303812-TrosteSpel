@@ -21,7 +21,7 @@ public class Connections {
         connections = new ArrayList<>();
     }
 
-    private List<Connection> getConnections() {
+    List<Connection> getConnections() {
         return connections;
     }
 
