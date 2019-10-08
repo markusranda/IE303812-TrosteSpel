@@ -5,6 +5,7 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import no.ntnu.trostespel.config.Assets;
 import no.ntnu.trostespel.config.KeyConfig;
 import no.ntnu.trostespel.config.ServerConnection;
+import no.ntnu.trostespel.entity.Session;
 import no.ntnu.trostespel.networking.ConnectionClient;
 import no.ntnu.trostespel.networking.UserInputManager;
 
@@ -21,8 +22,6 @@ import static no.ntnu.trostespel.config.Assets.img;
 public class TrosteSpel extends Game {
     public SpriteBatch batch;
     public KeyConfig keys;
-    private long playerID;
-
 
     @Override
     public void create() {
@@ -52,9 +51,10 @@ public class TrosteSpel extends Game {
             });
 
             Future<Long> future = executor.submit(connectionThread);
-            playerID = future.get();
+            Session session = Session.getInstance();
+            boolean result = session.setPlayerID(future.get());
 
-            System.out.println("I'm at the end of the method, and my playerID is: " + playerID);
+            System.out.println("I'm at the end of the method, and my playerID is: " + session.getPlayerID());
         } catch (Exception e) {
             e.printStackTrace();
         }
