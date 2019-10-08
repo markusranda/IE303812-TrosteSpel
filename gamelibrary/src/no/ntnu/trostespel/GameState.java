@@ -1,17 +1,15 @@
 package no.ntnu.trostespel;
 
-import no.ntnu.trostespel.entity.GameObject;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-public class GameState <T> {
+public class GameState <P, G> {
 
     public static final int playerSpeed = 100;
 
-    public HashMap<Long, T> players;
-    private List<GameObject> entities;
+    public HashMap<Long, P> players;
+    private List<G> entities;
 
     // static variable single_instance of type Singleton
     private static GameState single_instance = null;
@@ -27,7 +25,7 @@ public class GameState <T> {
         entities = new ArrayList<>();
     }
 
-    public List<GameObject> getEntities() {
+    public List<G> getEntities() {
         return entities;
     }
 }

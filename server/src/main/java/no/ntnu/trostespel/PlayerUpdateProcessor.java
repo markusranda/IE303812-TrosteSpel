@@ -2,7 +2,6 @@ package no.ntnu.trostespel;
 
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Queue;
-import com.sun.org.apache.xpath.internal.operations.Bool;
 
 import java.util.concurrent.Callable;
 
@@ -11,13 +10,15 @@ public class PlayerUpdateProcessor implements Callable {
     private Queue<PlayerActions> actions;
     private long startTime;
     private long delta;
-
+    private long pid;
     private Vector2 displacement;
+    private PlayerStateChange playerState;
 
 
     public PlayerUpdateProcessor(Queue<PlayerActions> actions, long startTime) {
         this.actions = actions;
         this.startTime = startTime;
+        this.playerState = new PlayerStateChange();
     }
 
     @Override
@@ -25,14 +26,13 @@ public class PlayerUpdateProcessor implements Callable {
         displacement = new Vector2();
         delta = startTime - System.currentTimeMillis();
         PlayerActions action = actions.removeFirst();
-
+        pid = actions.get(0).pid;
         while (actions.notEmpty()) {
             processActionButtons(action);
             processMovement(action);
             processAttack(action);
         }
 
-        // sendUpdate();
         return true;
     }
 
@@ -79,5 +79,11 @@ public class PlayerUpdateProcessor implements Callable {
                 displacement.y += -GameState.playerSpeed;
             }
         }
+        playerState.setDisplacement(displacement);
+    }
+
+    private void updateGameState() {
+        GameState gameState = GameState.getInstance();
+        gameState.players.put(pid, playerState);
     }
 }
