@@ -36,6 +36,8 @@ public class TCPServer implements Runnable {
             System.out.println("Message sent to the client is " + response);
             bw.flush();
 
+            Connection connection = new Connection(client.getInetAddress(), Long.parseLong(response));
+            Connections.getInstance().setConnections(connection);
             client.close();
         } catch (IOException io) {
             run();

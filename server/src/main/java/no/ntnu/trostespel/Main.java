@@ -10,6 +10,9 @@ public class Main {
     public static void main(String[] args) throws Exception {
         UDPServer UDPClient = new UDPServer(7080);
         TCPServer TCPClient = new TCPServer(7083);
+
+        Connections.getInstance();
+
         Thread t1 = new Thread(UDPClient);
         Thread t2 = new Thread(TCPClient);
         t1.setName("TCPClient");
