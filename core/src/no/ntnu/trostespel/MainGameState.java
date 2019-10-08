@@ -4,16 +4,20 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import no.ntnu.trostespel.config.Assets;
 import no.ntnu.trostespel.config.KeyConfig;
+import no.ntnu.trostespel.config.ServerConnection;
 import no.ntnu.trostespel.controller.NetworkedPlayerController;
 import no.ntnu.trostespel.controller.ObjectController;
 import no.ntnu.trostespel.entity.Player;
+import no.ntnu.trostespel.networking.ServerTalker;
 import no.ntnu.trostespel.networking.UserInputManager;
 
 import java.io.IOException;
+import java.security.Key;
 
 public class MainGameState extends ScreenAdapter {
 
@@ -22,7 +26,8 @@ public class MainGameState extends ScreenAdapter {
     Rectangle lemur;
     private OrthographicCamera camera;
 
-
+    private boolean debug = false;
+    BitmapFont font = new BitmapFont();
     private float velocity = 6f;
 
     private Player player;
@@ -42,10 +47,14 @@ public class MainGameState extends ScreenAdapter {
         camera = new OrthographicCamera();
         camera.setToOrtho(false, 800, 480);
 
+        new ServerTalker();
         //
     }
 
     private void update(float delta) {
+        if (Gdx.input.isKeyPressed(KeyConfig.toggleDebug)) {
+            debug = true;
+        }
         player.update(delta);
     }
 
@@ -55,6 +64,10 @@ public class MainGameState extends ScreenAdapter {
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
         game.batch.setProjectionMatrix(camera.combined);
         player.draw(game.batch);
+        if (debug) {
+            font.draw(game.batch, "Host: " + ServerConnection.host +":"+ServerConnection.port, 10, 10);
+            font.draw(game.batch, "Tickrate " + ServerConfig.TICKRATE, 10, 20);
+        }
         game.batch.end();
     }
 

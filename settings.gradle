@@ -1,1 +1,3 @@
-include 'desktop', 'ios', 'core', 'gamelibrary', 'server'
+rootProject.name = 'IE303812-TrosteSpel'
+
+include 'desktop', 'core', 'gamelibrary', 'server'

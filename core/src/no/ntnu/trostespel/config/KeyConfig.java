@@ -14,7 +14,7 @@ public class KeyConfig extends PlayerKeyConfig {
     public int vsync;
 
     //---debug menu controls---
-    public int toggleDebug;
+    public static int toggleDebug;
     public int togglePos;
     public int toggleComponents;
     public int toggleBounds;
