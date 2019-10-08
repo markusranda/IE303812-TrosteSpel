@@ -25,12 +25,14 @@ public class UserInputManager {
         model = new PlayerActions();
         Gson gson = new Gson();
         String jsonStr = gson.toJson(model);
-        length  = jsonStr.getBytes().length;
+        length = jsonStr.getBytes().length;
         this.socket = socket;
         packet = new DatagramPacket(jsonStr.getBytes(), length, ServerConnection.host, ServerConnection.port);
     }
 
-
+    public void setPid(long pid) {
+        model.pid = pid;
+    }
 
     public void sendInput() {
         model.isup = Gdx.input.isKeyPressed(KeyConfig.up);

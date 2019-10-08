@@ -13,11 +13,6 @@ import no.ntnu.trostespel.config.ServerConnection;
 import no.ntnu.trostespel.controller.NetworkedPlayerController;
 import no.ntnu.trostespel.controller.ObjectController;
 import no.ntnu.trostespel.entity.Player;
-import no.ntnu.trostespel.networking.ServerTalker;
-import no.ntnu.trostespel.networking.UserInputManager;
-
-import java.io.IOException;
-import java.security.Key;
 
 public class MainGameState extends ScreenAdapter {
 
@@ -46,8 +41,6 @@ public class MainGameState extends ScreenAdapter {
         // init camera
         camera = new OrthographicCamera();
         camera.setToOrtho(false, 800, 480);
-
-        new ServerTalker();
         //
     }
 

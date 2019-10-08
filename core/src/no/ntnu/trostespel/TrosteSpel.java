@@ -44,7 +44,7 @@ public class TrosteSpel extends Game {
             Future<Long> future = executor.submit(connectionThread);
             long playerId = future.get();
             // If no error codes were returned from the connection, go ahead and send data
-            if (playerId > 0) new ServerTalker();
+            if (playerId > 0) new ServerTalker(playerId);
 
             Session session = Session.getInstance();
             boolean result = session.setPlayerID(playerId);

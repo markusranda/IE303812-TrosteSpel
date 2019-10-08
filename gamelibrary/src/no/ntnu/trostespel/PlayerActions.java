@@ -7,8 +7,7 @@ import java.util.Random;
  */
 public class PlayerActions {
 
-    //TODO: get generated PID from server
-    public int pid = 0;
+    public long pid = -1;
     public boolean isup = false;
     public boolean isright = false;
     public boolean isleft = false;

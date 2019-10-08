@@ -15,7 +15,7 @@ public class ServerTalker {
     private DatagramSocket socket;
     private Runnable emitter;
 
-    public ServerTalker() {
+    public ServerTalker(long pid) {
         ticker = Executors.newSingleThreadScheduledExecutor();
         this.emitter = emitter();
         try {
@@ -24,11 +24,20 @@ public class ServerTalker {
             e.printStackTrace();
         }
         manager = new UserInputManager(socket);
-        run();
+        manager.setPid(pid);
     }
 
-    private void run(){
-        ticker.scheduleAtFixedRate(emitter, 0, 100000 / ServerConfig.TICKRATE, TimeUnit.MICROSECONDS);
+    public void run(){
+        if (ticker.isTerminated()) {
+            ticker.scheduleAtFixedRate(emitter, 0, 100000 / ServerConfig.TICKRATE, TimeUnit.MICROSECONDS);
+        }
+    }
+
+
+    public void stop() {
+        if (!ticker.isTerminated()) {
+            ticker.shutdown();
+        }
     }
 
     private Runnable emitter() {
