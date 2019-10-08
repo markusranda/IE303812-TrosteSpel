@@ -25,7 +25,7 @@ public class DummyServerTalker {
 
     private void run(){
         ticker = Executors.newSingleThreadScheduledExecutor();
-        ticker.scheduleAtFixedRate(emitter, 0, 100000 / ServerConfig.TICKRATE, TimeUnit.MICROSECONDS);
+        ticker.scheduleAtFixedRate(emitter, 0, 1000000 / ServerConfig.TICKRATE, TimeUnit.MICROSECONDS);
     }
 
     private Runnable getEmitter() {

@@ -19,11 +19,13 @@ public class PlayerUpdateDispatcher {
     private ExecutorService processors;
     private Runnable dispatcher;
 
+    private long startTime = 0;
+
 
     public PlayerUpdateDispatcher() {
-        this.players = new HashMap<>();
+        this.players = new ConcurrentHashMap<>();
         this.processors = Executors.newCachedThreadPool();
-        this.dispatcher = dispatcher();
+        this.dispatcher = getDispatcher();
         run();
     }
 
@@ -41,7 +43,7 @@ public class PlayerUpdateDispatcher {
                     Queue<PlayerActions> queue = new Queue<PlayerActions>();
                     queue.addFirst(actions);
                     players.put(pid, queue);
-                } else {
+                } else if (players.containsKey(pid)) {
                     players.get(pid).addLast(actions);
                 }
             } catch (Exception e) {
@@ -58,14 +60,21 @@ public class PlayerUpdateDispatcher {
         //TODO: BLOCK "players" when dispatching
         gateKeeper = Executors.newSingleThreadScheduledExecutor();
         System.out.println(10000 / ServerConfig.TICKRATE);
-        gateKeeper.scheduleAtFixedRate(dispatcher, 0, 100000 / ServerConfig.TICKRATE, TimeUnit.MICROSECONDS);
-
+        gateKeeper.scheduleAtFixedRate(dispatcher, 0, 1000000 / ServerConfig.TICKRATE, TimeUnit.MICROSECONDS);
     }
 
-    private Runnable dispatcher() {
+    private int count = 0;
+    private int period = 300;
+    private Runnable getDispatcher() {
         return () -> {
+            /*count++;
+            if (count >= period) {
+                count = 0;
+                long time = System.currentTimeMillis() - startTime;
+                System.out.println("dispatched " + time / period);
+                startTime = System.currentTimeMillis();
+            }*/
             try {
-                long startTime = System.currentTimeMillis();
                 Iterator<Map.Entry<Long, Queue<PlayerActions>>> it = players.entrySet().iterator();
                 while (it.hasNext()) {
                     Map.Entry<Long, Queue<PlayerActions>> actions = it.next();
@@ -75,6 +84,7 @@ public class PlayerUpdateDispatcher {
             } catch (ConcurrentModificationException e) {
                 e.printStackTrace();
             }
+
         };
     }
 }

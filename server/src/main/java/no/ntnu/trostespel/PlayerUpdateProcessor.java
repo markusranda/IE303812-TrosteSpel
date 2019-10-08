@@ -2,8 +2,11 @@ package no.ntnu.trostespel;
 
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Queue;
+import com.sun.org.apache.xpath.internal.operations.Bool;
 
-public class PlayerUpdateProcessor implements Runnable {
+import java.util.concurrent.Callable;
+
+public class PlayerUpdateProcessor implements Callable {
 
     private Queue<PlayerActions> actions;
     private long startTime;
@@ -11,13 +14,14 @@ public class PlayerUpdateProcessor implements Runnable {
 
     private Vector2 displacement;
 
+
     public PlayerUpdateProcessor(Queue<PlayerActions> actions, long startTime) {
         this.actions = actions;
         this.startTime = startTime;
     }
 
     @Override
-    public void run() {
+    public Boolean call() {
         displacement = new Vector2();
         delta = startTime - System.currentTimeMillis();
         PlayerActions action = actions.removeFirst();
@@ -29,6 +33,7 @@ public class PlayerUpdateProcessor implements Runnable {
         }
 
         // sendUpdate();
+        return true;
     }
 
     private void processAttack(PlayerActions action) {
