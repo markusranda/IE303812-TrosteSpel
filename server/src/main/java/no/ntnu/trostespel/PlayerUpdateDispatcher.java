@@ -1,8 +1,8 @@
 package no.ntnu.trostespel;
 
 
-import com.badlogic.gdx.utils.ObjectMap;
 import com.badlogic.gdx.utils.Queue;
+import no.ntnu.trostespel.config.ServerConfig;
 
 import java.util.*;
 import java.util.concurrent.*;

@@ -1,4 +1,4 @@
-package no.ntnu.trostespel;
+package no.ntnu.trostespel.config;
 
 import java.io.*;
 import java.net.InetAddress;

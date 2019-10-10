@@ -1,7 +1,7 @@
 package helper;
 
 import no.ntnu.trostespel.PlayerUpdateDispatcher;
-import no.ntnu.trostespel.ServerConfig;
+import no.ntnu.trostespel.config.ServerConfig;
 
 import java.net.DatagramSocket;
 import java.util.concurrent.Executors;

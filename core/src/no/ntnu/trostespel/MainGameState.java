@@ -9,6 +9,7 @@ import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import no.ntnu.trostespel.config.Assets;
 import no.ntnu.trostespel.config.KeyConfig;
+import no.ntnu.trostespel.config.ServerConfig;
 import no.ntnu.trostespel.config.ServerConnection;
 import no.ntnu.trostespel.controller.NetworkedPlayerController;
 import no.ntnu.trostespel.controller.ObjectController;

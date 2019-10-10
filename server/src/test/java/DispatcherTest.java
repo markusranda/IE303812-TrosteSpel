@@ -1,10 +1,8 @@
 import helper.DummyServerTalker;
 import helper.DummyUserInputManager;
 import no.ntnu.trostespel.PlayerUpdateDispatcher;
-import no.ntnu.trostespel.ServerConfig;
 import org.junit.Before;
 import org.junit.Test;
-import org.lwjgl.Sys;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executors;
