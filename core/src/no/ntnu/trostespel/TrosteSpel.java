@@ -32,6 +32,9 @@ public class TrosteSpel extends Game {
         batch = new SpriteBatch();
         setScreen(new MainGameState(this));
 
+        // TODO: 11.10.2019 Ask the user for username, don't use static String.
+        String username = "LemuriumIntegrale";
+
         // Connect to server
         try {
             ExecutorService executor = Executors.newSingleThreadExecutor();
@@ -39,8 +42,6 @@ public class TrosteSpel extends Game {
             ConnectionClient connectionClient = new ConnectionClient(
                     ConnectionConfig.host,
                     ConnectionConfig.SERVER_TCP_CONNECTION_RECEIVE_PORT);
-            // TODO: 11.10.2019 Ask the user for username, don't use static String.
-            String username = "LemuriumIntegrale";
 
             Callable<Long> connectionThread = () -> connectionClient.initialConnect(username);
 
