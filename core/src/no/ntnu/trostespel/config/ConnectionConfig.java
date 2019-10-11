@@ -38,7 +38,7 @@ public class ConnectionConfig {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        String savedHost= props.getProperty("host");
+        String savedHost = props.getProperty("host");
         if (savedHost.equals("localhost")) {
             try {
                 host = InetAddress.getLocalHost();
@@ -53,10 +53,10 @@ public class ConnectionConfig {
             }
         }
         try {
-            SERVER_UDP_GAMEDATA_RECEIVE_PORT = (int) props.get("SERVER_UDP_GAMEDATA_RECEIVE_PORT");
-            SERVER_TCP_CONNECTION_RECEIVE_PORT = (int) props.get("SERVER_TCP_CONNECTION_RECEIVE_PORT");
-            CLIENT_UDP_GAMEDATA_RECEIVE_PORT = (int) props.get("CLIENT_UDP_GAMEDATA_RECEIVE_PORT");
-            CLIENT_TCP_CONNECTION_RECEIVE_PORT = (int) props.get("CLIENT_TCP_CONNECTION_RECEIVE_PORT");
+            SERVER_UDP_GAMEDATA_RECEIVE_PORT = Integer.parseInt((String) props.get("SERVER_UDP_GAMEDATA_RECEIVE_PORT"));
+            SERVER_TCP_CONNECTION_RECEIVE_PORT = Integer.parseInt((String) props.get("SERVER_TCP_CONNECTION_RECEIVE_PORT"));
+            CLIENT_UDP_GAMEDATA_RECEIVE_PORT = Integer.parseInt((String) props.get("CLIENT_UDP_GAMEDATA_RECEIVE_PORT"));
+            CLIENT_TCP_CONNECTION_RECEIVE_PORT = Integer.parseInt((String) props.get("CLIENT_TCP_CONNECTION_RECEIVE_PORT"));
         } catch (ClassCastException e) {
             e.printStackTrace();
         }
