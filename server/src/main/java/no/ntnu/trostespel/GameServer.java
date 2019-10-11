@@ -1,8 +1,8 @@
 package no.ntnu.trostespel;
 
-import com.badlogic.gdx.utils.Json;
 import com.google.gson.Gson;
-import no.ntnu.trostespel.config.ServerConnection;
+import no.ntnu.trostespel.model.Connection;
+import no.ntnu.trostespel.model.Connections;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
@@ -40,24 +40,33 @@ class GameServer {
 
         // Send GameState to all connections
         for (Connection con : connections) {
-            submitGameState(json, con);
+            Runnable runnable = submitGameState(json, con);
+            runnable.run();
         }
     }
 
     /**
-     * Submits the GameState to all listening connections to the server
+     * Creates a new runnable with a game state and connection to send it to
      *
-     * @param json The GameState as json string
-     * @param con  The receiving connection
+     * @param json The Game State
+     * @param connection The Connection
+     * @return Returns a runnable
      */
-    private void submitGameState(String json, Connection con) {
-        try {
-            DatagramSocket socket = new DatagramSocket();
-            DatagramPacket packet = new DatagramPacket(json.getBytes(),
-                    json.getBytes().length, con.getAddress(), 7080);
-            socket.send(packet);
-        } catch (IOException ie) {
-            ie.printStackTrace();
-        }
+    private Runnable submitGameState(String json, Connection connection) {
+        return () -> {
+            DatagramPacket packet = new DatagramPacket(
+                    json.getBytes(),
+                    json.getBytes().length,
+                    connection.getAddress(),
+                    Connection.GAME_DATA_RETRIEVE_PORT);
+
+            packet.setData(json.getBytes());
+            try {
+                DatagramSocket socket = new DatagramSocket();
+                socket.send(packet);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        };
     }
 }
