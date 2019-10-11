@@ -1,4 +1,4 @@
-package no.ntnu.trostespel;
+package no.ntnu.trostespel.model;
 
 import java.net.InetAddress;
 

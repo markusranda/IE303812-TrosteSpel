@@ -1,4 +1,4 @@
-package no.ntnu.trostespel;
+package no.ntnu.trostespel.model;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,7 +21,7 @@ public class Connections {
         connections = new ArrayList<>();
     }
 
-    List<Connection> getConnections() {
+    public List<Connection> getConnections() {
         return connections;
     }
 
