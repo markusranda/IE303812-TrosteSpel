@@ -59,7 +59,7 @@ public class MainGameState extends ScreenAdapter {
         game.batch.setProjectionMatrix(camera.combined);
         player.draw(game.batch);
         if (debug) {
-            font.draw(game.batch, "Host: " + ConnectionConfig.host +":"+ ConnectionConfig.port, 10, 10);
+            font.draw(game.batch, "Host: " + ConnectionConfig.host +":"+ ConnectionConfig.SERVER_UDP_GAMEDATA_RECEIVE_PORT, 10, 10);
             font.draw(game.batch, "Tickrate " + ServerConfig.TICKRATE, 10, 20);
         }
         game.batch.end();

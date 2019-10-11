@@ -34,7 +34,7 @@ public class ConnectionConfig {
     private void loadDefault() {
         props = new Properties();
         try {
-            props.load(new FileReader(Gdx.files.getLocalStoragePath() + File.separator + "server.properties"));
+            props.load(new FileReader("server.properties"));
         } catch (IOException e) {
             e.printStackTrace();
         }
