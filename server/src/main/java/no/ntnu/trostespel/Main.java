@@ -16,13 +16,9 @@ public class Main {
         Thread t2 = new Thread(TCPClient);
         t1.setName("TCPClient");
         t2.setName("UDPClient");
-        t1.start();
+        //t1.start();
         t2.start();
 
-        retrieveAndSend();
-    }
-
-    private static void retrieveAndSend() {
-        // TODO: 08.10.2019 Add the retrieving and sending of Game State implementation here
+        new GameServer();
     }
 }
