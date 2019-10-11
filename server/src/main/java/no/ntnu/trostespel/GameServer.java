@@ -64,6 +64,7 @@ class GameServer {
             try {
                 DatagramSocket socket = new DatagramSocket();
                 socket.send(packet);
+                socket.close();
             } catch (IOException e) {
                 e.printStackTrace();
             }

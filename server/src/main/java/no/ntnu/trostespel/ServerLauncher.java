@@ -6,7 +6,7 @@ import java.io.InputStreamReader;
 import java.net.ServerSocket;
 import java.net.Socket;
 
-public class Main {
+public class ServerLauncher {
 
     public static void main(String[] args) throws Exception {
         UDPServer UDPClient = new UDPServer(7080);
@@ -16,8 +16,8 @@ public class Main {
         Thread t2 = new Thread(TCPClient);
         t1.setName("TCPClient");
         t2.setName("UDPClient");
-        //t1.start();
-        t2.start();
+        t1.start();
+        //t2.start();
 
         new GameServer();
     }
