@@ -10,7 +10,7 @@ import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 
-public class UDPServer implements Runnable {
+public class GameDataReceiver implements Runnable {
     private DatagramSocket udpSocket;
     private long counter = 0;
     private long t = 0;
@@ -18,7 +18,7 @@ public class UDPServer implements Runnable {
     private Gson gson;
 
 
-    public UDPServer(int port) throws IOException {
+    public GameDataReceiver(int port) throws IOException {
         this.udpSocket = new DatagramSocket(port);
         this.gson = new Gson();
     }

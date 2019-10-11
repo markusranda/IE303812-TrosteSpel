@@ -11,11 +11,11 @@ import java.net.Socket;
 
 // TODO: 11.10.2019 This class should contain some sort of threadpool with a fixed size to handle all connection requests.
 
-public class TCPServer implements Runnable {
+public class ConnectionManager implements Runnable {
 
     private ServerSocket server;
 
-    public TCPServer(int port) throws Exception {
+    public ConnectionManager(int port) throws Exception {
         this.server = new ServerSocket(port, 1, null);
     }
 
