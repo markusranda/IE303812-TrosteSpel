@@ -1,6 +1,7 @@
 package no.ntnu.trostespel;
 
 import com.google.gson.Gson;
+import no.ntnu.trostespel.config.ConnectionConfig;
 import no.ntnu.trostespel.model.Connection;
 import no.ntnu.trostespel.model.Connections;
 
@@ -58,7 +59,7 @@ class GameServer {
                     json.getBytes(),
                     json.getBytes().length,
                     connection.getAddress(),
-                    Connection.GAME_DATA_RETRIEVE_PORT);
+                    ConnectionConfig.CLIENT_UDP_GAMEDATA_RECEIVE_PORT);
 
             packet.setData(json.getBytes());
             try {

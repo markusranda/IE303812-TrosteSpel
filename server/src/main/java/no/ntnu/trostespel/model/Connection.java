@@ -4,7 +4,6 @@ import java.net.InetAddress;
 
 public class Connection {
 
-    public static final int GAME_DATA_RETRIEVE_PORT = 8090;
     private InetAddress address;
     private long playerId;
 

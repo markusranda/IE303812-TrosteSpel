@@ -4,7 +4,7 @@ import com.badlogic.gdx.Gdx;
 import com.google.gson.Gson;
 import no.ntnu.trostespel.PlayerActions;
 import no.ntnu.trostespel.config.KeyConfig;
-import no.ntnu.trostespel.config.ServerConnection;
+import no.ntnu.trostespel.config.ConnectionConfig;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
@@ -25,9 +25,12 @@ public class UserInputManager {
         model = new PlayerActions();
         Gson gson = new Gson();
         String jsonStr = gson.toJson(model);
-        length = jsonStr.getBytes().length;
         this.socket = socket;
-        packet = new DatagramPacket(jsonStr.getBytes(), length, ServerConnection.host, ServerConnection.port);
+        packet = new DatagramPacket(
+                jsonStr.getBytes(),
+                jsonStr.getBytes().length,
+                ConnectionConfig.host,
+                ConnectionConfig.SERVER_UDP_GAMEDATA_RECEIVE_PORT);
     }
 
     public void setPid(long pid) {
