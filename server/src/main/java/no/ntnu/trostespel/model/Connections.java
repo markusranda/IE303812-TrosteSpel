@@ -25,7 +25,7 @@ public class Connections {
         return connections;
     }
 
-    void setConnections(Connection connection) {
+    public void setConnections(Connection connection) {
         getConnections().add(connection);
         System.out.println("New connection added: " + connection.getAddress() + " - " + connection.getPlayerId());
     }

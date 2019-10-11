@@ -1,9 +1,15 @@
 package no.ntnu.trostespel;
 
+import no.ntnu.trostespel.model.Connection;
+import no.ntnu.trostespel.model.Connections;
+
 import java.io.*;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
+
+
+// TODO: 11.10.2019 This class should contain some sort of threadpool with a fixed size to handle all connection requests.
 
 public class TCPServer implements Runnable {
 
