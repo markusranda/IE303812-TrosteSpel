@@ -1,5 +1,8 @@
 package no.ntnu.trostespel;
 
+import no.ntnu.trostespel.state.MovableState;
+import no.ntnu.trostespel.state.PlayerState;
+
 import java.util.ArrayList;
 
 public class CircularArrayList<E> extends ArrayList<E> {
@@ -11,6 +14,14 @@ public class CircularArrayList<E> extends ArrayList<E> {
 
     public CircularArrayList(int maxSize) {
         this.maxSize = maxSize;
+        for (int i = 0; i < maxSize; i++) {
+            GameState gameState = null;
+            this.add((E) gameState);
+        }
+    }
+
+    public int getCurrentIndex() {
+        return currentIndex;
     }
 
     public void setAtCurrent(E e) {
@@ -18,20 +29,23 @@ public class CircularArrayList<E> extends ArrayList<E> {
     }
 
     public Object getCurrent() {
-        if (firstRun) {
-            firstRun = false;
-            return null;
-        }
         return get(currentIndex);
     }
 
-    public Object getNext() {
-        Object obj = this.get(currentIndex);
+    public boolean isFirstRun() {
+        return firstRun;
+    }
+
+    public void setFirstRun(boolean firstRun) {
+        this.firstRun = firstRun;
+    }
+
+    public void incrementCursor() {
         if (currentIndex == maxSize - 1) {
             currentIndex = 0;
         } else {
             currentIndex++;
         }
-        return obj;
     }
+
 }

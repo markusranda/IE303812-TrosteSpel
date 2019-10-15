@@ -6,6 +6,8 @@ import no.ntnu.trostespel.config.ServerConfig;
 import no.ntnu.trostespel.game.MasterGameState;
 import no.ntnu.trostespel.model.Connection;
 import no.ntnu.trostespel.model.Connections;
+import no.ntnu.trostespel.state.MovableState;
+import no.ntnu.trostespel.state.PlayerState;
 import org.javers.core.Javers;
 import org.javers.core.JaversBuilder;
 import org.javers.core.diff.Diff;
@@ -87,26 +89,51 @@ class GameServer {
      * @return Returns a runnable
      */
     private Runnable submitGameState(Connection connection) {
-
-        // Compare previous snapshot to MainGameState
-        /*GameState prevGameState = (GameState) connection.getSnapshotArray().getCurrent();
-        if (prevGameState == null) {
-            prevGameState = dummySnapshot;
-        }
-        Diff diff = javers.compare(prevGameState, nextGameState);
-
-        // Save the next GameState to SnapshotArray
-        //connection.getSnapshotArray().setAtCurrent(nextGameState);
-
-        // Send the difference
-        String json = javers.getJsonConverter().toJson(diff);*/
-
-        //TODO: Remove this when snapshots work
-        Gson gson = new Gson();
-        GameState nextGameState = masterGameState.getGameState();
-        String json = gson.toJson(nextGameState);
-
         return () -> {
+            // Compare previous snapshot to MainGameState
+            GameState prevGameState = (GameState) connection.getSnapshotArray().getCurrent();
+            GameState nextGameState = masterGameState.getGameState();
+
+            String json;
+            // Populate json string with MasterGameState or the difference
+            if (connection.getSnapshotArray().isFirstRun()) {
+                // If it is the first run
+                // Just send everything
+                json = javers.getJsonConverter().toJson(nextGameState);
+
+                // Save MasterGameState to history
+                connection.getSnapshotArray().setAtCurrent(nextGameState);
+                connection.getSnapshotArray().setFirstRun(false);
+            } else {
+
+                // Move cursor forward , and save the MasterGameState to history
+                connection.getSnapshotArray().incrementCursor();
+                connection.getSnapshotArray().setAtCurrent(nextGameState);
+
+                // Check if the current is ack
+                if (((GameState) connection.getSnapshotArray().getCurrent()).isAck()) {
+
+                    // Send the difference between
+                    Diff diff = javers.compare(prevGameState, nextGameState);
+                    json = javers.getJsonConverter().toJson(diff);
+                } else {
+                    // try every snapshot until receiving finding one with ack,
+                    // and if we run out of elements to check, just send everything.
+                    json = javers.getJsonConverter().toJson(nextGameState);
+
+                    for (int i = connection.getSnapshotArray().getCurrentIndex(); i >= 0 ; i--) {
+                        GameState gameState = (GameState) connection.getSnapshotArray().get(i);
+                        if (gameState.isAck()) {
+                            prevGameState = gameState;
+                            Diff diff = javers.compare(prevGameState, nextGameState);
+                            json = javers.getJsonConverter().toJson(diff);
+                            break;
+                        }
+                    }
+                }
+            }
+
+            // Try to send the packet over the network
             DatagramPacket packet = new DatagramPacket(
                     json.getBytes(),
                     json.getBytes().length,
