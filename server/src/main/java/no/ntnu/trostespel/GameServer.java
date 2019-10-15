@@ -31,6 +31,7 @@ class GameServer {
     GameServer() {
 
         // TODO: 15.10.2019 initialize masterGameState
+        masterGameState = new MasterGameState(new GameState());
 
         javers = JaversBuilder.javers()
                 .withListCompareAlgorithm(LEVENSHTEIN_DISTANCE)
@@ -38,6 +39,7 @@ class GameServer {
 
         System.out.println("Server is ready to handle incoming connections!");
         while (time_passed >= time_per_timestep) {
+
 
             if (!connections.isEmpty()) {
                 update();
@@ -71,7 +73,7 @@ class GameServer {
 
         // Compare previous snapshot to MainGameState
         GameState prevGameState = (GameState) connection.getSnapshotArray().getPrevious();
-        GameState nextGameState = masterGameState.getGameState();
+        GameState nextGameState = masterGameState;
         Diff diff = javers.compare(prevGameState, nextGameState);
 
         // Save the next GameState to SnapshotArray
