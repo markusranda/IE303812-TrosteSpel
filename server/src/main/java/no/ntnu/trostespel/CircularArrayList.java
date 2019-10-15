@@ -7,24 +7,22 @@ public class CircularArrayList<E> extends ArrayList<E> {
 
     private int currentIndex = 0;
     private final int maxSize;
-    private final GameState dummySnapshot;
+    private boolean firstRun = true;
 
     public CircularArrayList(int maxSize) {
         this.maxSize = maxSize;
-        // TODO: 15.10.2019 Create a dummySnapshot with only empty values
-        dummySnapshot = null;
     }
 
     public void setAtCurrent(E e) {
         this.set(currentIndex, e);
     }
 
-    public Object getPrevious() {
-        if (currentIndex == 0) {
-            return dummySnapshot;
-        } else {
-            return this.get(currentIndex - 1);
+    public Object getCurrent() {
+        if (firstRun) {
+            firstRun = false;
+            return null;
         }
+        return get(currentIndex);
     }
 
     public Object getNext() {

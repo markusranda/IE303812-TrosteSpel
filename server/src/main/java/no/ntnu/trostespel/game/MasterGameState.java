@@ -2,6 +2,7 @@ package no.ntnu.trostespel.game;
 
 import com.badlogic.gdx.math.Vector2;
 import no.ntnu.trostespel.GameState;
+import no.ntnu.trostespel.model.Connections;
 import no.ntnu.trostespel.state.MovableState;
 import no.ntnu.trostespel.state.PlayerState;
 import no.ntnu.trostespel.entity.GameObject;
@@ -10,7 +11,16 @@ public class MasterGameState {
 
     private GameState<PlayerState, GameObject, MovableState> gameState;
 
-    public MasterGameState(GameState gameState) {
+    private static MasterGameState single_instance = null;
+
+    public static MasterGameState getInstance() {
+        if (single_instance == null) {
+            single_instance = new MasterGameState(new GameState());
+        }
+        return single_instance;
+    }
+
+    private MasterGameState(GameState gameState) {
         this.gameState = gameState;
     }
 

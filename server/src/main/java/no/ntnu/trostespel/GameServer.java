@@ -22,6 +22,7 @@ import static org.javers.core.diff.ListCompareAlgorithm.LEVENSHTEIN_DISTANCE;
 class GameServer {
 
 
+    private final GameState dummySnapshot;
     private List<Connection> connections = Connections.getInstance().getConnections();
     private double time_passed = System.currentTimeMillis();
     private double time_per_timestep = ServerConfig.TICKRATE;
@@ -30,8 +31,12 @@ class GameServer {
 
     GameServer() {
 
+        // TODO: 15.10.2019 Create a dummySnapshot with only empty values
+        dummySnapshot = null;
+
+
         // TODO: 15.10.2019 initialize masterGameState
-        masterGameState = new MasterGameState(new GameState());
+        masterGameState = MasterGameState.getInstance();
 
         javers = JaversBuilder.javers()
                 .withListCompareAlgorithm(LEVENSHTEIN_DISTANCE)
@@ -72,8 +77,11 @@ class GameServer {
     private Runnable submitGameState(Connection connection) {
 
         // Compare previous snapshot to MainGameState
-        GameState prevGameState = (GameState) connection.getSnapshotArray().getPrevious();
-        GameState nextGameState = masterGameState;
+        GameState prevGameState = (GameState) connection.getSnapshotArray().getCurrent();
+        if (prevGameState == null) {
+            prevGameState = dummySnapshot;
+        }
+        GameState nextGameState = masterGameState.getGameState();
         Diff diff = javers.compare(prevGameState, nextGameState);
 
         // Save the next GameState to SnapshotArray
