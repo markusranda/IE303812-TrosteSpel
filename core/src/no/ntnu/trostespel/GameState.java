@@ -10,22 +10,21 @@ public class GameState <P, G> {
 
     public HashMap<Long, P> players;
     private List<G> entities;
+    private boolean ack = false;
 
-    // static variable single_instance of type Singleton
-    private static GameState single_instance = null;
-
-    public static GameState getInstance() {
-        if (single_instance == null) {
-            single_instance = new GameState();
-        }
-        return single_instance;
-    }
-
-    private GameState() {
+    public GameState() {
         entities = new ArrayList<>();
     }
 
     public List<G> getEntities() {
         return entities;
+    }
+
+    public boolean isAck() {
+        return ack;
+    }
+
+    public void setAck(boolean ack) {
+        this.ack = ack;
     }
 }
