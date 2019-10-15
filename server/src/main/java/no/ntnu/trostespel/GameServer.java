@@ -2,6 +2,7 @@ package no.ntnu.trostespel;
 
 import no.ntnu.trostespel.config.ConnectionConfig;
 import no.ntnu.trostespel.config.ServerConfig;
+import no.ntnu.trostespel.game.MasterGameState;
 import no.ntnu.trostespel.model.Connection;
 import no.ntnu.trostespel.model.Connections;
 import org.javers.core.Javers;
@@ -70,7 +71,7 @@ class GameServer {
 
         // Compare previous snapshot to MainGameState
         GameState prevGameState = (GameState) connection.getSnapshotArray().getPrevious();
-        GameState nextGameState = masterGameState.read();
+        GameState nextGameState = masterGameState.getGameState();
         Diff diff = javers.compare(prevGameState, nextGameState);
 
         // Save the next GameState to SnapshotArray
