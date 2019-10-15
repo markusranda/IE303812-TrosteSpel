@@ -10,10 +10,8 @@ import no.ntnu.trostespel.networking.ConnectionClient;
 import no.ntnu.trostespel.networking.GameDataReceiver;
 import no.ntnu.trostespel.networking.GameDataTransmitter;
 
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
+import java.net.ConnectException;
+import java.util.concurrent.*;
 
 import static no.ntnu.trostespel.config.Assets.img;
 
@@ -24,6 +22,7 @@ public class TrosteSpel extends Game {
     public SpriteBatch batch;
     public KeyConfig keys;
     private GameDataReceiver gameDataReceiver;
+    private int retryTimer = 1000;
 
     @Override
     public void create() {
@@ -33,6 +32,20 @@ public class TrosteSpel extends Game {
         batch = new SpriteBatch();
         setScreen(new MainGameState(this));
 
+        makeServerConnection();
+    }
+
+    public GameState getReceivedGameState() {
+        return this.gameDataReceiver.getUpdatedGameState();
+    }
+
+    @Override
+    public void dispose() {
+        batch.dispose();
+        img.dispose();
+    }
+
+    private void makeServerConnection(){
         // TODO: 11.10.2019 Ask the user for username, don't use static String.
         String username = "LemuriumIntegrale";
 
@@ -62,17 +75,14 @@ public class TrosteSpel extends Game {
             gameDataReceiverThread.start();
 
         } catch (Exception e) {
-            e.printStackTrace();
+            System.out.println("Connection to server failed... Trying again in " + retryTimer / 1000 + " seconds");
+            CountDownLatch lock = new CountDownLatch(1);
+            try {
+                lock.await(1000, TimeUnit.MILLISECONDS);
+            } catch (InterruptedException ex) {
+                ex.printStackTrace();
+            }
+            makeServerConnection();
         }
-    }
-
-    public GameState getReceivedGameState() {
-        return this.gameDataReceiver.getUpdatedGameState();
-    }
-
-    @Override
-    public void dispose() {
-        batch.dispose();
-        img.dispose();
     }
 }
