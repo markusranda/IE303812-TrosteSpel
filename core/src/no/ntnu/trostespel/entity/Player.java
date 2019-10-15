@@ -16,10 +16,11 @@ public class Player extends Movable {
 
     private static final int FRAME_COLS = 1, FRAME_ROWS = 6;
 
-    public Animation<TextureRegion> run;
+    private Animation<TextureRegion> run;
     private TextureRegion currentFrame;
     private boolean flip = false;
     private Weapon weapon;
+    private int health;
 
     private enum Direction {
         right,
@@ -30,7 +31,7 @@ public class Player extends Movable {
     public Player(Vector2 pos, Texture texture, ObjectController objectController) {
         super(pos, 72, 90, new Rectangle(), texture, objectController);
         initAnimation();
-
+        this.health = 100;
     }
 
     private void initAnimation() {
@@ -73,5 +74,9 @@ public class Player extends Movable {
 
     private Direction getDirection() {
         return displacement.x < 0 ? Direction.left : Direction.right;
+    }
+
+    public void setHealth(int health) {
+        this.health = health;
     }
 }

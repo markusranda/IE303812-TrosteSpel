@@ -23,6 +23,7 @@ import static no.ntnu.trostespel.config.Assets.img;
 public class TrosteSpel extends Game {
     public SpriteBatch batch;
     public KeyConfig keys;
+    private GameDataReceiver gameDataReceiver;
 
     @Override
     public void create() {
@@ -56,7 +57,7 @@ public class TrosteSpel extends Game {
             System.out.println("My playerID is: " + session.getPlayerID());
 
             // listen for updates from server
-            GameDataReceiver gameDataReceiver = new GameDataReceiver();
+            gameDataReceiver = new GameDataReceiver();
             Thread gameDataReceiverThread = new Thread(gameDataReceiver);
             gameDataReceiverThread.start();
 
@@ -65,6 +66,9 @@ public class TrosteSpel extends Game {
         }
     }
 
+    public GameState getReceivedGameState() {
+        return this.gameDataReceiver.getUpdatedGameState();
+    }
 
     @Override
     public void dispose() {

@@ -46,4 +46,8 @@ public abstract class GameObject {
         pos.x += x;
         pos.y += y;
     }
+
+    public void setPos(Vector2 pos) {
+        this.pos = pos;
+    }
 }

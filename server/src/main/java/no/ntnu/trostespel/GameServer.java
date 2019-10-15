@@ -1,5 +1,6 @@
 package no.ntnu.trostespel;
 
+import com.google.gson.Gson;
 import no.ntnu.trostespel.config.ConnectionConfig;
 import no.ntnu.trostespel.config.ServerConfig;
 import no.ntnu.trostespel.game.MasterGameState;
@@ -24,7 +25,8 @@ class GameServer {
 
     private final GameState dummySnapshot;
     private List<Connection> connections = Connections.getInstance().getConnections();
-    private double time_passed = System.currentTimeMillis();
+    private double time_passed = 0;
+    private double tick_start_time = System.currentTimeMillis();
     private double time_per_timestep = ServerConfig.TICKRATE;
     private MasterGameState masterGameState;
     private Javers javers;
@@ -43,16 +45,26 @@ class GameServer {
                 .build();
 
         System.out.println("Server is ready to handle incoming connections!");
-        while (time_passed >= time_per_timestep) {
 
 
-            if (!connections.isEmpty()) {
-                update();
-            } else {
-                System.out.println("Waiting for at least one connection..");
+
+        long tickCounter = 0;
+        long timerCounter = 0;
+        while (true) {
+            if (time_passed >= time_per_timestep) {
+                tick_start_time = System.currentTimeMillis();
+                if (!connections.isEmpty()) {
+                    update();
+                } else {
+                    if (tickCounter >= timerCounter) {
+                        System.out.println("Waiting for at least one connection..");
+                        timerCounter = tickCounter + 1000;
+                    }
+                }
+                tickCounter++;
+                time_passed = 0;
             }
-
-            time_passed -= time_per_timestep;
+            time_passed += System.currentTimeMillis() - tick_start_time;
         }
     }
 
@@ -77,18 +89,22 @@ class GameServer {
     private Runnable submitGameState(Connection connection) {
 
         // Compare previous snapshot to MainGameState
-        GameState prevGameState = (GameState) connection.getSnapshotArray().getCurrent();
+        /*GameState prevGameState = (GameState) connection.getSnapshotArray().getCurrent();
         if (prevGameState == null) {
             prevGameState = dummySnapshot;
         }
-        GameState nextGameState = masterGameState.getGameState();
         Diff diff = javers.compare(prevGameState, nextGameState);
 
         // Save the next GameState to SnapshotArray
-        connection.getSnapshotArray().setAtCurrent(nextGameState);
+        //connection.getSnapshotArray().setAtCurrent(nextGameState);
 
         // Send the difference
-        String json = javers.getJsonConverter().toJson(diff);
+        String json = javers.getJsonConverter().toJson(diff);*/
+
+        //TODO: Remove this when snapshots work
+        Gson gson = new Gson();
+        GameState nextGameState = masterGameState.getGameState();
+        String json = gson.toJson(nextGameState);
 
         return () -> {
             DatagramPacket packet = new DatagramPacket(

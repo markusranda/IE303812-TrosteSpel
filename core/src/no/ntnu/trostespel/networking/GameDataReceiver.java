@@ -1,10 +1,13 @@
 package no.ntnu.trostespel.networking;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.stream.JsonReader;
 import no.ntnu.trostespel.Direction;
 import no.ntnu.trostespel.GameState;
 
 import java.io.IOException;
+import java.io.StringReader;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.SocketException;
@@ -15,6 +18,9 @@ import static no.ntnu.trostespel.config.ConnectionConfig.CLIENT_UDP_GAMEDATA_REC
  * Listens for updates from server, and applies them to this GameState
  */
 public class GameDataReceiver implements Runnable {
+
+    GameState updatedGameState = new GameState();
+    Gson gson = new Gson();
 
     @Override
     public void run() {
@@ -35,12 +41,19 @@ public class GameDataReceiver implements Runnable {
                 e.printStackTrace();
             }
 
-            String json = new String(packet.getData());
-            Gson gson = new Gson();
-//            GameState gameState = gson.fromJson(json, GameState.class);
+            String data = new String(packet.getData());
+            StringReader sr = new StringReader(data);
+            JsonReader reader = new JsonReader(sr);
+            reader.setLenient(true);
+            updatedGameState = gson.fromJson(reader, GameState.class);
 //          TODO: 11.10.2019 Apply this new GameState, instead of just printing it
 //            System.out.print(gameState.getEntities());
-            System.out.println(json);
+            System.out.println(updatedGameState.toString());
+            System.out.println(data);
         }
+    }
+
+    public GameState getUpdatedGameState() {
+        return this.updatedGameState;
     }
 }
