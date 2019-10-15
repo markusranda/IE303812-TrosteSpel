@@ -69,6 +69,7 @@ project(":server") {
         compile group: 'com.google.code.gson', name: 'gson', version: '2.7'
         api "com.badlogicgames.gdx:gdx:$gdxVersion"
         api "com.badlogicgames.gdx:gdx-box2d:$gdxVersion"
+        compile 'org.javers:javers-persistence-mongo:5.7.7'
     }
 }
 
