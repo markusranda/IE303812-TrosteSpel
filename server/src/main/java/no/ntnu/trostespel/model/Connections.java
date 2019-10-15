@@ -1,4 +1,4 @@
-package no.ntnu.trostespel;
+package no.ntnu.trostespel.model;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,17 +21,12 @@ public class Connections {
         connections = new ArrayList<>();
     }
 
-    List<Connection> getConnections() {
+    public List<Connection> getConnections() {
         return connections;
     }
 
-    void setConnection(Connection connection) {
+    public void setConnections(Connection connection) {
         getConnections().add(connection);
         System.out.println("New connection added: " + connection.getAddress() + " - " + connection.getPlayerId());
-    }
-
-    void removeConnection(Connection connection) {
-        getConnections().remove(connection);
-        System.out.println("Removed connection: " + connection.getAddress());
     }
 }

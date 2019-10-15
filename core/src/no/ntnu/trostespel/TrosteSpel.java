@@ -4,9 +4,10 @@ import com.badlogic.gdx.Game;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import no.ntnu.trostespel.config.Assets;
 import no.ntnu.trostespel.config.KeyConfig;
-import no.ntnu.trostespel.config.ServerConnection;
+import no.ntnu.trostespel.config.ConnectionConfig;
 import no.ntnu.trostespel.entity.Session;
 import no.ntnu.trostespel.networking.ConnectionClient;
+import no.ntnu.trostespel.networking.GameDataReceiver;
 import no.ntnu.trostespel.networking.GameDataTransmitter;
 
 import java.util.concurrent.Callable;
@@ -27,16 +28,20 @@ public class TrosteSpel extends Game {
     public void create() {
         // load textures
         Assets.load();
-        ServerConnection.loadDefault();
+        ConnectionConfig.getInstance();
         batch = new SpriteBatch();
         setScreen(new MainGameState(this));
+
+        // TODO: 11.10.2019 Ask the user for username, don't use static String.
+        String username = "LemuriumIntegrale";
 
         // Connect to server
         try {
             ExecutorService executor = Executors.newSingleThreadExecutor();
 
-            ConnectionClient connectionClient = new ConnectionClient(ServerConnection.host, 7083);
-            String username = "LemuriumIntegrale";
+            ConnectionClient connectionClient = new ConnectionClient(
+                    ConnectionConfig.host,
+                    ConnectionConfig.SERVER_TCP_CONNECTION_RECEIVE_PORT);
 
             Callable<Long> connectionThread = () -> connectionClient.initialConnect(username);
 
@@ -48,7 +53,13 @@ public class TrosteSpel extends Game {
             Session session = Session.getInstance();
             boolean result = session.setPlayerID(playerId);
 
-            System.out.println("I'm at the end of the method, and my playerID is: " + session.getPlayerID());
+            System.out.println("My playerID is: " + session.getPlayerID());
+
+            // listen for updates from server
+            GameDataReceiver gameDataReceiver = new GameDataReceiver();
+            Thread gameDataReceiverThread = new Thread(gameDataReceiver);
+            gameDataReceiverThread.start();
+
         } catch (Exception e) {
             e.printStackTrace();
         }

@@ -9,7 +9,8 @@ import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import no.ntnu.trostespel.config.Assets;
 import no.ntnu.trostespel.config.KeyConfig;
-import no.ntnu.trostespel.config.ServerConnection;
+import no.ntnu.trostespel.config.ServerConfig;
+import no.ntnu.trostespel.config.ConnectionConfig;
 import no.ntnu.trostespel.controller.NetworkedPlayerController;
 import no.ntnu.trostespel.controller.ObjectController;
 import no.ntnu.trostespel.entity.Player;
@@ -58,7 +59,7 @@ public class MainGameState extends ScreenAdapter {
         game.batch.setProjectionMatrix(camera.combined);
         player.draw(game.batch);
         if (debug) {
-            font.draw(game.batch, "Host: " + ServerConnection.host +":"+ServerConnection.port, 10, 10);
+            font.draw(game.batch, "Host: " + ConnectionConfig.host +":"+ ConnectionConfig.SERVER_UDP_GAMEDATA_RECEIVE_PORT, 10, 10);
             font.draw(game.batch, "Tickrate " + ServerConfig.TICKRATE, 10, 20);
         }
         game.batch.end();

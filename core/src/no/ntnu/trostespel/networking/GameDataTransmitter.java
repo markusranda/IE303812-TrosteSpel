@@ -1,6 +1,6 @@
 package no.ntnu.trostespel.networking;
 
-import no.ntnu.trostespel.ServerConfig;
+import no.ntnu.trostespel.config.ServerConfig;
 
 import java.net.DatagramSocket;
 import java.net.SocketException;

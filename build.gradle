@@ -62,38 +62,23 @@ project(":desktop") {
 }
 
 
-project(":core") {
-
-    dependencies {
-        implementation project(":gamelibrary")
-        api "com.badlogicgames.gdx:gdx:$gdxVersion"
-        api "com.badlogicgames.gdx:gdx-box2d:$gdxVersion"
-        compile group: 'com.google.code.gson', name: 'gson', version: '2.7'
-        
-    }
-}
-
-project(":gamelibrary") {
-
-    dependencies {
-        api "com.badlogicgames.gdx:gdx:$gdxVersion"
-        api "com.badlogicgames.gdx:gdx-box2d:$gdxVersion"
-        api "com.badlogicgames.gdx:gdx-backend-lwjgl:$gdxVersion"
-        api "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-desktop"
-        api "com.badlogicgames.gdx:gdx-box2d-platform:$gdxVersion:natives-desktop"
-
-
-    }
-}
-
-
 project(":server") {
 
     dependencies {
-        implementation project(":gamelibrary")
+        implementation project(":core")
         compile group: 'com.google.code.gson', name: 'gson', version: '2.7'
         api "com.badlogicgames.gdx:gdx:$gdxVersion"
         api "com.badlogicgames.gdx:gdx-box2d:$gdxVersion"
     }
 }
 
+
+project(":core") {
+
+    dependencies {
+        api "com.badlogicgames.gdx:gdx:$gdxVersion"
+        api "com.badlogicgames.gdx:gdx-box2d:$gdxVersion"
+        compile group: 'com.google.code.gson', name: 'gson', version: '2.7'
+
+    }
+}

@@ -1,10 +1,9 @@
-package no.ntnu.trostespel;
+package no.ntnu.trostespel.model;
 
 import java.net.InetAddress;
 
 public class Connection {
 
-    public static final int GAME_DATA_RETRIEVE_PORT = 8070;
     private InetAddress address;
     private long playerId;
 
