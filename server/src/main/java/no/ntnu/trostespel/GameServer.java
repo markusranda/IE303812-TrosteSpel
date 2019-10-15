@@ -1,8 +1,13 @@
 package no.ntnu.trostespel;
 
+import com.badlogic.gdx.math.Vector2;
 import com.google.gson.Gson;
+import no.ntnu.trostespel.config.Assets;
 import no.ntnu.trostespel.config.ConnectionConfig;
 import no.ntnu.trostespel.config.ServerConfig;
+import no.ntnu.trostespel.controller.NetworkedPlayerController;
+import no.ntnu.trostespel.controller.ObjectController;
+import no.ntnu.trostespel.entity.Player;
 import no.ntnu.trostespel.model.Connection;
 import no.ntnu.trostespel.model.Connections;
 
@@ -23,8 +28,7 @@ class GameServer {
     GameServer() {
 
         // Populate the GameState with testData
-//        GameState gameState = GameState.getInstance();
-//        gameState.getEntities().add("Test is nice");
+        populateGameStateTest();
 
         System.out.println("Server is ready to handle incoming connections!");
         while (time_passed >= time_per_timestep) {
@@ -37,6 +41,14 @@ class GameServer {
 
             time_passed -= time_per_timestep;
         }
+    }
+
+    private void populateGameStateTest() {
+        GameState gameState = GameState.getInstance();
+        ObjectController playerController = new NetworkedPlayerController();
+        Vector2 spawnLocation = new Vector2(800 / 2 - 64 / 2, 50);
+        Player player = new Player(spawnLocation, Assets.lemurImage, playerController);
+        gameState.addEntity(player);
     }
 
     /**
