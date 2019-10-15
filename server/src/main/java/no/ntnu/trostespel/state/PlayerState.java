@@ -58,6 +58,7 @@ public class PlayerState {
         this.position.add(stateChange.position);
         this.health += stateChange.health;
         this.attackTimer += stateChange.attackTimer;
+        this.spawnedObjects = stateChange.spawnedObjects;
         return this;
     }
 

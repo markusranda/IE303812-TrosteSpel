@@ -18,7 +18,7 @@ import no.ntnu.trostespel.entity.Player;
 public class MainGameState extends ScreenAdapter {
 
 
-    GameState gameState = GameState.getInstance();
+    GameState gameState = new GameState();
 
     private TrosteSpel game;
     Rectangle lemur;
@@ -36,7 +36,7 @@ public class MainGameState extends ScreenAdapter {
         KeyConfig keys = new KeyConfig();
         keys.loadDefault();
 
-        ObjectController playerController = new NetworkedPlayerController();
+        ObjectController playerController = new NetworkedPlayerController(gameState, 0); //TODO:GET REAL PID
         Vector2 spawnLocation = new Vector2(800 / 2 - 64 / 2, 50);
         player = new Player(spawnLocation, Assets.lemurImage, playerController);
 

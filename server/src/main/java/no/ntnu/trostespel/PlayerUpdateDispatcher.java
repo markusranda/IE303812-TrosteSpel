@@ -1,6 +1,7 @@
 package no.ntnu.trostespel;
 
 
+import com.badlogic.gdx.Game;
 import no.ntnu.trostespel.entity.GameObject;
 import no.ntnu.trostespel.game.MasterGameState;
 import no.ntnu.trostespel.game.PlayerUpdateProcessor;
@@ -22,7 +23,7 @@ public class PlayerUpdateDispatcher {
 
     public PlayerUpdateDispatcher() {
         this.processors = Executors.newCachedThreadPool();
-        GameState gameState = GameState.getInstance();
+        GameState gameState = new GameState();
         masterGameState = new MasterGameState(gameState);
     }
 
