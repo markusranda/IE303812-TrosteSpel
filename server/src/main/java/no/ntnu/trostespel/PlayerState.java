@@ -2,10 +2,11 @@ package no.ntnu.trostespel;
 
 import com.badlogic.gdx.math.Vector2;
 
-public class PlayerStateChange {
+public class PlayerState {
     private Vector2 displacement;
     private int health;
     private long attackTimer;
+    private boolean isNew = false;
 
     public void setDisplacement(Vector2 displacement) {
         this.displacement = displacement;
@@ -29,5 +30,9 @@ public class PlayerStateChange {
 
     public long getAttackTimer() {
         return attackTimer;
+    }
+
+    public boolean isNew() {
+        return isNew;
     }
 }

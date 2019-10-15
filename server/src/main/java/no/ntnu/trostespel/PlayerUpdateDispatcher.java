@@ -1,10 +1,8 @@
 package no.ntnu.trostespel;
 
 
-import com.badlogic.gdx.utils.Queue;
-import no.ntnu.trostespel.config.ServerConfig;
+import no.ntnu.trostespel.entity.GameObject;
 
-import java.util.*;
 import java.util.concurrent.*;
 
 /**
@@ -15,10 +13,13 @@ public class PlayerUpdateDispatcher {
 
     private ExecutorService processors;
     private long startTime = 0;
+    private MasterGameState masterGameState;
 
 
     public PlayerUpdateDispatcher() {
         this.processors = Executors.newCachedThreadPool();
+        GameState<PlayerState, GameObject> gameState = GameState.getInstance();
+        masterGameState = new MasterGameState(gameState);
     }
 
     /**
@@ -26,11 +27,30 @@ public class PlayerUpdateDispatcher {
      *
      * @param actions the update to queue
      */
-    public void queue(PlayerActions actions) {
-        if (actions != null) {
-            startTime = System.currentTimeMillis();
-            Future f = processors.submit(new PlayerUpdateProcessor(actions, startTime));
-        }
+    public void dispatch(PlayerActions actions) {
+        Future f = processCMD(actions);
+        updateMaster(f);
     }
 
+    private Future<PlayerState> processCMD(PlayerActions actions) {
+        Future<PlayerState> f = null;
+        if (actions != null) {
+            startTime = System.currentTimeMillis();
+            f = processors.submit(new PlayerUpdateProcessor(actions, startTime));
+        }
+        return f;
+    }
+
+    private void updateMaster(Future<PlayerState> f) {
+        if (f != null) {
+            try {
+                PlayerState change = (PlayerState) f.get();
+                masterGameState.update(change);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            } catch (ExecutionException e) {
+                e.printStackTrace();
+            }
+        }
+    }
 }

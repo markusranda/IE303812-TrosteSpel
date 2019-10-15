@@ -32,7 +32,7 @@ public class DummyServerTalker {
         return  new Runnable() {
             @Override
             public void run() {
-                dispatcher.queue(manager.getRandomInput());
+                dispatcher.dispatch(manager.getRandomInput());
             }
         };
     }
