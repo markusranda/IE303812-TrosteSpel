@@ -9,6 +9,8 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.SocketException;
 
+import static no.ntnu.trostespel.config.ConnectionConfig.CLIENT_UDP_GAMEDATA_RECEIVE_PORT;
+
 /**
  * Listens for updates from server, and applies them to this GameState
  */
@@ -18,7 +20,7 @@ public class GameDataReceiver implements Runnable {
     public void run() {
         DatagramSocket udpSocket = null;
         try {
-            udpSocket = new DatagramSocket(7090);
+            udpSocket = new DatagramSocket(CLIENT_UDP_GAMEDATA_RECEIVE_PORT);
         } catch (SocketException e) {
             e.printStackTrace();
         }
@@ -35,9 +37,10 @@ public class GameDataReceiver implements Runnable {
 
             String json = new String(packet.getData());
             Gson gson = new Gson();
-            GameState gameState = gson.fromJson(json, GameState.class);
-            // TODO: 11.10.2019 Apply this new GameState, instead of just printing it
-            System.out.print(gameState.getEntities());
+//            GameState gameState = gson.fromJson(json, GameState.class);
+//          TODO: 11.10.2019 Apply this new GameState, instead of just printing it
+//            System.out.print(gameState.getEntities());
+            System.out.println(json);
         }
     }
 }

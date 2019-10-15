@@ -2,6 +2,7 @@ package no.ntnu.trostespel;
 
 import com.google.gson.Gson;
 import no.ntnu.trostespel.config.ConnectionConfig;
+import no.ntnu.trostespel.config.ServerConfig;
 import no.ntnu.trostespel.model.Connection;
 import no.ntnu.trostespel.model.Connections;
 
@@ -17,16 +18,24 @@ class GameServer {
 
     private List<Connection> connections = Connections.getInstance().getConnections();
     private double time_passed = System.currentTimeMillis();
-    private double time_per_timestep = 1000.0 / 100;
+    private double time_per_timestep = ServerConfig.TICKRATE;
 
     GameServer() {
-        while (true) {
-            while (time_passed >= time_per_timestep) {
-                while (!connections.isEmpty()) {
-                    update();
-                }
-                time_passed -= time_per_timestep;
+
+        // Populate the GameState with testData
+//        GameState gameState = GameState.getInstance();
+//        gameState.getEntities().add("Test is nice");
+
+        System.out.println("Server is ready to handle incoming connections!");
+        while (time_passed >= time_per_timestep) {
+
+            if (!connections.isEmpty()) {
+                update();
+            } else {
+                System.out.println("Waiting for at least one connection..");
             }
+
+            time_passed -= time_per_timestep;
         }
     }
 
@@ -40,6 +49,7 @@ class GameServer {
         String json = gson.toJson(gameState);
 
         // Send GameState to all connections
+        // TODO: 15.10.2019 Add concurrency protection, since we will be modifying connecitons on the fly.
         for (Connection con : connections) {
             Runnable runnable = submitGameState(json, con);
             runnable.run();
@@ -49,7 +59,7 @@ class GameServer {
     /**
      * Creates a new runnable with a game state and connection to send it to
      *
-     * @param json The Game State
+     * @param json       The Game State
      * @param connection The Connection
      * @return Returns a runnable
      */
