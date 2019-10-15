@@ -2,6 +2,10 @@ package no.ntnu.trostespel;
 
 
 import no.ntnu.trostespel.entity.GameObject;
+import no.ntnu.trostespel.game.MasterGameState;
+import no.ntnu.trostespel.game.PlayerUpdateProcessor;
+import no.ntnu.trostespel.state.MovableState;
+import no.ntnu.trostespel.state.PlayerState;
 
 import java.util.concurrent.*;
 
@@ -18,13 +22,13 @@ public class PlayerUpdateDispatcher {
 
     public PlayerUpdateDispatcher() {
         this.processors = Executors.newCachedThreadPool();
-        GameState<PlayerState, GameObject> gameState = GameState.getInstance();
+        GameState gameState = GameState.getInstance();
         masterGameState = new MasterGameState(gameState);
     }
 
     /**
-     * queue an update
-     *
+     * dispatch actions for processing and update
+     * masterGameState
      * @param actions the update to queue
      */
     public void dispatch(PlayerActions actions) {
@@ -34,9 +38,13 @@ public class PlayerUpdateDispatcher {
 
     private Future<PlayerState> processCMD(PlayerActions actions) {
         Future<PlayerState> f = null;
+
         if (actions != null) {
             startTime = System.currentTimeMillis();
-            f = processors.submit(new PlayerUpdateProcessor(actions, startTime));
+            f = processors.submit(new PlayerUpdateProcessor(
+                    (PlayerState) masterGameState.getGameState().players.get(actions.pid),
+                    actions,
+                    startTime));
         }
         return f;
     }
@@ -45,7 +53,8 @@ public class PlayerUpdateDispatcher {
         if (f != null) {
             try {
                 PlayerState change = (PlayerState) f.get();
-                masterGameState.update(change);
+                long pid = change.getPid();
+                masterGameState.update(pid, change);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             } catch (ExecutionException e) {
