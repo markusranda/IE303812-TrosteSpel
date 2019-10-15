@@ -13,7 +13,7 @@ public class MasterGameState {
         //gameState.players.put()
     }
 
-    public void read() {
-
+    public GameState read() {
+        return null;
     }
 }

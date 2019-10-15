@@ -1,30 +1,39 @@
 package no.ntnu.trostespel;
 
-import com.google.gson.Gson;
 import no.ntnu.trostespel.config.ConnectionConfig;
 import no.ntnu.trostespel.config.ServerConfig;
 import no.ntnu.trostespel.model.Connection;
 import no.ntnu.trostespel.model.Connections;
+import org.javers.core.Javers;
+import org.javers.core.JaversBuilder;
+import org.javers.core.diff.Diff;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.util.List;
 
+import static org.javers.core.diff.ListCompareAlgorithm.LEVENSHTEIN_DISTANCE;
+
 /**
  * This class will do every task the server need to do each tick.
  */
 class GameServer {
 
+
     private List<Connection> connections = Connections.getInstance().getConnections();
     private double time_passed = System.currentTimeMillis();
     private double time_per_timestep = ServerConfig.TICKRATE;
+    private MasterGameState masterGameState;
+    private Javers javers;
 
     GameServer() {
 
-        // Populate the GameState with testData
-//        GameState gameState = GameState.getInstance();
-//        gameState.getEntities().add("Test is nice");
+        // TODO: 15.10.2019 initialize masterGameState
+
+        javers = JaversBuilder.javers()
+                .withListCompareAlgorithm(LEVENSHTEIN_DISTANCE)
+                .build();
 
         System.out.println("Server is ready to handle incoming connections!");
         while (time_passed >= time_per_timestep) {
@@ -43,15 +52,10 @@ class GameServer {
      * Does the update tasks for the server.
      */
     private void update() {
-        // Serialize GameState
-        GameState gameState = GameState.getInstance();
-        Gson gson = new Gson();
-        String json = gson.toJson(gameState);
-
-        // Send GameState to all connections
+        // Send GameState to all clients
         // TODO: 15.10.2019 Add concurrency protection, since we will be modifying connecitons on the fly.
         for (Connection con : connections) {
-            Runnable runnable = submitGameState(json, con);
+            Runnable runnable = submitGameState(con);
             runnable.run();
         }
     }
@@ -59,11 +63,22 @@ class GameServer {
     /**
      * Creates a new runnable with a game state and connection to send it to
      *
-     * @param json       The Game State
      * @param connection The Connection
      * @return Returns a runnable
      */
-    private Runnable submitGameState(String json, Connection connection) {
+    private Runnable submitGameState(Connection connection) {
+
+        // Compare previous snapshot to MainGameState
+        GameState prevGameState = (GameState) connection.getSnapshotArray().getPrevious();
+        GameState nextGameState = masterGameState.read();
+        Diff diff = javers.compare(prevGameState, nextGameState);
+
+        // Save the next GameState to SnapshotArray
+        connection.getSnapshotArray().setAtCurrent(nextGameState);
+
+        // Send the difference
+        String json = javers.getJsonConverter().toJson(diff);
+
         return () -> {
             DatagramPacket packet = new DatagramPacket(
                     json.getBytes(),
@@ -81,4 +96,5 @@ class GameServer {
             }
         };
     }
+
 }
