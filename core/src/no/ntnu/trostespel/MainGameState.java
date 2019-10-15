@@ -18,12 +18,13 @@ import no.ntnu.trostespel.entity.Player;
 public class MainGameState extends ScreenAdapter {
 
 
-    TrosteSpel game;
+    GameState gameState = GameState.getInstance();
+
+    private TrosteSpel game;
     Rectangle lemur;
     private OrthographicCamera camera;
-
     private boolean debug = false;
-    BitmapFont font = new BitmapFont();
+    private BitmapFont font = new BitmapFont();
     private float velocity = 6f;
 
     private Player player;

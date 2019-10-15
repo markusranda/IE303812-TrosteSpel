@@ -65,7 +65,7 @@ public class GameDataReceiver implements Runnable {
             }
 
             //
-            dispatcher.queue(actions);
+            dispatcher.dispatch(actions);
         }
     }
 }
