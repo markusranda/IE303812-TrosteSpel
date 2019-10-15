@@ -14,7 +14,7 @@ public class PlayerState {
 
     public PlayerState(long pid) {
         this.pid = pid;
-        this.position = new Vector2();
+        this.position = Vector2.Zero;
         this.health = 100;
         this.attackTimer = 0;
         spawnedObjects = new HashMap<>();
@@ -54,12 +54,11 @@ public class PlayerState {
         return pid;
     }
 
-    public PlayerState update(PlayerState stateChange) {
+    public void update(PlayerState stateChange) {
         this.position.add(stateChange.position);
         this.health += stateChange.health;
         this.attackTimer += stateChange.attackTimer;
         this.spawnedObjects = stateChange.spawnedObjects;
-        return this;
     }
 
     public void addPostion(Vector2 displacement) {

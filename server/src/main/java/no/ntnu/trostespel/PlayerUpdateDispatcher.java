@@ -29,7 +29,7 @@ public class PlayerUpdateDispatcher {
      * @param actions the update to queue
      */
     public void dispatch(PlayerActions actions) {
-        Future f = processCMD(actions);
+        Future<PlayerState> f = processCMD(actions);
         updateMaster(f);
     }
 
@@ -38,10 +38,11 @@ public class PlayerUpdateDispatcher {
 
         if (actions != null) {
             startTime = System.currentTimeMillis();
-            f = processors.submit(new PlayerUpdateProcessor(
-                    (PlayerState) masterGameState.getGameState().players.get(actions.pid),
-                    actions,
-                    startTime));
+            PlayerState state = (PlayerState) masterGameState.getGameState().players.get(actions.pid);
+            if (state == null) {
+                state = new PlayerState(actions.pid);
+            }
+            f = processors.submit(new PlayerUpdateProcessor(state, actions, startTime));
         }
         return f;
     }
@@ -49,12 +50,10 @@ public class PlayerUpdateDispatcher {
     private void updateMaster(Future<PlayerState> f) {
         if (f != null) {
             try {
-                PlayerState change = (PlayerState) f.get();
+                PlayerState change = f.get();
                 long pid = change.getPid();
                 masterGameState.update(pid, change);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            } catch (ExecutionException e) {
+            } catch (InterruptedException | ExecutionException e) {
                 e.printStackTrace();
             }
         }

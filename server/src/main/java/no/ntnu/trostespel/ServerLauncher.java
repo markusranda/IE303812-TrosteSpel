@@ -11,12 +11,13 @@ public class ServerLauncher {
         GameDataReceiver UDPClient = new GameDataReceiver(ConnectionConfig.SERVER_UDP_GAMEDATA_RECEIVE_PORT);
         ConnectionManager TCPClient = new ConnectionManager(ConnectionConfig.SERVER_TCP_CONNECTION_RECEIVE_PORT);
 
-        Thread t1 = new Thread(UDPClient);
-        Thread t2 = new Thread(TCPClient);
-        t1.setName("UDPClient");
-        t2.setName("TCPClient");
-//        t1.start();
-        t2.start();
+        Thread UdpThread = new Thread(UDPClient);
+        Thread TcpThread = new Thread(TCPClient);
+        UdpThread.setName("UDPClient");
+        TcpThread.setName("TCPClient");
+
+        UdpThread.start();
+        TcpThread.start();
 
         new GameServer();
     }

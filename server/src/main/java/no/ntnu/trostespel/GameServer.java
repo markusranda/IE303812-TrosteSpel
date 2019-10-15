@@ -50,6 +50,8 @@ class GameServer {
 
         long tickCounter = 0;
         long timerCounter = 0;
+        // server heartbeat
+        //
         while (true) {
             if (time_passed >= time_per_timestep) {
                 tick_start_time = System.currentTimeMillis();
@@ -75,7 +77,7 @@ class GameServer {
         // Send GameState to all clients
         // TODO: 15.10.2019 Add concurrency protection, since we will be modifying connecitons on the fly.
         for (Connection con : connections) {
-            Runnable runnable = submitGameState(con);
+            Runnable runnable = submitGameState(con); //TODO: 15.10.2019 pool these runnables
             runnable.run();
         }
     }

@@ -7,6 +7,7 @@ import no.ntnu.trostespel.state.PlayerState;
 import no.ntnu.trostespel.state.MovableState;
 
 import java.util.EnumSet;
+import java.util.Vector;
 import java.util.concurrent.Callable;
 
 public class PlayerUpdateProcessor implements Callable {
@@ -44,7 +45,7 @@ public class PlayerUpdateProcessor implements Callable {
 
     @Override
     public PlayerState call() {
-        displacement = new Vector2();
+        displacement = Vector2.Zero;
         delta = startTime - System.currentTimeMillis();
         pid = actions.pid;
         processActionButtons(actions);

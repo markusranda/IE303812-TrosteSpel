@@ -48,9 +48,6 @@ public class GameDataReceiver implements Runnable {
             updatedGameState = gson.fromJson(reader, GameState.class);
 //          TODO: 11.10.2019 Apply this new GameState, instead of just printing it
 //            System.out.print(gameState.getEntities());
-            if (updatedGameState.players.size()>0) {
-                System.out.println(data);
-            }
         }
     }
 

@@ -50,14 +50,11 @@ public class MainGameState extends ScreenAdapter {
 
         // init camera
         camera = new OrthographicCamera();
-        camera.setToOrtho(false, 800, 480);
+        camera.setToOrtho(false, 1200, 800);
         //
     }
 
     private void drawPlayers(float delta) {
-        if (Gdx.input.isKeyPressed(KeyConfig.toggleDebug)) {
-            debug = true;
-        }
         for (Player player : gameState.players.values()) {
             player.update(delta);
             player.draw(game.batch);
@@ -65,10 +62,17 @@ public class MainGameState extends ScreenAdapter {
     }
 
     private void drawUI() {
-
+        if (Gdx.input.isKeyPressed(KeyConfig.toggleDebug)) {
+            debug = true;
+        }
         if (debug) {
-            font.draw(game.batch, "Host: " + ConnectionConfig.host + ":" + ConnectionConfig.SERVER_UDP_GAMEDATA_RECEIVE_PORT, 10, 10);
-            font.draw(game.batch, "Tickrate " + ServerConfig.TICKRATE, 10, 20);
+            long pid = Session.getInstance().getPlayerID();
+            int height = 800;
+            font.draw(game.batch, "Host: " + ConnectionConfig.host + ":" + ConnectionConfig.SERVER_UDP_GAMEDATA_RECEIVE_PORT, 10, height);
+            font.draw(game.batch, "Host: " + ConnectionConfig.host + ":" + ConnectionConfig.SERVER_UDP_GAMEDATA_RECEIVE_PORT, 10, height-20);
+            font.draw(game.batch, "Tickrate " + ServerConfig.TICKRATE, 10, height-40);
+            font.draw(game.batch, "Connected players " + game.getReceivedGameState().players, 10, height-60);
+            font.draw(game.batch, "StateChange " + game.getReceivedGameState().players.get(pid), 10, height-80);
         }
         game.batch.end();
     }

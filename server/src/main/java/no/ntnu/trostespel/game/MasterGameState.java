@@ -35,11 +35,13 @@ public class MasterGameState {
             final int START_HEALTH = 100;
             final Vector2 SPAWN_POS = new Vector2(100, 100);
             PlayerState newPlayer = new PlayerState(pid, SPAWN_POS, START_HEALTH);
-            playerState = gameState.players.put(pid, newPlayer);
+            gameState.players.put(pid, newPlayer);
+            playerState = newPlayer;
         }
 
         // update the state of the player
-        gameState.players.put(pid, playerState.update(stateChange));
+        playerState.update(stateChange);
+        gameState.players.put(pid, playerState);
     }
 
     public void read() {
