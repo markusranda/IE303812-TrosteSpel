@@ -91,11 +91,8 @@ public class MainGameState extends ScreenAdapter {
             }
             // apply changed values
             Player player = gameState.players.get(key);
-            System.out.println("1 " + player.getPos());
             Vector2 pos = change.getPosition();
-            System.out.println("pos " + pos);
             player.setPos(pos);
-            System.out.println("2" + player.getPos());
             player.setHealth(change.getHealth());
             player.update(0);
             player.draw(game.batch);
