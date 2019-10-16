@@ -41,6 +41,7 @@ public class PlayerUpdateDispatcher {
             PlayerState state = (PlayerState) masterGameState.getGameState().players.get(actions.pid);
             if (state == null) {
                 state = new PlayerState(actions.pid);
+                masterGameState.getGameState().players.put(actions.pid, state);
             }
             f = processors.submit(new PlayerUpdateProcessor(state, actions, startTime));
         }

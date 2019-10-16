@@ -105,7 +105,7 @@ class GameServer {
 
         //TODO: Remove this when snapshots work
         Gson gson = new Gson();
-        GameState nextGameState = masterGameState.getGameState();
+        GameState nextGameState = MasterGameState.getInstance().getGameState();
         String json = gson.toJson(nextGameState);
 
         return () -> {

@@ -10,7 +10,7 @@ import java.util.EnumSet;
 import java.util.Vector;
 import java.util.concurrent.Callable;
 
-public class PlayerUpdateProcessor implements Callable {
+public class PlayerUpdateProcessor implements Callable<PlayerState> {
 
     private PlayerActions actions;
     private long startTime;
