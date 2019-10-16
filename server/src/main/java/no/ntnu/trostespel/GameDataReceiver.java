@@ -3,8 +3,10 @@ package no.ntnu.trostespel;
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
 import com.google.gson.stream.JsonReader;
+import no.ntnu.trostespel.config.CommunicationConfig;
 
 import java.io.*;
+import java.lang.reflect.Type;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
@@ -65,7 +67,9 @@ public class GameDataReceiver implements Runnable {
             }
 
             //
-            dispatcher.dispatch(actions);
+            if (actions != null) {
+                dispatcher.dispatch(actions);
+            }
         }
     }
 }

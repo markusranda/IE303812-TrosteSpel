@@ -26,6 +26,7 @@ public class PlayerUpdateDispatcher {
     /**
      * dispatch actions for processing and update
      * masterGameState
+     *
      * @param actions the update to queue
      */
     public void dispatch(PlayerActions actions) {
@@ -34,18 +35,9 @@ public class PlayerUpdateDispatcher {
     }
 
     private Future<PlayerState> processCMD(PlayerActions actions) {
-        Future<PlayerState> f = null;
-
-        if (actions != null) {
-            startTime = System.currentTimeMillis();
-            PlayerState state = (PlayerState) masterGameState.getGameState().players.get(actions.pid);
-            if (state == null) {
-                state = new PlayerState(actions.pid);
-                masterGameState.getGameState().players.put(actions.pid, state);
-            }
-            f = processors.submit(new PlayerUpdateProcessor(state, actions, startTime));
-        }
-        return f;
+        startTime = System.currentTimeMillis();
+        PlayerState playerState = (PlayerState) masterGameState.getGameState().players.get(actions.pid);
+        return processors.submit(new PlayerUpdateProcessor(playerState, actions, startTime));
     }
 
     private void updateMaster(Future<PlayerState> f) {
@@ -53,7 +45,9 @@ public class PlayerUpdateDispatcher {
             try {
                 PlayerState change = f.get();
                 long pid = change.getPid();
-                masterGameState.update(pid, change);
+                // TODO: this action should be performed only once the PlayerUpdateProcessor is done
+                // TODO: find a good way to synchronize these actions :^ )
+                masterGameState.update(pid);
             } catch (InterruptedException | ExecutionException e) {
                 e.printStackTrace();
             }

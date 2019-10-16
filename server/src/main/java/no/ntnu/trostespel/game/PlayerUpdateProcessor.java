@@ -37,10 +37,16 @@ public class PlayerUpdateProcessor implements Callable<PlayerState> {
         }
     }
 
-    public PlayerUpdateProcessor(PlayerState state, PlayerActions actions, long startTime) {
+    public PlayerUpdateProcessor(PlayerState playerState, PlayerActions actions, long startTime) {
         this.actions = actions;
         this.startTime = startTime;
-        this.playerState = state;
+
+        if (playerState == null) {
+            // state does not exist if this is the players first update
+            // TODO: should this be handled by the initialConnect?
+            playerState = new PlayerState(actions.pid);
+        }
+        this.playerState = playerState;
     }
 
     @Override
@@ -117,8 +123,7 @@ public class PlayerUpdateProcessor implements Callable<PlayerState> {
                 displacement.y += -GameState.playerSpeed;
             }
         }
-        PlayerState oldState = playerState;
         playerState.addPostion(displacement);
-        playerAngle = oldState.getPosition().angle(playerState.getPosition());
+        playerAngle = displacement.angle();
     }
 }

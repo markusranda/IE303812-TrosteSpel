@@ -9,11 +9,9 @@ import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import no.ntnu.trostespel.config.Assets;
 import no.ntnu.trostespel.config.KeyConfig;
-import no.ntnu.trostespel.config.ServerConfig;
-import no.ntnu.trostespel.config.ConnectionConfig;
+import no.ntnu.trostespel.config.CommunicationConfig;
 import no.ntnu.trostespel.controller.NetworkedPlayerController;
 import no.ntnu.trostespel.controller.ObjectController;
-import no.ntnu.trostespel.entity.GameObject;
 import no.ntnu.trostespel.entity.Movable;
 import no.ntnu.trostespel.entity.Player;
 import no.ntnu.trostespel.entity.Session;
@@ -68,9 +66,9 @@ public class MainGameState extends ScreenAdapter {
         if (debug) {
             long pid = Session.getInstance().getPlayerID();
             int height = 800;
-            font.draw(game.batch, "Host: " + ConnectionConfig.host + ":" + ConnectionConfig.SERVER_UDP_GAMEDATA_RECEIVE_PORT, 10, height);
-            font.draw(game.batch, "Host: " + ConnectionConfig.host + ":" + ConnectionConfig.SERVER_UDP_GAMEDATA_RECEIVE_PORT, 10, height-20);
-            font.draw(game.batch, "Tickrate " + ServerConfig.TICKRATE, 10, height-40);
+            font.draw(game.batch, "Host: " + CommunicationConfig.host + ":" + CommunicationConfig.SERVER_UDP_GAMEDATA_RECEIVE_PORT, 10, height);
+            font.draw(game.batch, "Host: " + CommunicationConfig.host + ":" + CommunicationConfig.SERVER_UDP_GAMEDATA_RECEIVE_PORT, 10, height-20);
+            font.draw(game.batch, "Tickrate " + CommunicationConfig.TICKRATE, 10, height-40);
             font.draw(game.batch, "Connected players " + game.getReceivedGameState().players, 10, height-60);
             font.draw(game.batch, "StateChange " + game.getReceivedGameState().players.get(pid), 10, height-80);
         }
@@ -78,11 +76,20 @@ public class MainGameState extends ScreenAdapter {
     }
 
     private void applyReceivedChanges() {
+        // CAUTION the types in GameState must be the same as in GameDataReceiver
         GameState<PlayerState, MovableState> receivedGameState = game.getReceivedGameState();
         // iterate over received changes
         for (Map.Entry<Long, PlayerState> change : receivedGameState.players.entrySet()) {
             long key = change.getKey();
-            PlayerState state = change.getValue();
+            PlayerState state = null;
+            try {
+                state = change.getValue();
+            } catch (ClassCastException e) {
+                e.printStackTrace();
+                System.out.println("UDP Data was not properly parsed from json");
+            } finally {
+                state = new PlayerState(Session.getInstance().getPlayerID());
+            }
             if (!gameState.players.containsKey(key)) {
                 // add player to the game
                 NetworkedPlayerController controller  = new NetworkedPlayerController(gameState, key);

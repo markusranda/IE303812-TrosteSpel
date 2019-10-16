@@ -1,7 +1,7 @@
 package helper;
 
 import no.ntnu.trostespel.PlayerUpdateDispatcher;
-import no.ntnu.trostespel.config.ServerConfig;
+import no.ntnu.trostespel.config.CommunicationConfig;
 
 import java.net.DatagramSocket;
 import java.util.concurrent.Executors;
@@ -25,7 +25,7 @@ public class DummyServerTalker {
 
     private void run(){
         ticker = Executors.newSingleThreadScheduledExecutor();
-        ticker.scheduleAtFixedRate(emitter, 0, 1000000 / ServerConfig.TICKRATE, TimeUnit.MICROSECONDS);
+        ticker.scheduleAtFixedRate(emitter, 0, 1000000 / CommunicationConfig.TICKRATE, TimeUnit.MICROSECONDS);
     }
 
     private Runnable getEmitter() {

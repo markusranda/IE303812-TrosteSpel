@@ -1,16 +1,15 @@
 package no.ntnu.trostespel;
 
 import com.google.gson.Gson;
-import no.ntnu.trostespel.config.ConnectionConfig;
-import no.ntnu.trostespel.config.ServerConfig;
+import no.ntnu.trostespel.config.CommunicationConfig;
 import no.ntnu.trostespel.game.MasterGameState;
 import no.ntnu.trostespel.model.Connection;
 import no.ntnu.trostespel.model.Connections;
 import org.javers.core.Javers;
 import org.javers.core.JaversBuilder;
-import org.javers.core.diff.Diff;
 
 import java.io.IOException;
+import java.lang.reflect.Type;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.util.List;
@@ -27,11 +26,16 @@ class GameServer {
     private List<Connection> connections = Connections.getInstance().getConnections();
     private double time_passed = 0;
     private double tick_start_time = System.currentTimeMillis();
-    private double time_per_timestep = ServerConfig.TICKRATE;
+    private double time_per_timestep = CommunicationConfig.TICKRATE;
+    private final Type RECEIVED_DATA_TYPE = CommunicationConfig.RECEIVED_DATA_TYPE;
+
     private MasterGameState masterGameState;
     private Javers javers;
 
+    private Gson gson;
+
     GameServer() {
+        gson = new Gson();
 
         // TODO: 15.10.2019 Create a dummySnapshot with only empty values
         dummySnapshot = null;
@@ -45,7 +49,6 @@ class GameServer {
                 .build();
 
         System.out.println("Server is ready to handle incoming connections!");
-
 
 
         long tickCounter = 0;
@@ -103,17 +106,17 @@ class GameServer {
         // Send the difference
         String json = javers.getJsonConverter().toJson(diff);*/
 
-        //TODO: Remove this when snapshots work
-        Gson gson = new Gson();
         GameState nextGameState = MasterGameState.getInstance().getGameState();
-        String json = gson.toJson(nextGameState);
+        String json = gson.toJson(nextGameState, RECEIVED_DATA_TYPE);
+        // TODO: Infinity-bug: playerstate never stops updating once it has started . . .
+        //
 
         return () -> {
             DatagramPacket packet = new DatagramPacket(
                     json.getBytes(),
                     json.getBytes().length,
                     connection.getAddress(),
-                    ConnectionConfig.CLIENT_UDP_GAMEDATA_RECEIVE_PORT);
+                    CommunicationConfig.CLIENT_UDP_GAMEDATA_RECEIVE_PORT);
 
             packet.setData(json.getBytes());
             try {

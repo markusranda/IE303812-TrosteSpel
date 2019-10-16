@@ -57,7 +57,6 @@ public class Player extends Movable {
 
     @Override
     public void draw(SpriteBatch batch) {
-
         if (moving) {
             stateTime += Gdx.graphics.getDeltaTime();
             currentFrame = run.getKeyFrame(stateTime, true);

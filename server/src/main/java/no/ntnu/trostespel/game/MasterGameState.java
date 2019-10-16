@@ -6,6 +6,7 @@ import no.ntnu.trostespel.state.MovableState;
 import no.ntnu.trostespel.state.PlayerState;
 import no.ntnu.trostespel.entity.GameObject;
 
+//TODO: make MasterGameState threadsafe
 public class MasterGameState {
 
     private GameState<PlayerState, MovableState> gameState;
@@ -26,22 +27,16 @@ public class MasterGameState {
     /**
      *
      * @param pid the id of the player to update
-     * @param stateChange a PlayerState object containing only relative values
      */
-    public void update(long pid, PlayerState stateChange) {
-        PlayerState playerState = gameState.players.get(pid);
-        if (playerState == null) {
+    public void update(long pid) {
+        if (!gameState.players.containsKey(pid)) {
             // add player to to game
             final int START_HEALTH = 100;
             final Vector2 SPAWN_POS = new Vector2(100, 100);
-            PlayerState newPlayer = new PlayerState(pid, SPAWN_POS, START_HEALTH);
-            gameState.players.put(pid, newPlayer);
-            playerState = newPlayer;
+            PlayerState playerState = new PlayerState(pid, SPAWN_POS, START_HEALTH);
+            gameState.players.put(pid, playerState);
         }
-
-        // update the state of the player
-        playerState.update(stateChange);
-        gameState.players.put(pid, playerState);
+        // TODO: update the state of the game here, checking collisions with projectiles, updating health etc
     }
 
     public void read() {

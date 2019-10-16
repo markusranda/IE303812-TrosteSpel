@@ -1,15 +1,15 @@
 package no.ntnu.trostespel;
 
-import no.ntnu.trostespel.config.ConnectionConfig;
+import no.ntnu.trostespel.config.CommunicationConfig;
 
 public class ServerLauncher {
 
     public static void main(String[] args) throws Exception {
         // Initialize ConnectionConfig
-        ConnectionConfig.getInstance();
+        CommunicationConfig.getInstance();
 
-        GameDataReceiver UDPClient = new GameDataReceiver(ConnectionConfig.SERVER_UDP_GAMEDATA_RECEIVE_PORT);
-        ConnectionManager TCPClient = new ConnectionManager(ConnectionConfig.SERVER_TCP_CONNECTION_RECEIVE_PORT);
+        GameDataReceiver UDPClient = new GameDataReceiver(CommunicationConfig.SERVER_UDP_GAMEDATA_RECEIVE_PORT);
+        ConnectionManager TCPClient = new ConnectionManager(CommunicationConfig.SERVER_TCP_CONNECTION_RECEIVE_PORT);
 
         Thread UdpThread = new Thread(UDPClient);
         Thread TcpThread = new Thread(TCPClient);

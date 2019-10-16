@@ -1,32 +1,38 @@
 package no.ntnu.trostespel.config;
 
-import com.badlogic.gdx.Gdx;
+import com.google.gson.reflect.TypeToken;
+import no.ntnu.trostespel.GameState;
+import no.ntnu.trostespel.state.MovableState;
+import no.ntnu.trostespel.state.PlayerState;
 
-import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.lang.reflect.Type;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.Properties;
 
-public class ConnectionConfig {
+public class CommunicationConfig {
     private static Properties props;
     public static InetAddress host;
     public static int SERVER_UDP_GAMEDATA_RECEIVE_PORT;
     public static int SERVER_TCP_CONNECTION_RECEIVE_PORT;
     public static int CLIENT_UDP_GAMEDATA_RECEIVE_PORT;
     public static int CLIENT_TCP_CONNECTION_RECEIVE_PORT;
+    public static final int TICKRATE = 32;
 
-    private static ConnectionConfig single_instance = null;
+    public static final Type RECEIVED_DATA_TYPE = new TypeToken<GameState<PlayerState, MovableState>>() {}.getType();
 
-    public static ConnectionConfig getInstance() {
+    private static CommunicationConfig single_instance = null;
+
+    public static CommunicationConfig getInstance() {
         if (single_instance == null) {
-            single_instance = new ConnectionConfig();
+            single_instance = new CommunicationConfig();
         }
         return single_instance;
     }
 
-    private ConnectionConfig() {
+    private CommunicationConfig() {
         loadDefault();
     }
 
