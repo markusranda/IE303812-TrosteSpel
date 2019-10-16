@@ -26,7 +26,7 @@ class GameServer {
     private List<Connection> connections = Connections.getInstance().getConnections();
     private double time_passed = 0;
     private double tick_start_time = System.currentTimeMillis();
-    private double time_per_timestep = CommunicationConfig.TICKRATE;
+    private double time_per_timestep = 1000d / CommunicationConfig.TICKRATE;
     private final Type RECEIVED_DATA_TYPE = CommunicationConfig.RECEIVED_DATA_TYPE;
 
     private MasterGameState masterGameState;

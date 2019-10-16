@@ -18,6 +18,7 @@ import no.ntnu.trostespel.entity.Session;
 import no.ntnu.trostespel.state.MovableState;
 import no.ntnu.trostespel.state.PlayerState;
 
+import java.util.Collection;
 import java.util.Map;
 
 public class MainGameState extends ScreenAdapter {
@@ -32,6 +33,7 @@ public class MainGameState extends ScreenAdapter {
     private BitmapFont font = new BitmapFont();
     private float velocity = 6f;
 
+    private GameState<PlayerState, MovableState> receivedState;
 
     public MainGameState(TrosteSpel game) {
         this.game = game;
@@ -39,12 +41,6 @@ public class MainGameState extends ScreenAdapter {
         //
         KeyConfig keys = new KeyConfig();
         keys.loadDefault();
-
-        ObjectController playerController = new NetworkedPlayerController(gameState, 0); //TODO:GET REAL PID
-        Vector2 spawnLocation = new Vector2(0, 0);
-        Player player = new Player(spawnLocation, Assets.lemurImage, playerController);
-        long pid = Session.getInstance().getPlayerID();
-        gameState.players.put(pid, player);
 
         // init camera
         camera = new OrthographicCamera();
@@ -54,6 +50,7 @@ public class MainGameState extends ScreenAdapter {
 
     private void drawPlayers(float delta) {
         for (Player player : gameState.players.values()) {
+            System.out.println(player);
             player.update(delta);
             player.draw(game.batch);
         }
@@ -65,56 +62,58 @@ public class MainGameState extends ScreenAdapter {
         }
         if (debug) {
             long pid = Session.getInstance().getPlayerID();
+            PlayerState state = (PlayerState) game.getReceivedGameState().players.get(pid);
+
             int height = 800;
             font.draw(game.batch, "Host: " + CommunicationConfig.host + ":" + CommunicationConfig.SERVER_UDP_GAMEDATA_RECEIVE_PORT, 10, height);
-            font.draw(game.batch, "Host: " + CommunicationConfig.host + ":" + CommunicationConfig.SERVER_UDP_GAMEDATA_RECEIVE_PORT, 10, height-20);
-            font.draw(game.batch, "Tickrate " + CommunicationConfig.TICKRATE, 10, height-40);
-            font.draw(game.batch, "Connected players " + game.getReceivedGameState().players, 10, height-60);
-            font.draw(game.batch, "StateChange " + game.getReceivedGameState().players.get(pid), 10, height-80);
+            font.draw(game.batch, "Host: " + CommunicationConfig.host + ":" + CommunicationConfig.SERVER_UDP_GAMEDATA_RECEIVE_PORT, 10, height - 20);
+            font.draw(game.batch, "Tickrate " + CommunicationConfig.TICKRATE, 10, height - 40);
+            font.draw(game.batch, "Connected players " + game.getReceivedGameState().players.toString(), 10, height - 60);
+            font.draw(game.batch, "StateChange " + state.getPosition(), 10, height - 80);
         }
         game.batch.end();
     }
 
     private void applyReceivedChanges() {
         // CAUTION the types in GameState must be the same as in GameDataReceiver
-        GameState<PlayerState, MovableState> receivedGameState = game.getReceivedGameState();
-        // iterate over received changes
-        for (Map.Entry<Long, PlayerState> change : receivedGameState.players.entrySet()) {
-            long key = change.getKey();
-            PlayerState state = null;
-            try {
-                state = change.getValue();
-            } catch (ClassCastException e) {
-                e.printStackTrace();
-                System.out.println("UDP Data was not properly parsed from json");
-            } finally {
-                state = new PlayerState(Session.getInstance().getPlayerID());
-            }
+        receivedState = game.getReceivedGameState();
+        GameState<PlayerState, MovableState> copy = receivedState;
+
+        // iterate over received player changes
+        for (PlayerState change : copy.players.values()) {
+            long key = change.getPid();
+
             if (!gameState.players.containsKey(key)) {
                 // add player to the game
-                NetworkedPlayerController controller  = new NetworkedPlayerController(gameState, key);
-                Player newPlayer = new Player(state.getPosition(), Assets.lemurImage, controller);
+                NetworkedPlayerController controller = new NetworkedPlayerController(gameState, key);
+                Player newPlayer = new Player(change.getPosition(), Assets.lemurImage, controller);
                 gameState.players.put(key, newPlayer);
-            } else {
-                // apply changed values
-                Player player = gameState.players.get(key);
-                player.setPos(state.getPosition());
-                player.setHealth(state.getHealth());
             }
+            // apply changed values
+            Player player = gameState.players.get(key);
+            System.out.println("1 " + player.getPos());
+            Vector2 pos = change.getPosition();
+            System.out.println("pos " + pos);
+            player.setPos(pos);
+            System.out.println("2" + player.getPos());
+            player.setHealth(change.getHealth());
+            player.update(0);
+            player.draw(game.batch);
+
         }
     }
 
     @Override
     public void render(float delta) {
+        game.batch.begin();
 
         applyReceivedChanges();
 
-        game.batch.begin();
         Gdx.gl.glClearColor(1, 0, 0, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
         game.batch.setProjectionMatrix(camera.combined);
 
-        drawPlayers(delta);
+        //drawPlayers(delta);
         drawUI();
     }
 }

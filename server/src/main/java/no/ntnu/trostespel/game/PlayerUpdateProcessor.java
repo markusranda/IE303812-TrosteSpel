@@ -107,6 +107,7 @@ public class PlayerUpdateProcessor implements Callable<PlayerState> {
     }
 
     private void processMovement(PlayerActions action) {
+        System.out.println(action.isright);
         if (displacement.x == 0) {
             if (action.isleft) {
                 displacement.y += -GameState.playerSpeed;

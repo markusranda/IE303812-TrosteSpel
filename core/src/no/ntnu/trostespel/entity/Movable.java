@@ -23,8 +23,9 @@ public abstract class Movable extends GameObject {
 
     public void update(float delta) {
         //Update position
-        position = objectController.update(delta);
-        setPos(position);
+        if (position==null) {
+            return;
+        }
         if (!position.epsilonEquals(previousPos)) {
             displacement = position.sub(previousPos);
             moving = true;

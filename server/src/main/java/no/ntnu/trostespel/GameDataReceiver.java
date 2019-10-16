@@ -19,6 +19,9 @@ public class GameDataReceiver implements Runnable {
 
     private Gson gson;
 
+    private long startTime;
+    private long nextPrint;
+
 
     public GameDataReceiver(int port) throws IOException {
         this.udpSocket = new DatagramSocket(port);
@@ -34,7 +37,8 @@ public class GameDataReceiver implements Runnable {
             e.printStackTrace();
         }
         PlayerUpdateDispatcher dispatcher = new PlayerUpdateDispatcher();
-
+        startTime = System.currentTimeMillis();
+        nextPrint = startTime + 10000;
         while (true) {
             byte[] buf = new byte[256];
             DatagramPacket packet = new DatagramPacket(buf, buf.length);
@@ -70,6 +74,18 @@ public class GameDataReceiver implements Runnable {
             if (actions != null) {
                 dispatcher.dispatch(actions);
             }
+            countCmd();
+        }
+    }
+
+    private long count = 0;
+    private void countCmd() {
+        count++;
+        long time = System.currentTimeMillis();
+        if (time > nextPrint) {
+            System.out.println("Received " + count + " updates last 10 seconds");
+            nextPrint += 10000;
+            count = 0;
         }
     }
 }

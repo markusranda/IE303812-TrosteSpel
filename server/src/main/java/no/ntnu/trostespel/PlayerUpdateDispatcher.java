@@ -5,6 +5,8 @@ import no.ntnu.trostespel.game.MasterGameState;
 import no.ntnu.trostespel.game.PlayerUpdateProcessor;
 import no.ntnu.trostespel.state.PlayerState;
 
+import java.util.HashSet;
+import java.util.Set;
 import java.util.concurrent.*;
 
 /**
