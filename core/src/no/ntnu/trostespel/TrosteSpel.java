@@ -10,7 +10,6 @@ import no.ntnu.trostespel.entity.Session;
 import no.ntnu.trostespel.networking.ConnectionClient;
 import no.ntnu.trostespel.networking.GameDataReceiver;
 import no.ntnu.trostespel.networking.GameDataTransmitter;
-import no.ntnu.trostespel.state.GameState;
 
 import java.util.concurrent.*;
 
