@@ -130,7 +130,6 @@ public class GameplayEngine extends ScreenAdapter {
             updateProjectiles();
             spawnNewProjectiles();
 
-
             //drawPlayers(delta);
             drawUI();
             game.batch.end();

@@ -85,14 +85,12 @@ public class PlayerUpdateProcessor implements Runnable {
             }
             if (!attackDir.isEmpty()) {
                 playerState.getSpawnedObjects().put(projectile.getId(), projectile);
-                // allow attacks every 0.5 seconds
-                playerState.setAttackTimer(.5 * CommunicationConfig.TICKRATE);
+                // allow attacks every 0.3 seconds
+                playerState.setAttackTimer(.3 * CommunicationConfig.TICKRATE + 1);
             }
-        } else {
-            double attackTimer = playerState.getAttackTimer();
-            playerState.setAttackTimer(attackTimer - 1);
         }
-
+        double attackTimer = playerState.getAttackTimer();
+        playerState.setAttackTimer(attackTimer - 1);
     }
 
     private void processActionButtons(PlayerActions action) {
@@ -125,5 +123,6 @@ public class PlayerUpdateProcessor implements Runnable {
         }
         playerState.addPostion(displacement);
         playerAngle = displacement.angle();
+        System.out.println(playerAngle);
     }
 }
