@@ -1,6 +1,7 @@
 package no.ntnu.trostespel;
 
 import no.ntnu.trostespel.config.CommunicationConfig;
+import no.ntnu.trostespel.udp.GameDataReceiver;
 
 public class ServerLauncher {
 

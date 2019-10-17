@@ -1,7 +1,7 @@
 package no.ntnu.trostespel.config;
 
 import com.google.gson.reflect.TypeToken;
-import no.ntnu.trostespel.GameState;
+import no.ntnu.trostespel.state.GameState;
 import no.ntnu.trostespel.state.MovableState;
 import no.ntnu.trostespel.state.PlayerState;
 
@@ -19,7 +19,7 @@ public class CommunicationConfig {
     public static int SERVER_TCP_CONNECTION_RECEIVE_PORT;
     public static int CLIENT_UDP_GAMEDATA_RECEIVE_PORT;
     public static int CLIENT_TCP_CONNECTION_RECEIVE_PORT;
-    public static final int TICKRATE = 32;
+    public static final int TICKRATE = 1;
 
     public static final Type RECEIVED_DATA_TYPE = new TypeToken<GameState<PlayerState, MovableState>>() {}.getType();
 

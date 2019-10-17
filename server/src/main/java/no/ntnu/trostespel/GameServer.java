@@ -5,6 +5,7 @@ import no.ntnu.trostespel.config.CommunicationConfig;
 import no.ntnu.trostespel.game.MasterGameState;
 import no.ntnu.trostespel.model.Connection;
 import no.ntnu.trostespel.model.Connections;
+import no.ntnu.trostespel.state.GameState;
 import org.javers.core.Javers;
 import org.javers.core.JaversBuilder;
 
@@ -13,6 +14,9 @@ import java.lang.reflect.Type;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.util.List;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 import static org.javers.core.diff.ListCompareAlgorithm.LEVENSHTEIN_DISTANCE;
 
@@ -34,7 +38,11 @@ class GameServer {
 
     private Gson gson;
 
+    ThreadPoolExecutor executor;
+
     GameServer() {
+        executor = new ThreadPoolExecutor(8, 8, 0, TimeUnit.HOURS,new LinkedBlockingQueue<>());
+        masterGameState = MasterGameState.getInstance();
         gson = new Gson();
 
         // TODO: 15.10.2019 Create a dummySnapshot with only empty values
@@ -49,28 +57,41 @@ class GameServer {
                 .build();
 
         System.out.println("Server is ready to handle incoming connections!");
+        heartbeat();
 
+    }
 
-        long tickCounter = 0;
-        long timerCounter = 0;
-        // server heartbeat
-        //
+    private void heartbeat() {
+        double ns = 1000000000.0 / CommunicationConfig.TICKRATE;
+        double delta = 0;
+
+        long lastTime = System.nanoTime();
+        long timer = System.currentTimeMillis();
+
         while (true) {
-            if (time_passed >= time_per_timestep) {
-                tick_start_time = System.currentTimeMillis();
-                if (!connections.isEmpty()) {
-                    update();
-                } else {
-                    if (tickCounter >= timerCounter) {
-                        System.out.println("Waiting for at least one connection..");
-                        timerCounter = tickCounter + 1000;
-                    }
-                }
-                tickCounter++;
-                time_passed = 0;
+            long now = System.nanoTime();
+            delta += (now - lastTime) / ns;
+            lastTime = now;
+            while (delta >= 1) {
+                tick();
+                delta--;
             }
-            time_passed += System.currentTimeMillis() - tick_start_time;
         }
+    }
+
+    long tickCounter = 0;
+    long timerCounter = 0;
+    private void tick(){
+        if (!connections.isEmpty()) {
+            update();
+            System.out.println("Send");
+        } else {
+            if (tickCounter >= timerCounter) {
+                System.out.println("Waiting for at least one connection..");
+                timerCounter = tickCounter + 1000;
+            }
+        }
+        tickCounter++;
     }
 
     /**
@@ -80,8 +101,7 @@ class GameServer {
         // Send GameState to all clients
         // TODO: 15.10.2019 Add concurrency protection, since we will be modifying connecitons on the fly.
         for (Connection con : connections) {
-            Runnable runnable = submitGameState(con); //TODO: 15.10.2019 pool these runnables
-            runnable.run();
+            executor.execute(submitGameState(con)); //TODO: 15.10.2019 pool these runnables
         }
     }
 
@@ -136,9 +156,12 @@ class GameServer {
 //                }
 //            }
 
-        // Try to send the packet over the network
-        GameState nextGameState = MasterGameState.getInstance().getGameState();
+        // Send the difference
+//        String json = javers.getJsonConverter().toJson(diff);*/
+
+        GameState nextGameState = masterGameState.getGameState();
         String json = gson.toJson(nextGameState, RECEIVED_DATA_TYPE);
+        System.out.println(json);
         // TODO: Infinity-bug: playerstate never stops updating once it has started . . .
         //
 

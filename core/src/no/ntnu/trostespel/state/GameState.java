@@ -1,4 +1,4 @@
-package no.ntnu.trostespel;
+package no.ntnu.trostespel.state;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -6,7 +6,7 @@ import java.util.List;
 
 public class GameState <P, M> {
 
-    public static final float playerSpeed = 0.05f;
+    public static final double playerSpeed = 5d;
 
     public HashMap<Long, P> players;
     private HashMap<Long, M> projectiles;

@@ -1,11 +1,12 @@
 package no.ntnu.trostespel.networking;
 
+import com.badlogic.gdx.utils.Json;
 import com.google.gson.Gson;
 import com.google.gson.JsonIOException;
 import com.google.gson.JsonSyntaxException;
-import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
-import no.ntnu.trostespel.GameState;
+import no.ntnu.trostespel.entity.Player;
+import no.ntnu.trostespel.state.GameState;
 import no.ntnu.trostespel.config.CommunicationConfig;
 import no.ntnu.trostespel.state.MovableState;
 import no.ntnu.trostespel.state.PlayerState;
@@ -23,8 +24,8 @@ import static no.ntnu.trostespel.config.CommunicationConfig.CLIENT_UDP_GAMEDATA_
  */
 public class GameDataReceiver implements Runnable {
 
-    GameState updatedGameState = new GameState();
-    Gson gson = new Gson();
+    private volatile GameState<PlayerState, MovableState> updatedGameState = new GameState<>();
+    private Gson gson = new Gson();
 
     private final Type RECEIVED_DATA_TYPE = CommunicationConfig.RECEIVED_DATA_TYPE;
 
@@ -36,10 +37,11 @@ public class GameDataReceiver implements Runnable {
         } catch (SocketException e) {
             e.printStackTrace();
         }
+        DatagramPacket packet;
+        byte[] buf = new byte[256];
 
         while (true) {
-            byte[] buf = new byte[256];
-            DatagramPacket packet = new DatagramPacket(buf, buf.length);
+            packet = new DatagramPacket(buf, buf.length);
             try {
                 // blocks until a packet is received
                 udpSocket.receive(packet);
@@ -50,7 +52,7 @@ public class GameDataReceiver implements Runnable {
             String data = new String(packet.getData());
             StringReader sr = new StringReader(data);
             JsonReader reader = new JsonReader(sr);
-            reader.setLenient(true);
+            reader.setLenient(false);
             try {
                 updatedGameState = gson.fromJson(reader, RECEIVED_DATA_TYPE);
             } catch (JsonIOException e) {

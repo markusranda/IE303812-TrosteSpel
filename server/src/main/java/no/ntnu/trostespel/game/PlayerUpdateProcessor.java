@@ -1,14 +1,12 @@
 package no.ntnu.trostespel.game;
 
 import com.badlogic.gdx.math.Vector2;
-import no.ntnu.trostespel.GameState;
+import no.ntnu.trostespel.state.GameState;
 import no.ntnu.trostespel.PlayerActions;
 import no.ntnu.trostespel.state.PlayerState;
 import no.ntnu.trostespel.state.MovableState;
 
 import java.util.EnumSet;
-import java.util.Vector;
-import java.util.concurrent.Callable;
 
 public class PlayerUpdateProcessor implements Runnable {
 
@@ -40,12 +38,6 @@ public class PlayerUpdateProcessor implements Runnable {
     public PlayerUpdateProcessor(PlayerState playerState, PlayerActions actions, long startTime) {
         this.actions = actions;
         this.startTime = startTime;
-
-        if (playerState == null) {
-            // state does not exist if this is the players first update
-            // TODO: should this be handled by the initialConnect?
-            playerState = new PlayerState(actions.pid);
-        }
         this.playerState = playerState;
     }
 

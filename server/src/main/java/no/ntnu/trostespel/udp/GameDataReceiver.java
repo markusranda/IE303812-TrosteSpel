@@ -1,8 +1,10 @@
-package no.ntnu.trostespel;
+package no.ntnu.trostespel.udp;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
 import com.google.gson.stream.JsonReader;
+import no.ntnu.trostespel.PlayerActions;
+import no.ntnu.trostespel.PlayerUpdateDispatcher;
 import no.ntnu.trostespel.config.CommunicationConfig;
 
 import java.io.*;
@@ -11,6 +13,9 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.ExecutorService;
 
 public class GameDataReceiver implements Runnable {
     private DatagramSocket udpSocket;
@@ -22,8 +27,14 @@ public class GameDataReceiver implements Runnable {
     private long startTime;
     private long nextPrint;
 
+    private final Map<Integer, PlayerUpdateDispatcher> connectedClients;
+    private PlayerUpdateDispatcher dispatcher = new PlayerUpdateDispatcher();
+
+
+
 
     public GameDataReceiver(int port) throws IOException {
+        this.connectedClients = new HashMap<>();
         this.udpSocket = new DatagramSocket(port);
         this.gson = new Gson();
     }
@@ -36,45 +47,50 @@ public class GameDataReceiver implements Runnable {
         } catch (UnknownHostException e) {
             e.printStackTrace();
         }
-        PlayerUpdateDispatcher dispatcher = new PlayerUpdateDispatcher();
         startTime = System.currentTimeMillis();
         nextPrint = startTime + 10000;
-        while (true) {
-            byte[] buf = new byte[256];
-            DatagramPacket packet = new DatagramPacket(buf, buf.length);
+        byte[] buf = new byte[256];
+        DatagramPacket packet = new DatagramPacket(buf, buf.length);
 
+        while (true) {
             // blocks until a packet is received
             try {
                 udpSocket.receive(packet);
+                handlePacket(packet);
             } catch (IOException e) {
                 e.printStackTrace();
             }
-
-            // convert data to java object
-            String data = new String(packet.getData());
-            StringReader sr = new StringReader(data);
-            JsonReader reader = new JsonReader(sr);
-            reader.setLenient(true);
-            PlayerActions actions = null;
-            try {
-                actions = gson.fromJson(reader, PlayerActions.class);
-            } catch (JsonSyntaxException e) {
-                e.printStackTrace();
-                System.out.println(data);
-            } finally {
-                sr.close();
-                try {
-                    reader.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-
-            //
-            if (actions != null) {
-                dispatcher.dispatch(actions);
-            }
             countCmd();
+        }
+    }
+
+
+    private String data;
+    private StringReader sr;
+    private JsonReader reader;
+    PlayerActions actions = null;
+    private void handlePacket(DatagramPacket packet) {
+        // convert data to java object
+        data = new String(packet.getData());
+        sr = new StringReader(data);
+        reader = new JsonReader(sr);
+        reader.setLenient(true);
+        try {
+            actions = gson.fromJson(reader, PlayerActions.class);
+        } catch (Exception e) {
+            e.printStackTrace();
+            System.out.println(data);
+            actions = null;
+        } finally {
+            try {
+                reader.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        //
+        if (actions != null) {
+            dispatcher.dispatch(actions);
         }
     }
 
