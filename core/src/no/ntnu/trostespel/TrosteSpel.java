@@ -2,6 +2,7 @@ package no.ntnu.trostespel;
 
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import no.ntnu.trostespel.config.Assets;
 import no.ntnu.trostespel.config.KeyConfig;
 import no.ntnu.trostespel.config.CommunicationConfig;
@@ -47,7 +48,10 @@ public class TrosteSpel extends Game {
 
         // Connect to server
         try {
-            ExecutorService executor = Executors.newSingleThreadExecutor();
+            // TODO: 17.10.2019 This should maybe just be a Thread, that gets removed after connection is complete.
+            ExecutorService executor = Executors.newSingleThreadExecutor(
+                    new ThreadFactoryBuilder().setNameFormat("InitialConnection-%d").build()
+            );
 
             ConnectionClient connectionClient = new ConnectionClient(
                     CommunicationConfig.host,
@@ -68,6 +72,7 @@ public class TrosteSpel extends Game {
             // listen for updates from server
             gameDataReceiver = new GameDataReceiver();
             Thread gameDataReceiverThread = new Thread(gameDataReceiver);
+            gameDataReceiverThread.setName("GameDataReceiver");
             gameDataReceiverThread.start();
 
         } catch (Exception e) {
