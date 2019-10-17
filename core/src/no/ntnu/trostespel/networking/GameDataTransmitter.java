@@ -1,5 +1,6 @@
 package no.ntnu.trostespel.networking;
 
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import no.ntnu.trostespel.config.CommunicationConfig;
 
 import java.net.DatagramSocket;
@@ -16,7 +17,9 @@ public class GameDataTransmitter {
     private Runnable emitter;
 
     public GameDataTransmitter(long pid) {
-        ticker = Executors.newSingleThreadScheduledExecutor();
+        ticker = Executors.newSingleThreadScheduledExecutor(
+                new ThreadFactoryBuilder().setNameFormat("GameDataTransmitter-%d").build());
+
         this.emitter = emitter();
         try {
             socket = new DatagramSocket();
