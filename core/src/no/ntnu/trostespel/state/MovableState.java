@@ -14,7 +14,7 @@ public class MovableState {
     public MovableState(long pid) {
         this.id = createID();
         this.angle = 0;
-        this.velocity = (float) (GameState.playerSpeed / CommunicationConfig.TICKRATE);
+        this.velocity = (float) (1000 / CommunicationConfig.TICKRATE);
         this.pid = pid;
     }
 

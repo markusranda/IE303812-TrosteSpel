@@ -5,6 +5,7 @@ import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import no.ntnu.trostespel.config.Assets;
@@ -68,7 +69,6 @@ public class GameplayEngine extends ScreenAdapter {
             font.draw(game.batch, "Connected players " + receivedState.players.size(), 10, height - 60);
             font.draw(game.batch, "Position " + state.getPosition(), 10, height - 80);
         }
-        game.batch.end();
     }
 
     private void updatePlayers() {
@@ -114,22 +114,26 @@ public class GameplayEngine extends ScreenAdapter {
         }
     }
 
+
+
     @Override
     public void render(float delta) {
         this.receivedState = Session.getInstance().getReceivedGameState();
         if (this.receivedState != null) {
+
             game.batch.begin();
+            Gdx.gl.glClearColor(1, 0, 0, 1);
+            Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+            game.batch.setProjectionMatrix(camera.combined);
 
             updatePlayers();
             updateProjectiles();
             spawnNewProjectiles();
 
-            Gdx.gl.glClearColor(1, 0, 0, 1);
-            Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-            game.batch.setProjectionMatrix(camera.combined);
 
             //drawPlayers(delta);
             drawUI();
+            game.batch.end();
         }
 
     }

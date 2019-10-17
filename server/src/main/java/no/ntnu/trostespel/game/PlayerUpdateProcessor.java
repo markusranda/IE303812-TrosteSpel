@@ -21,10 +21,10 @@ public class PlayerUpdateProcessor implements Runnable {
 
 
     private enum Direction {
-        UP(90),
-        RIGHT(0),
-        DOWN(-90),
-        LEFT(180);
+        UP(0),
+        RIGHT(180),
+        DOWN(360),
+        LEFT(-180);
         private int dir;
 
         Direction(int i) {
@@ -60,6 +60,7 @@ public class PlayerUpdateProcessor implements Runnable {
         if (playerState.getAttackTimer() <= 0) {
             MovableState projectile = new MovableState(action.pid);
             EnumSet<Direction> attackDir = EnumSet.noneOf(Direction.class);
+
             if (action.isattackDown) {
                 attackDir.add(Direction.DOWN);
             }

@@ -2,12 +2,13 @@ package no.ntnu.trostespel.entity;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Shape2D;
 import com.badlogic.gdx.math.Vector2;
 
-public abstract class GameObject {
+public abstract class GameObject extends Sprite {
     Texture texture;
     Rectangle shape;
     float width;
@@ -18,6 +19,7 @@ public abstract class GameObject {
     private Vector2 pos;
 
     public GameObject (Vector2 pos, float width, float height, Rectangle shape, Texture texture) {
+        super();
         this.pos = pos;
         this.width = width;
         this.height = height;

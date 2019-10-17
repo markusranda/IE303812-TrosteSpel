@@ -25,7 +25,7 @@ public class Projectile extends Movable {
         heading.x = (float) Math.sin(rad);
         heading.y = (float) Math.cos(rad);
         heading.nor().scl(velocity);
-        setPos(heading);
+        setPos(getPos().add(heading));
     }
 
     @Override
