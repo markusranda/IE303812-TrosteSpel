@@ -1,10 +1,7 @@
 package no.ntnu.trostespel.controller;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.math.Vector2;
-import no.ntnu.trostespel.GameState;
-import no.ntnu.trostespel.config.PlayerKeyConfig;
-import no.ntnu.trostespel.entity.Player;
+import no.ntnu.trostespel.state.GameState;
 
 public class NetworkedPlayerController extends ObjectController {
 

@@ -1,14 +1,12 @@
 package no.ntnu.trostespel.game;
 
 import com.badlogic.gdx.math.Vector2;
-import no.ntnu.trostespel.GameState;
+import no.ntnu.trostespel.state.GameState;
 import no.ntnu.trostespel.PlayerActions;
 import no.ntnu.trostespel.state.PlayerState;
 import no.ntnu.trostespel.state.MovableState;
 
 import java.util.EnumSet;
-import java.util.Vector;
-import java.util.concurrent.Callable;
 
 public class PlayerUpdateProcessor implements Runnable {
 

@@ -39,6 +39,7 @@ public class PlayerUpdateDispatcher extends ThreadPoolExecutor {
 
     private void processCMD(PlayerActions actions) {
         startTime = System.currentTimeMillis();
+
         PlayerState playerState = (PlayerState) masterGameState.getGameState().players.get(actions.pid);
         PlayerUpdateProcessor processor = new PlayerUpdateProcessor(playerState, actions, startTime);
         execute(processor);

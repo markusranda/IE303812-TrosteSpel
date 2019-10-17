@@ -11,17 +11,14 @@ import no.ntnu.trostespel.config.Assets;
 import no.ntnu.trostespel.config.KeyConfig;
 import no.ntnu.trostespel.config.CommunicationConfig;
 import no.ntnu.trostespel.controller.NetworkedPlayerController;
-import no.ntnu.trostespel.controller.ObjectController;
 import no.ntnu.trostespel.entity.Movable;
 import no.ntnu.trostespel.entity.Player;
 import no.ntnu.trostespel.entity.Session;
+import no.ntnu.trostespel.state.GameState;
 import no.ntnu.trostespel.state.MovableState;
 import no.ntnu.trostespel.state.PlayerState;
 
-import java.util.Collection;
-import java.util.Map;
-
-public class MainGameState extends ScreenAdapter {
+public class GameplayEngine extends ScreenAdapter {
 
 
     private GameState<Player, Movable> gameState;
@@ -35,7 +32,7 @@ public class MainGameState extends ScreenAdapter {
 
     private GameState<PlayerState, MovableState> receivedState;
 
-    public MainGameState(TrosteSpel game) {
+    public GameplayEngine(TrosteSpel game) {
         this.game = game;
         this.gameState = new GameState<>();
         //
@@ -68,8 +65,8 @@ public class MainGameState extends ScreenAdapter {
             font.draw(game.batch, "Host: " + CommunicationConfig.host + ":" + CommunicationConfig.SERVER_UDP_GAMEDATA_RECEIVE_PORT, 10, height);
             font.draw(game.batch, "Host: " + CommunicationConfig.host + ":" + CommunicationConfig.SERVER_UDP_GAMEDATA_RECEIVE_PORT, 10, height - 20);
             font.draw(game.batch, "Tickrate " + CommunicationConfig.TICKRATE, 10, height - 40);
-            font.draw(game.batch, "Connected players " + game.getReceivedGameState().players.toString(), 10, height - 60);
-            font.draw(game.batch, "StateChange " + state.getPosition(), 10, height - 80);
+            font.draw(game.batch, "Connected players " + game.getReceivedGameState().players.size(), 10, height - 60);
+            font.draw(game.batch, "Position " + state.getPosition(), 10, height - 80);
         }
         game.batch.end();
     }
@@ -82,7 +79,6 @@ public class MainGameState extends ScreenAdapter {
         // iterate over received player changes
         for (PlayerState change : copy.players.values()) {
             long key = change.getPid();
-
             if (!gameState.players.containsKey(key)) {
                 // add player to the game
                 NetworkedPlayerController controller = new NetworkedPlayerController(gameState, key);
