@@ -162,8 +162,6 @@ class GameServer {
         GameState nextGameState = masterGameState.getGameState();
         String json = gson.toJson(nextGameState, RECEIVED_DATA_TYPE);
         System.out.println(json);
-        // TODO: Infinity-bug: playerstate never stops updating once it has started . . .
-        //
 
         return () -> {
             DatagramPacket packet = new DatagramPacket(
