@@ -27,11 +27,7 @@ import static org.javers.core.diff.ListCompareAlgorithm.LEVENSHTEIN_DISTANCE;
 class GameServer {
 
 
-    private final GameState dummySnapshot;
     private List<Connection> connections = Connections.getInstance().getConnections();
-    private double time_passed = 0;
-    private double tick_start_time = System.currentTimeMillis();
-    private double time_per_timestep = 1000d / CommunicationConfig.TICKRATE;
     private final Type RECEIVED_DATA_TYPE = CommunicationConfig.RECEIVED_DATA_TYPE;
 
     private MasterGameState masterGameState;
@@ -39,18 +35,16 @@ class GameServer {
 
     private Gson gson;
 
-    ThreadPoolExecutor executor;
+    private long tickCounter = 0;
+    private long timerCounter = 0;
+
+    private ThreadPoolExecutor executor;
 
     GameServer() {
         executor = new ThreadPoolExecutor(8, 8, 0, TimeUnit.HOURS, new LinkedBlockingQueue<>());
         masterGameState = MasterGameState.getInstance();
         gson = new Gson();
 
-        // TODO: 15.10.2019 Create a dummySnapshot with only empty values
-        dummySnapshot = null;
-
-
-        // TODO: 15.10.2019 initialize masterGameState
         masterGameState = MasterGameState.getInstance();
 
         javers = JaversBuilder.javers()
@@ -59,15 +53,16 @@ class GameServer {
 
         System.out.println("Server is ready to handle incoming connections!");
         heartbeat();
-
     }
 
+    /**
+     * Runs the servers game engine main loop
+     */
     private void heartbeat() {
         double ns = 1000000000.0 / CommunicationConfig.TICKRATE;
         double delta = 0;
 
         long lastTime = System.nanoTime();
-        long timer = System.currentTimeMillis();
 
         while (true) {
             long now = System.nanoTime();
@@ -80,9 +75,10 @@ class GameServer {
         }
     }
 
-    long tickCounter = 0;
-    long timerCounter = 0;
 
+    /**
+     * Method which will do everything the servers game engine needs to do each tick
+     */
     private void tick() {
         if (!connections.isEmpty()) {
             update();
