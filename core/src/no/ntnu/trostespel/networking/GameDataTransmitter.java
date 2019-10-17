@@ -1,6 +1,6 @@
 package no.ntnu.trostespel.networking;
 
-import no.ntnu.trostespel.config.ServerConfig;
+import no.ntnu.trostespel.config.CommunicationConfig;
 
 import java.net.DatagramSocket;
 import java.net.SocketException;
@@ -29,7 +29,7 @@ public class GameDataTransmitter {
     }
 
     public void run(){
-            ticker.scheduleAtFixedRate(emitter, 0, 100000 / ServerConfig.TICKRATE, TimeUnit.MICROSECONDS);
+            ticker.scheduleAtFixedRate(emitter, 0, 100000 / CommunicationConfig.TICKRATE, TimeUnit.MICROSECONDS);
     }
 
 

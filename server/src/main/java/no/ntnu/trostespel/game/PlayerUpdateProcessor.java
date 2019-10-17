@@ -7,9 +7,10 @@ import no.ntnu.trostespel.state.PlayerState;
 import no.ntnu.trostespel.state.MovableState;
 
 import java.util.EnumSet;
+import java.util.Vector;
 import java.util.concurrent.Callable;
 
-public class PlayerUpdateProcessor implements Callable {
+public class PlayerUpdateProcessor implements Runnable {
 
     private PlayerActions actions;
     private long startTime;
@@ -36,22 +37,26 @@ public class PlayerUpdateProcessor implements Callable {
         }
     }
 
-    public PlayerUpdateProcessor(PlayerState state, PlayerActions actions, long startTime) {
+    public PlayerUpdateProcessor(PlayerState playerState, PlayerActions actions, long startTime) {
         this.actions = actions;
         this.startTime = startTime;
-        this.playerState = state;
+
+        if (playerState == null) {
+            // state does not exist if this is the players first update
+            // TODO: should this be handled by the initialConnect?
+            playerState = new PlayerState(actions.pid);
+        }
+        this.playerState = playerState;
     }
 
     @Override
-    public PlayerState call() {
-        displacement = new Vector2();
+    public void run() {
+        displacement = Vector2.Zero;
         delta = startTime - System.currentTimeMillis();
         pid = actions.pid;
         processActionButtons(actions);
         processMovement(actions);
         processAttack(actions);
-
-        return playerState;
     }
 
     private void processAttack(PlayerActions action) {
@@ -102,10 +107,10 @@ public class PlayerUpdateProcessor implements Callable {
     private void processMovement(PlayerActions action) {
         if (displacement.x == 0) {
             if (action.isleft) {
-                displacement.y += -GameState.playerSpeed;
+                displacement.x += -GameState.playerSpeed;
             }
             if (action.isright) {
-                displacement.y += GameState.playerSpeed;
+                displacement.x += GameState.playerSpeed;
             }
         }
         if (displacement.y == 0) {
@@ -116,8 +121,7 @@ public class PlayerUpdateProcessor implements Callable {
                 displacement.y += -GameState.playerSpeed;
             }
         }
-        PlayerState oldState = playerState;
         playerState.addPostion(displacement);
-        playerAngle = oldState.getPosition().angle(playerState.getPosition());
+        playerAngle = displacement.angle();
     }
 }

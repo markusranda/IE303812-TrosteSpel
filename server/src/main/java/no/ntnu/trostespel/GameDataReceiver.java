@@ -3,8 +3,10 @@ package no.ntnu.trostespel;
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
 import com.google.gson.stream.JsonReader;
+import no.ntnu.trostespel.config.CommunicationConfig;
 
 import java.io.*;
+import java.lang.reflect.Type;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
@@ -16,6 +18,9 @@ public class GameDataReceiver implements Runnable {
     private long t = 0;
 
     private Gson gson;
+
+    private long startTime;
+    private long nextPrint;
 
 
     public GameDataReceiver(int port) throws IOException {
@@ -32,7 +37,8 @@ public class GameDataReceiver implements Runnable {
             e.printStackTrace();
         }
         PlayerUpdateDispatcher dispatcher = new PlayerUpdateDispatcher();
-
+        startTime = System.currentTimeMillis();
+        nextPrint = startTime + 10000;
         while (true) {
             byte[] buf = new byte[256];
             DatagramPacket packet = new DatagramPacket(buf, buf.length);
@@ -65,7 +71,21 @@ public class GameDataReceiver implements Runnable {
             }
 
             //
-            dispatcher.dispatch(actions);
+            if (actions != null) {
+                dispatcher.dispatch(actions);
+            }
+            countCmd();
+        }
+    }
+
+    private long count = 0;
+    private void countCmd() {
+        count++;
+        long time = System.currentTimeMillis();
+        if (time > nextPrint) {
+            System.out.println("Received " + count + " updates last 10 seconds");
+            nextPrint += 10000;
+            count = 0;
         }
     }
 }

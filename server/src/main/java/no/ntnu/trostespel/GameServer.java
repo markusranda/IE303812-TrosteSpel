@@ -1,18 +1,15 @@
 package no.ntnu.trostespel;
 
 import com.google.gson.Gson;
-import no.ntnu.trostespel.config.ConnectionConfig;
-import no.ntnu.trostespel.config.ServerConfig;
+import no.ntnu.trostespel.config.CommunicationConfig;
 import no.ntnu.trostespel.game.MasterGameState;
 import no.ntnu.trostespel.model.Connection;
 import no.ntnu.trostespel.model.Connections;
-import no.ntnu.trostespel.state.MovableState;
-import no.ntnu.trostespel.state.PlayerState;
 import org.javers.core.Javers;
 import org.javers.core.JaversBuilder;
-import org.javers.core.diff.Diff;
 
 import java.io.IOException;
+import java.lang.reflect.Type;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.util.List;
@@ -29,11 +26,16 @@ class GameServer {
     private List<Connection> connections = Connections.getInstance().getConnections();
     private double time_passed = 0;
     private double tick_start_time = System.currentTimeMillis();
-    private double time_per_timestep = ServerConfig.TICKRATE;
+    private double time_per_timestep = 1000d / CommunicationConfig.TICKRATE;
+    private final Type RECEIVED_DATA_TYPE = CommunicationConfig.RECEIVED_DATA_TYPE;
+
     private MasterGameState masterGameState;
     private Javers javers;
 
+    private Gson gson;
+
     GameServer() {
+        gson = new Gson();
 
         // TODO: 15.10.2019 Create a dummySnapshot with only empty values
         dummySnapshot = null;
@@ -49,9 +51,10 @@ class GameServer {
         System.out.println("Server is ready to handle incoming connections!");
 
 
-
         long tickCounter = 0;
         long timerCounter = 0;
+        // server heartbeat
+        //
         while (true) {
             if (time_passed >= time_per_timestep) {
                 tick_start_time = System.currentTimeMillis();
@@ -77,7 +80,7 @@ class GameServer {
         // Send GameState to all clients
         // TODO: 15.10.2019 Add concurrency protection, since we will be modifying connecitons on the fly.
         for (Connection con : connections) {
-            Runnable runnable = submitGameState(con);
+            Runnable runnable = submitGameState(con); //TODO: 15.10.2019 pool these runnables
             runnable.run();
         }
     }
@@ -90,55 +93,61 @@ class GameServer {
      */
     private Runnable submitGameState(Connection connection) {
         return () -> {
-            // Compare previous snapshot to MainGameState
-            GameState prevGameState = (GameState) connection.getSnapshotArray().getCurrent();
-            GameState nextGameState = masterGameState.getGameState();
-
-            String json;
-            // Populate json string with MasterGameState or the difference
-            if (connection.getSnapshotArray().isFirstRun()) {
-                // If it is the first run
-                // Just send everything
-                json = javers.getJsonConverter().toJson(nextGameState);
-
-                // Save MasterGameState to history
-                connection.getSnapshotArray().setAtCurrent(nextGameState);
-                connection.getSnapshotArray().setFirstRun(false);
-            } else {
-
-                // Move cursor forward , and save the MasterGameState to history
-                connection.getSnapshotArray().incrementCursor();
-                connection.getSnapshotArray().setAtCurrent(nextGameState);
-
-                // Check if the current is ack
-                if (((GameState) connection.getSnapshotArray().getCurrent()).isAck()) {
-
-                    // Send the difference between
-                    Diff diff = javers.compare(prevGameState, nextGameState);
-                    json = javers.getJsonConverter().toJson(diff);
-                } else {
-                    // try every snapshot until receiving finding one with ack,
-                    // and if we run out of elements to check, just send everything.
-                    json = javers.getJsonConverter().toJson(nextGameState);
-
-                    for (int i = connection.getSnapshotArray().getCurrentIndex(); i >= 0 ; i--) {
-                        GameState gameState = (GameState) connection.getSnapshotArray().get(i);
-                        if (gameState.isAck()) {
-                            prevGameState = gameState;
-                            Diff diff = javers.compare(prevGameState, nextGameState);
-                            json = javers.getJsonConverter().toJson(diff);
-                            break;
-                        }
-                    }
-                }
-            }
+//            // Compare previous snapshot to MainGameState
+//            GameState prevGameState = (GameState) connection.getSnapshotArray().getCurrent();
+//            GameState nextGameState = masterGameState.getGameState();
+//
+//            String json;
+//            // Populate json string with MasterGameState or the difference
+//            if (connection.getSnapshotArray().isFirstRun()) {
+//                // If it is the first run
+//                // Just send everything
+//                json = javers.getJsonConverter().toJson(nextGameState);
+//
+//                // Save MasterGameState to history
+//                connection.getSnapshotArray().setAtCurrent(nextGameState);
+//                connection.getSnapshotArray().setFirstRun(false);
+//            } else {
+//
+//                // Move cursor forward , and save the MasterGameState to history
+//                connection.getSnapshotArray().incrementCursor();
+//                connection.getSnapshotArray().setAtCurrent(nextGameState);
+//
+//                // Check if the current is ack
+//                if (((GameState) connection.getSnapshotArray().getCurrent()).isAck()) {
+//
+//                    // Send the difference between
+//                    Diff diff = javers.compare(prevGameState, nextGameState);
+//                    json = javers.getJsonConverter().toJson(diff);
+//                } else {
+//                    // try every snapshot until receiving finding one with ack,
+//                    // and if we run out of elements to check, just send everything.
+//                    json = javers.getJsonConverter().toJson(nextGameState);
+//
+//                    for (int i = connection.getSnapshotArray().getCurrentIndex(); i >= 0 ; i--) {
+//                        GameState gameState = (GameState) connection.getSnapshotArray().get(i);
+//                        if (gameState.isAck()) {
+//                            prevGameState = gameState;
+//                            Diff diff = javers.compare(prevGameState, nextGameState);
+//                            json = javers.getJsonConverter().toJson(diff);
+//                            break;
+//                        }
+//                    }
+//                }
+//            }
 
             // Try to send the packet over the network
+        GameState nextGameState = MasterGameState.getInstance().getGameState();
+        String json = gson.toJson(nextGameState, RECEIVED_DATA_TYPE);
+        // TODO: Infinity-bug: playerstate never stops updating once it has started . . .
+        //
+
+        return () -> {
             DatagramPacket packet = new DatagramPacket(
                     json.getBytes(),
                     json.getBytes().length,
                     connection.getAddress(),
-                    ConnectionConfig.CLIENT_UDP_GAMEDATA_RECEIVE_PORT);
+                    CommunicationConfig.CLIENT_UDP_GAMEDATA_RECEIVE_PORT);
 
             packet.setData(json.getBytes());
             try {

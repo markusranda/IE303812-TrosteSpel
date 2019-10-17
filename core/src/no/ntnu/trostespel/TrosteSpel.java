@@ -4,13 +4,12 @@ import com.badlogic.gdx.Game;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import no.ntnu.trostespel.config.Assets;
 import no.ntnu.trostespel.config.KeyConfig;
-import no.ntnu.trostespel.config.ConnectionConfig;
+import no.ntnu.trostespel.config.CommunicationConfig;
 import no.ntnu.trostespel.entity.Session;
 import no.ntnu.trostespel.networking.ConnectionClient;
 import no.ntnu.trostespel.networking.GameDataReceiver;
 import no.ntnu.trostespel.networking.GameDataTransmitter;
 
-import java.net.ConnectException;
 import java.util.concurrent.*;
 
 import static no.ntnu.trostespel.config.Assets.img;
@@ -28,7 +27,7 @@ public class TrosteSpel extends Game {
     public void create() {
         // load textures
         Assets.load();
-        ConnectionConfig.getInstance();
+        CommunicationConfig.getInstance();
         batch = new SpriteBatch();
         setScreen(new MainGameState(this));
 
@@ -54,8 +53,8 @@ public class TrosteSpel extends Game {
             ExecutorService executor = Executors.newSingleThreadExecutor();
 
             ConnectionClient connectionClient = new ConnectionClient(
-                    ConnectionConfig.host,
-                    ConnectionConfig.SERVER_TCP_CONNECTION_RECEIVE_PORT);
+                    CommunicationConfig.host,
+                    CommunicationConfig.SERVER_TCP_CONNECTION_RECEIVE_PORT);
 
             Callable<Long> connectionThread = () -> connectionClient.initialConnect(username);
 
