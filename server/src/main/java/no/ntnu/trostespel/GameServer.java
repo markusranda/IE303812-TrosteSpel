@@ -84,7 +84,6 @@ class GameServer {
     private void tick(){
         if (!connections.isEmpty()) {
             update();
-            System.out.println("Send");
         } else {
             if (tickCounter >= timerCounter) {
                 System.out.println("Waiting for at least one connection..");
@@ -128,7 +127,6 @@ class GameServer {
 
         GameState nextGameState = masterGameState.getGameState();
         String json = gson.toJson(nextGameState, RECEIVED_DATA_TYPE);
-        System.out.println(json);
         // TODO: Infinity-bug: playerstate never stops updating once it has started . . .
         //
 

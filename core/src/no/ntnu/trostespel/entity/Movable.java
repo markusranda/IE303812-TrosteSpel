@@ -22,16 +22,18 @@ public abstract class Movable extends GameObject {
 
     public void update(float delta) {
         //Update position
-        if (getPos()==null) {
+        Vector2 position = getPos();
+        if (position == null) {
             return;
         }
-        if (!getPos().epsilonEquals(previousPos)) {
-            displacement = getPos().sub(previousPos);
+        if (!position.epsilonEquals(previousPos)) {
+            displacement = previousPos.sub(position).scl(-1);
+            System.out.println(displacement);
             moving = true;
         } else {
             moving = false;
         }
-        previousPos = getPos();
+        previousPos = position;
     }
 
 

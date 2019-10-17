@@ -1,11 +1,24 @@
 package no.ntnu.trostespel.entity;
 
 
+import no.ntnu.trostespel.state.GameState;
+import no.ntnu.trostespel.state.MovableState;
+import no.ntnu.trostespel.state.PlayerState;
+
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
+
 public class Session {
 
     private static final Session instance = new Session();
 
     private long playerID = 0;
+
+    private volatile GameState<PlayerState, MovableState> receivedGameState;
+
+    private ReentrantReadWriteLock lock = new ReentrantReadWriteLock(true);
+    private Lock readLock = lock.readLock();
+    private Lock writeLock = lock.writeLock();
 
     private Session() {
     }
@@ -30,5 +43,24 @@ public class Session {
             return true;
         }
         return false;
+    }
+
+    public void setReceivedGameState(GameState<PlayerState, MovableState> receivedGameState) {
+        writeLock.lock();
+        try {
+            this.receivedGameState = receivedGameState;
+        } finally {
+            writeLock.unlock();
+        }
+    }
+
+    public GameState<PlayerState, MovableState> getReceivedGameState() {
+        readLock.lock();
+        GameState<PlayerState, MovableState> copy = receivedGameState;
+        try {
+            return copy;
+        } finally {
+            readLock.unlock();
+        }
     }
 }
