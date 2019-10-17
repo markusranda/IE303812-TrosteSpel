@@ -6,6 +6,7 @@ import com.google.gson.JsonIOException;
 import com.google.gson.JsonSyntaxException;
 import com.google.gson.stream.JsonReader;
 import no.ntnu.trostespel.entity.Player;
+import no.ntnu.trostespel.entity.Session;
 import no.ntnu.trostespel.state.GameState;
 import no.ntnu.trostespel.config.CommunicationConfig;
 import no.ntnu.trostespel.state.MovableState;
@@ -24,10 +25,15 @@ import static no.ntnu.trostespel.config.CommunicationConfig.CLIENT_UDP_GAMEDATA_
  */
 public class GameDataReceiver implements Runnable {
 
-    private volatile GameState<PlayerState, MovableState> updatedGameState = new GameState<>();
-    private Gson gson = new Gson();
+    private GameState<PlayerState, MovableState> updatedGameState = new GameState<>();
 
     private final Type RECEIVED_DATA_TYPE = CommunicationConfig.RECEIVED_DATA_TYPE;
+
+    // Variables for parsing in-data
+    private Gson gson = new Gson();
+    private String data;
+    private StringReader sr;
+    private JsonReader reader;
 
     @Override
     public void run() {
@@ -49,21 +55,18 @@ public class GameDataReceiver implements Runnable {
                 e.printStackTrace();
             }
 
-            String data = new String(packet.getData());
-            StringReader sr = new StringReader(data);
-            JsonReader reader = new JsonReader(sr);
+            data = new String(packet.getData());
+            sr = new StringReader(data);
+            reader = new JsonReader(sr);
             reader.setLenient(false);
             try {
                 updatedGameState = gson.fromJson(reader, RECEIVED_DATA_TYPE);
+                Session.getInstance().setReceivedGameState(updatedGameState);
             } catch (JsonIOException e) {
                 e.printStackTrace();
             } catch (JsonSyntaxException e) {
                 e.printStackTrace();
             }
         }
-    }
-
-    public GameState getUpdatedGameState() {
-        return this.updatedGameState;
     }
 }

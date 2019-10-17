@@ -118,7 +118,6 @@ public class PlayerUpdateProcessor implements Runnable {
             }
         }
         playerState.addPostion(displacement);
-        System.out.println("Pos in processor " + playerState.getPosition());
         playerAngle = displacement.angle();
     }
 }

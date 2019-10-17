@@ -8,7 +8,7 @@ import java.util.List;
 
 public class GameState <P, M> {
 
-    public static double playerSpeed = 100d / CommunicationConfig.TICKRATE;
+    public static double playerSpeed = 300d / CommunicationConfig.TICKRATE;
 
     public HashMap<Long, P> players;
     private HashMap<Long, M> projectiles;

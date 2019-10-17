@@ -36,10 +36,6 @@ public class TrosteSpel extends Game {
         makeServerConnection();
     }
 
-    public GameState getReceivedGameState() {
-        return this.gameDataReceiver.getUpdatedGameState();
-    }
-
     @Override
     public void dispose() {
         batch.dispose();

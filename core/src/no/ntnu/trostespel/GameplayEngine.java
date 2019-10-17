@@ -59,13 +59,13 @@ public class GameplayEngine extends ScreenAdapter {
         }
         if (debug) {
             long pid = Session.getInstance().getPlayerID();
-            PlayerState state = (PlayerState) game.getReceivedGameState().players.get(pid);
+            PlayerState state = (PlayerState) receivedState.players.get(pid);
 
             int height = 800;
             font.draw(game.batch, "Host: " + CommunicationConfig.host + ":" + CommunicationConfig.SERVER_UDP_GAMEDATA_RECEIVE_PORT, 10, height);
             font.draw(game.batch, "Host: " + CommunicationConfig.host + ":" + CommunicationConfig.SERVER_UDP_GAMEDATA_RECEIVE_PORT, 10, height - 20);
             font.draw(game.batch, "Tickrate " + CommunicationConfig.TICKRATE, 10, height - 40);
-            font.draw(game.batch, "Connected players " + game.getReceivedGameState().players.size(), 10, height - 60);
+            font.draw(game.batch, "Connected players " + receivedState.players.size(), 10, height - 60);
             font.draw(game.batch, "Position " + state.getPosition(), 10, height - 80);
         }
         game.batch.end();
@@ -73,11 +73,9 @@ public class GameplayEngine extends ScreenAdapter {
 
     private void applyReceivedChanges() {
         // CAUTION the types in GameState must be the same as in GameDataReceiver
-        receivedState = game.getReceivedGameState();
-        GameState<PlayerState, MovableState> copy = receivedState;
 
         // iterate over received player changes
-        for (PlayerState change : copy.players.values()) {
+        for (PlayerState change : receivedState.players.values()) {
             long key = change.getPid();
             if (!gameState.players.containsKey(key)) {
                 // add player to the game
@@ -98,15 +96,19 @@ public class GameplayEngine extends ScreenAdapter {
 
     @Override
     public void render(float delta) {
-        game.batch.begin();
+        this.receivedState = Session.getInstance().getReceivedGameState();
+        if (this.receivedState != null) {
+            game.batch.begin();
 
-        applyReceivedChanges();
+            applyReceivedChanges();
 
-        Gdx.gl.glClearColor(1, 0, 0, 1);
-        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-        game.batch.setProjectionMatrix(camera.combined);
+            Gdx.gl.glClearColor(1, 0, 0, 1);
+            Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+            game.batch.setProjectionMatrix(camera.combined);
 
-        //drawPlayers(delta);
-        drawUI();
+            //drawPlayers(delta);
+            drawUI();
+        }
+
     }
 }
