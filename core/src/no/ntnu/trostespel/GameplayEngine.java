@@ -59,7 +59,7 @@ public class GameplayEngine extends ScreenAdapter {
         }
         if (debug) {
             long pid = Session.getInstance().getPlayerID();
-            PlayerState state = (PlayerState) receivedState.players.get(pid);
+            PlayerState state = receivedState.players.get(pid);
 
             int height = 800;
             font.draw(game.batch, "Host: " + CommunicationConfig.host + ":" + CommunicationConfig.SERVER_UDP_GAMEDATA_RECEIVE_PORT, 10, height);

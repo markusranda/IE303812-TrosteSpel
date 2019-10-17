@@ -14,6 +14,8 @@ import java.net.Socket;
 public class ConnectionManager implements Runnable {
 
     private ServerSocket server;
+    long pid = 100;
+    private boolean firstTimeRunning = true;
 
     public ConnectionManager(int port) throws Exception {
         this.server = new ServerSocket(port, 1, null);
@@ -33,8 +35,7 @@ public class ConnectionManager implements Runnable {
             System.out.println(data);
 
             // Send the response back to the client.
-            // TODO: 03.10.2019 Create unique playerId for the player to use
-            String response = "206";
+            String response = getUniquePlayerId();
             OutputStream os = client.getOutputStream();
             OutputStreamWriter osw = new OutputStreamWriter(os);
             BufferedWriter bw = new BufferedWriter(osw);
@@ -50,6 +51,17 @@ public class ConnectionManager implements Runnable {
         }
         run();
     }
+
+    private String getUniquePlayerId() {
+        if (firstTimeRunning) {
+            firstTimeRunning = false;
+            return String.valueOf(pid);
+        } else {
+            pid++;
+            return String.valueOf(pid);
+        }
+    }
+
 
     public InetAddress getSocketAddress() {
         return this.server.getInetAddress();
