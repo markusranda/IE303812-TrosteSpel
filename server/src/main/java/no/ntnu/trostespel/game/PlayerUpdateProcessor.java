@@ -38,12 +38,6 @@ public class PlayerUpdateProcessor implements Runnable {
     public PlayerUpdateProcessor(PlayerState playerState, PlayerActions actions, long startTime) {
         this.actions = actions;
         this.startTime = startTime;
-
-        if (playerState == null) {
-            // state does not exist if this is the players first update
-            // TODO: should this be handled by the initialConnect?
-            playerState = new PlayerState(actions.pid);
-        }
         this.playerState = playerState;
     }
 

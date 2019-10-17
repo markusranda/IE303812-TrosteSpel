@@ -29,11 +29,7 @@ public class MasterGameState {
      */
     public void update(long pid) {
         if (!gameState.players.containsKey(pid)) {
-            // add player to to game
-            final int START_HEALTH = 100;
-            final Vector2 SPAWN_POS = new Vector2(100, 100);
-            PlayerState playerState = new PlayerState(pid, SPAWN_POS, START_HEALTH);
-            gameState.players.put(pid, playerState);
+            // should never happen
         }
         // TODO: update the state of the game here, checking collisions with projectiles, updating health etc
     }
