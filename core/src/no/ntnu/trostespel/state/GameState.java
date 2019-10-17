@@ -1,12 +1,14 @@
 package no.ntnu.trostespel.state;
 
+import no.ntnu.trostespel.config.CommunicationConfig;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
 public class GameState <P, M> {
 
-    public static final double playerSpeed = 5d;
+    public static double playerSpeed = 100d / CommunicationConfig.TICKRATE;
 
     public HashMap<Long, P> players;
     private HashMap<Long, M> projectiles;
@@ -17,6 +19,7 @@ public class GameState <P, M> {
 //        entities = new ArrayList<>();
         projectiles = new HashMap<>();
         players = new HashMap<>();
+
     }
 
 //    public List<G> getEntities() {

@@ -8,7 +8,7 @@ import no.ntnu.trostespel.state.PlayerState;
 //TODO: make MasterGameState threadsafe
 public class MasterGameState {
 
-    private GameState<PlayerState, MovableState> gameState;
+    private volatile GameState<PlayerState, MovableState> gameState;
 
     private static MasterGameState single_instance = null;
 

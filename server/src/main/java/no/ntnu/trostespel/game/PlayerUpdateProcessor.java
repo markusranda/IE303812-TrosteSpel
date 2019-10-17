@@ -35,6 +35,11 @@ public class PlayerUpdateProcessor implements Runnable {
         }
     }
 
+    /**
+     * @param playerState the playerstate object that will be updated
+     * @param actions     the actions to process
+     * @param startTime
+     */
     public PlayerUpdateProcessor(PlayerState playerState, PlayerActions actions, long startTime) {
         this.actions = actions;
         this.startTime = startTime;
@@ -43,9 +48,8 @@ public class PlayerUpdateProcessor implements Runnable {
 
     @Override
     public void run() {
-        displacement = Vector2.Zero;
-        delta = startTime - System.currentTimeMillis();
         pid = actions.pid;
+        this.displacement = displacement = new Vector2(0, 0);
         processActionButtons(actions);
         processMovement(actions);
         processAttack(actions);
@@ -114,6 +118,7 @@ public class PlayerUpdateProcessor implements Runnable {
             }
         }
         playerState.addPostion(displacement);
+        System.out.println("Pos in processor " + playerState.getPosition());
         playerAngle = displacement.angle();
     }
 }
