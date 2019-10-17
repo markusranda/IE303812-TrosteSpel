@@ -7,7 +7,6 @@ import no.ntnu.trostespel.controller.ObjectController;
 
 public abstract class Movable extends GameObject {
 
-    public Vector2 position;
     public Vector2 displacement;
     public ObjectController objectController;
     boolean moving = false;
@@ -23,11 +22,11 @@ public abstract class Movable extends GameObject {
 
     public void update(float delta) {
         //Update position
-        if (position==null) {
+        if (getPos()==null) {
             return;
         }
-        if (!position.epsilonEquals(previousPos)) {
-            displacement = position.sub(previousPos);
+        if (!getPos().epsilonEquals(previousPos)) {
+            displacement = getPos().sub(previousPos);
             moving = true;
         } else {
             moving = false;

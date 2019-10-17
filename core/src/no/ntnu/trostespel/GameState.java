@@ -6,7 +6,7 @@ import java.util.List;
 
 public class GameState <P, M> {
 
-    public static final int playerSpeed = 100;
+    public static final float playerSpeed = 0.05f;
 
     public HashMap<Long, P> players;
     private HashMap<Long, M> projectiles;

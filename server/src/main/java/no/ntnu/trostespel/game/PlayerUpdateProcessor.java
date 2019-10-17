@@ -10,7 +10,7 @@ import java.util.EnumSet;
 import java.util.Vector;
 import java.util.concurrent.Callable;
 
-public class PlayerUpdateProcessor implements Callable<PlayerState> {
+public class PlayerUpdateProcessor implements Runnable {
 
     private PlayerActions actions;
     private long startTime;
@@ -50,15 +50,13 @@ public class PlayerUpdateProcessor implements Callable<PlayerState> {
     }
 
     @Override
-    public PlayerState call() {
+    public void run() {
         displacement = Vector2.Zero;
         delta = startTime - System.currentTimeMillis();
         pid = actions.pid;
         processActionButtons(actions);
         processMovement(actions);
         processAttack(actions);
-
-        return playerState;
     }
 
     private void processAttack(PlayerActions action) {
@@ -109,10 +107,10 @@ public class PlayerUpdateProcessor implements Callable<PlayerState> {
     private void processMovement(PlayerActions action) {
         if (displacement.x == 0) {
             if (action.isleft) {
-                displacement.y += -GameState.playerSpeed;
+                displacement.x += -GameState.playerSpeed;
             }
             if (action.isright) {
-                displacement.y += GameState.playerSpeed;
+                displacement.x += GameState.playerSpeed;
             }
         }
         if (displacement.y == 0) {

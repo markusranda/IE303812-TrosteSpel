@@ -13,15 +13,16 @@ import java.util.concurrent.*;
  * This class is responsible for queuing and demultiplexing incoming
  * updates, and dispathching them for processing.
  */
-public class PlayerUpdateDispatcher {
+public class PlayerUpdateDispatcher extends ThreadPoolExecutor {
 
-    private ExecutorService processors;
     private long startTime = 0;
     private MasterGameState masterGameState;
 
 
+
+
     public PlayerUpdateDispatcher() {
-        this.processors = Executors.newCachedThreadPool();
+        super(8, 8, 0, TimeUnit.HOURS, new LinkedBlockingQueue<>(8));
         masterGameState = MasterGameState.getInstance();
     }
 
@@ -32,27 +33,24 @@ public class PlayerUpdateDispatcher {
      * @param actions the update to queue
      */
     public void dispatch(PlayerActions actions) {
-        Future<PlayerState> f = processCMD(actions);
-        updateMaster(f);
+        processCMD(actions);
+        updateMaster(actions.pid);
     }
 
-    private Future<PlayerState> processCMD(PlayerActions actions) {
+    private void processCMD(PlayerActions actions) {
         startTime = System.currentTimeMillis();
         PlayerState playerState = (PlayerState) masterGameState.getGameState().players.get(actions.pid);
-        return processors.submit(new PlayerUpdateProcessor(playerState, actions, startTime));
+        PlayerUpdateProcessor processor = new PlayerUpdateProcessor(playerState, actions, startTime);
+        execute(processor);
     }
 
-    private void updateMaster(Future<PlayerState> f) {
-        if (f != null) {
-            try {
-                PlayerState change = f.get();
-                long pid = change.getPid();
-                // TODO: this action should be performed only once the PlayerUpdateProcessor is done
-                // TODO: find a good way to synchronize these actions :^ )
-                masterGameState.update(pid);
-            } catch (InterruptedException | ExecutionException e) {
-                e.printStackTrace();
-            }
-        }
+    @Override
+    protected void afterExecute(Runnable r, Throwable t) {
+        super.afterExecute(r, t);
+        remove(r);
+    }
+
+    private void updateMaster(long pid) {
+        masterGameState.update(pid);
     }
 }
