@@ -52,6 +52,7 @@ public class TrosteSpel extends Game {
 
         // Connect to server
         try {
+            // TODO: 17.10.2019 This should maybe just be a Thread, that gets removed after connection is complete.
             ExecutorService executor = Executors.newSingleThreadExecutor(
                     new ThreadFactoryBuilder().setNameFormat("InitialConnection-%d").build()
             );
