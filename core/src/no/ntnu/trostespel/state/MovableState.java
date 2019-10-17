@@ -1,17 +1,21 @@
 package no.ntnu.trostespel.state;
 
 import com.badlogic.gdx.math.Vector2;
+import no.ntnu.trostespel.config.CommunicationConfig;
 
 import java.util.concurrent.atomic.AtomicLong;
 
 public class MovableState {
     private long id;
+    private long pid;
     private float velocity;
     private float angle;
-    private Vector2 position;
 
-    public MovableState() {
+    public MovableState(long pid) {
         this.id = createID();
+        this.angle = 0;
+        this.velocity = (float) (GameState.playerSpeed / CommunicationConfig.TICKRATE);
+        this.pid = pid;
     }
 
     public void setId(int id) {
@@ -26,10 +30,6 @@ public class MovableState {
         this.angle = angle;
     }
 
-    public void setPosition(Vector2 position) {
-        this.position = position;
-    }
-
     public long getId() {
         return id;
     }
@@ -42,8 +42,12 @@ public class MovableState {
         return angle;
     }
 
-    public Vector2 getPosition() {
-        return position;
+    public long getPid() {
+        return pid;
+    }
+
+    public void setPid(long pid) {
+        this.pid = pid;
     }
 
     private static AtomicLong idCounter = new AtomicLong();

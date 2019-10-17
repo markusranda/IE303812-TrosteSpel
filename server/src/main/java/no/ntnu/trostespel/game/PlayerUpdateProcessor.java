@@ -1,6 +1,7 @@
 package no.ntnu.trostespel.game;
 
 import com.badlogic.gdx.math.Vector2;
+import no.ntnu.trostespel.config.CommunicationConfig;
 import no.ntnu.trostespel.state.GameState;
 import no.ntnu.trostespel.PlayerActions;
 import no.ntnu.trostespel.state.PlayerState;
@@ -57,7 +58,7 @@ public class PlayerUpdateProcessor implements Runnable {
 
     private void processAttack(PlayerActions action) {
         if (playerState.getAttackTimer() <= 0) {
-            MovableState projectile = new MovableState();
+            MovableState projectile = new MovableState(action.pid);
             EnumSet<Direction> attackDir = EnumSet.noneOf(Direction.class);
             if (action.isattackDown) {
                 attackDir.add(Direction.DOWN);
@@ -83,8 +84,12 @@ public class PlayerUpdateProcessor implements Runnable {
             }
             if (!attackDir.isEmpty()) {
                 playerState.getSpawnedObjects().put(projectile.getId(), projectile);
-                playerState.setAttackTimer(0);
+                // allow attacks every 0.5 seconds
+                playerState.setAttackTimer(.5 * CommunicationConfig.TICKRATE);
             }
+        } else {
+            double attackTimer = playerState.getAttackTimer();
+            playerState.setAttackTimer(attackTimer - 1);
         }
 
     }

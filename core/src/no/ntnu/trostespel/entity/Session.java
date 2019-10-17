@@ -16,9 +16,14 @@ public class Session {
 
     private volatile GameState<PlayerState, MovableState> receivedGameState;
 
+    // syncronization
     private ReentrantReadWriteLock lock = new ReentrantReadWriteLock(true);
     private Lock readLock = lock.readLock();
     private Lock writeLock = lock.writeLock();
+
+    // RTT timers
+    private long packetSendTime = 0;
+    private long packetReceiveTime = 0;
 
     private Session() {
     }
@@ -62,5 +67,21 @@ public class Session {
         } finally {
             readLock.unlock();
         }
+    }
+
+    public long getPacketSendTime() {
+        return packetSendTime;
+    }
+
+    public long getPacketReceiveTime() {
+        return packetReceiveTime;
+    }
+
+    public void setPacketSendTime(long packetSendTime) {
+        this.packetSendTime = packetSendTime;
+    }
+
+    public void setPacketReceiveTime(long packetReceiveTime) {
+        this.packetReceiveTime = packetReceiveTime;
     }
 }

@@ -1,7 +1,9 @@
 package no.ntnu.trostespel.state;
 
 import com.badlogic.gdx.math.Vector2;
+import com.google.gson.annotations.Expose;
 
+import java.beans.Transient;
 import java.util.HashMap;
 
 public class PlayerState {
@@ -9,7 +11,10 @@ public class PlayerState {
     private long pid;
     private Vector2 position;
     private int health;
-    private long attackTimer = 0; //
+
+    @Expose(serialize = false, deserialize = false)
+    private double attackTimer = 0; //
+    @Expose(serialize = false, deserialize = false)
     private HashMap<Long, MovableState> spawnedObjects = new HashMap<>();
 
     public PlayerState(long pid) {
@@ -33,7 +38,7 @@ public class PlayerState {
         this.health = health;
     }
 
-    public void setAttackTimer(long attackTimer) {
+    public void setAttackTimer(double attackTimer) {
         this.attackTimer = attackTimer;
     }
 
@@ -45,7 +50,7 @@ public class PlayerState {
         return health;
     }
 
-    public long getAttackTimer() {
+    public double getAttackTimer() {
         return attackTimer;
     }
 
@@ -60,5 +65,9 @@ public class PlayerState {
 
     public HashMap<Long, MovableState> getSpawnedObjects() {
         return spawnedObjects;
+    }
+
+    public void resetSpawnedObjects() {
+        this.spawnedObjects = new HashMap<>();
     }
 }

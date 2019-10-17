@@ -10,9 +10,9 @@ import com.badlogic.gdx.math.Vector2;
 import no.ntnu.trostespel.config.Assets;
 import no.ntnu.trostespel.config.KeyConfig;
 import no.ntnu.trostespel.config.CommunicationConfig;
-import no.ntnu.trostespel.controller.NetworkedPlayerController;
 import no.ntnu.trostespel.entity.Movable;
 import no.ntnu.trostespel.entity.Player;
+import no.ntnu.trostespel.entity.Projectile;
 import no.ntnu.trostespel.entity.Session;
 import no.ntnu.trostespel.state.GameState;
 import no.ntnu.trostespel.state.MovableState;
@@ -71,7 +71,7 @@ public class GameplayEngine extends ScreenAdapter {
         game.batch.end();
     }
 
-    private void applyReceivedChanges() {
+    private void updatePlayers() {
         // CAUTION the types in GameState must be the same as in GameDataReceiver
 
         // iterate over received player changes
@@ -79,8 +79,7 @@ public class GameplayEngine extends ScreenAdapter {
             long key = change.getPid();
             if (!gameState.players.containsKey(key)) {
                 // add player to the game
-                NetworkedPlayerController controller = new NetworkedPlayerController(gameState, key);
-                Player newPlayer = new Player(change.getPosition(), Assets.lemurImage, controller);
+                Player newPlayer = new Player(change.getPosition(), Assets.lemurImage);
                 gameState.players.put(key, newPlayer);
             }
             // apply changed values
@@ -94,13 +93,36 @@ public class GameplayEngine extends ScreenAdapter {
         }
     }
 
+    private void spawnNewProjectiles() {
+        for (MovableState state : receivedState.getProjectiles().values()) {
+            long eid = state.getId();
+            long owner = state.getPid();
+            if (!gameState.getProjectiles().containsKey(eid)) {
+                Player player = gameState.players.get(owner);
+                if (player != null) {
+                    Projectile newProjectile = new Projectile(player.getPos(), Assets.bullet, state.getVelocity(), state.getAngle());
+                    gameState.getProjectiles().put(eid, newProjectile);
+                }
+            }
+        }
+    }
+
+    private void updateProjectiles() {
+        for (Movable projectile : gameState.getProjectiles().values()){
+            projectile.update(0);
+            projectile.draw(game.batch);
+        }
+    }
+
     @Override
     public void render(float delta) {
         this.receivedState = Session.getInstance().getReceivedGameState();
         if (this.receivedState != null) {
             game.batch.begin();
 
-            applyReceivedChanges();
+            updatePlayers();
+            updateProjectiles();
+            spawnNewProjectiles();
 
             Gdx.gl.glClearColor(1, 0, 0, 1);
             Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);

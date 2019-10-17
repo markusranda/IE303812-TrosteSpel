@@ -5,6 +5,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonIOException;
 import com.google.gson.JsonSyntaxException;
 import com.google.gson.stream.JsonReader;
+import com.google.gson.stream.MalformedJsonException;
 import no.ntnu.trostespel.entity.Player;
 import no.ntnu.trostespel.entity.Session;
 import no.ntnu.trostespel.state.GameState;
@@ -18,6 +19,7 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.SocketException;
 
+import static no.ntnu.trostespel.config.CommunicationConfig.BUF_LENGTH;
 import static no.ntnu.trostespel.config.CommunicationConfig.CLIENT_UDP_GAMEDATA_RECEIVE_PORT;
 
 /**
@@ -35,6 +37,8 @@ public class GameDataReceiver implements Runnable {
     private StringReader sr;
     private JsonReader reader;
 
+    private long packetReceiveTime = 0;
+
     @Override
     public void run() {
         DatagramSocket udpSocket = null;
@@ -44,13 +48,14 @@ public class GameDataReceiver implements Runnable {
             e.printStackTrace();
         }
         DatagramPacket packet;
-        byte[] buf = new byte[256];
+        byte[] buf = new byte[BUF_LENGTH];
 
         while (true) {
             packet = new DatagramPacket(buf, buf.length);
             try {
                 // blocks until a packet is received
                 udpSocket.receive(packet);
+                calculateRtt(System.currentTimeMillis());
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -66,7 +71,16 @@ public class GameDataReceiver implements Runnable {
                 e.printStackTrace();
             } catch (JsonSyntaxException e) {
                 e.printStackTrace();
+                System.out.println(data);
+            } catch (Exception e) {
             }
         }
+    }
+
+    /**
+     * Calculate round trip time of packet
+     */
+    private void calculateRtt(long packetReceiveTime) {
+        long rtt = packetReceiveTime - Session.getInstance().getPacketSendTime();
     }
 }

@@ -5,6 +5,7 @@ import com.google.gson.Gson;
 import no.ntnu.trostespel.PlayerActions;
 import no.ntnu.trostespel.config.KeyConfig;
 import no.ntnu.trostespel.config.CommunicationConfig;
+import no.ntnu.trostespel.entity.Session;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
@@ -52,6 +53,7 @@ public class UserInputManager {
         String json = new Gson().toJson(model);
         packet.setData(json.getBytes());
         try {
+            Session.getInstance().setPacketSendTime(System.currentTimeMillis());
             socket.send(packet);
         } catch (IOException e) {
             e.printStackTrace();

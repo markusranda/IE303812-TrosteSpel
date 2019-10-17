@@ -49,7 +49,7 @@ public class GameDataReceiver implements Runnable {
         }
         startTime = System.currentTimeMillis();
         nextPrint = startTime + 10000;
-        byte[] buf = new byte[256];
+        byte[] buf = new byte[2346];
         DatagramPacket packet = new DatagramPacket(buf, buf.length);
 
         while (true) {

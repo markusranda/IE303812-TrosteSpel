@@ -5,6 +5,9 @@ import no.ntnu.trostespel.state.GameState;
 import no.ntnu.trostespel.state.MovableState;
 import no.ntnu.trostespel.state.PlayerState;
 
+import java.util.ArrayList;
+import java.util.Collection;
+
 //TODO: make MasterGameState threadsafe
 public class MasterGameState {
 
@@ -32,6 +35,15 @@ public class MasterGameState {
             // should never happen
         }
         // TODO: update the state of the game here, checking collisions with projectiles, updating health etc
+
+        // add new objects spawned by the players
+        // to the gamestate
+        Collection<PlayerState> players = gameState.players.values();
+        for (PlayerState player : players) {
+            gameState.addProjectiles(player.getSpawnedObjects());
+
+            player.resetSpawnedObjects();
+        }
     }
 
     public void read() {

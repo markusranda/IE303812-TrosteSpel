@@ -4,13 +4,10 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import no.ntnu.trostespel.config.Assets;
-import no.ntnu.trostespel.controller.ObjectController;
-import org.w3c.dom.Text;
 
 public class Player extends Movable {
 
@@ -28,8 +25,8 @@ public class Player extends Movable {
     }
 
 
-    public Player(Vector2 pos, Texture texture, ObjectController objectController) {
-        super(pos, 72, 90, new Rectangle(), texture, objectController);
+    public Player(Vector2 pos, Texture texture) {
+        super(pos, 72, 90, new Rectangle(), texture);
         initAnimation();
         this.health = 100;
     }
