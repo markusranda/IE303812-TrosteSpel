@@ -92,7 +92,7 @@ class GameServer {
      * @return Returns a runnable
      */
     private Runnable submitGameState(Connection connection) {
-        return () -> {
+//        return () -> {
 //            // Compare previous snapshot to MainGameState
 //            GameState prevGameState = (GameState) connection.getSnapshotArray().getCurrent();
 //            GameState nextGameState = masterGameState.getGameState();
@@ -136,7 +136,7 @@ class GameServer {
 //                }
 //            }
 
-            // Try to send the packet over the network
+        // Try to send the packet over the network
         GameState nextGameState = MasterGameState.getInstance().getGameState();
         String json = gson.toJson(nextGameState, RECEIVED_DATA_TYPE);
         // TODO: Infinity-bug: playerstate never stops updating once it has started . . .
@@ -159,5 +159,4 @@ class GameServer {
             }
         };
     }
-
 }
