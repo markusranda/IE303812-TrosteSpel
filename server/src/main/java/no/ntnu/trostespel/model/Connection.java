@@ -1,7 +1,5 @@
 package no.ntnu.trostespel.model;
 
-import no.ntnu.trostespel.CircularArrayList;
-
 import java.net.InetAddress;
 
 public class Connection {

@@ -1,4 +1,4 @@
-package no.ntnu.trostespel;
+package no.ntnu.trostespel.model;
 
 import no.ntnu.trostespel.state.GameState;
 import no.ntnu.trostespel.state.MovableState;
