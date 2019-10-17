@@ -19,6 +19,8 @@ public class PlayerUpdateProcessor implements Runnable {
     private PlayerState playerState;
     private float playerAngle;
 
+    private int count = 0;
+
 
     private enum Direction {
         UP(0),

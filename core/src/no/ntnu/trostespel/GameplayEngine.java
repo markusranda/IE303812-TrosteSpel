@@ -109,7 +109,7 @@ public class GameplayEngine extends ScreenAdapter {
 
     private void updateProjectiles() {
         for (Movable projectile : gameState.getProjectiles().values()){
-            projectile.update(0);
+            projectile.update(Gdx.graphics.getDeltaTime());
             projectile.draw(game.batch);
         }
     }

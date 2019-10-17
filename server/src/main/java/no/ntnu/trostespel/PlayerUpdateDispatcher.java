@@ -46,13 +46,14 @@ public class PlayerUpdateDispatcher extends ThreadPoolExecutor {
             masterGameState.getGameState().players.put(actions.pid, playerState);
         }
         PlayerUpdateProcessor processor = new PlayerUpdateProcessor(playerState, actions, startTime);
+        System.out.println(this.getActiveCount());
         execute(processor);
     }
 
     @Override
     protected void afterExecute(Runnable r, Throwable t) {
         super.afterExecute(r, t);
-        remove(r);
+        //remove(r);
     }
 
     private void updateMaster(long pid) {

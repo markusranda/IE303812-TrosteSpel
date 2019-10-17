@@ -24,7 +24,8 @@ public class Projectile extends Movable {
         double rad = Math.toRadians(angle);
         heading.x = (float) Math.sin(rad);
         heading.y = (float) Math.cos(rad);
-        heading.nor().scl(velocity);
+        heading.nor().scl(velocity * delta);
+        System.out.println(delta);
         setPos(getPos().add(heading));
     }
 
