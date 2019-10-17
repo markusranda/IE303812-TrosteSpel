@@ -111,7 +111,11 @@ class GameServer {
     private Runnable submitGameState(Connection connection) {
         GameState nextGameState = masterGameState.getGameState();
         String json = gson.toJson(nextGameState, RECEIVED_DATA_TYPE);
-        System.out.println(json);
+        if (!nextGameState.getProjectileStateUpdates().isEmpty()) {
+            System.out.println(json);
+        }
+        nextGameState.getProjectileStateUpdates().clear();
+
 
         return () -> {
             DatagramPacket packet = new DatagramPacket(

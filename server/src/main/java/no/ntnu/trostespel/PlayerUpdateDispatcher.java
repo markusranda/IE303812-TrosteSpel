@@ -46,7 +46,6 @@ public class PlayerUpdateDispatcher extends ThreadPoolExecutor {
             masterGameState.getGameState().players.put(actions.pid, playerState);
         }
         PlayerUpdateProcessor processor = new PlayerUpdateProcessor(playerState, actions, startTime);
-        System.out.println(this.getActiveCount());
         execute(processor);
     }
 

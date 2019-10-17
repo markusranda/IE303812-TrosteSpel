@@ -20,6 +20,7 @@ public abstract class Movable extends GameObject {
         //Update position
         Vector2 position = getPos();
         if (position == null) {
+            System.out.println("Error: Movable position is null");
             return;
         }
         if (!position.epsilonEquals(previousPos)) {

@@ -1,12 +1,11 @@
 package no.ntnu.trostespel.game;
 
-import com.badlogic.gdx.math.Vector2;
 import no.ntnu.trostespel.state.GameState;
 import no.ntnu.trostespel.state.MovableState;
 import no.ntnu.trostespel.state.PlayerState;
 
-import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 
 //TODO: make MasterGameState threadsafe
 public class MasterGameState {
@@ -40,15 +39,26 @@ public class MasterGameState {
         // to the gamestate
         Collection<PlayerState> players = gameState.players.values();
         for (PlayerState player : players) {
-            gameState.addProjectiles(player.getSpawnedObjects());
-
+            gameState.getProjectileStateUpdates().addAll(player.getSpawnedObjects());
             player.resetSpawnedObjects();
         }
+
+        // persist the newly created projectiles
+        for (MovableState state: gameState.getProjectileStateUpdates()) {
+            gameState.getProjectiles().put(state.getId(), state);
+        }
+
+        // update projectiles positions and check collisions etc . . .
+        gameState.getProjectiles().forEach((k, v) -> {
+
+        });
+
     }
 
     public void read() {
 
     }
+
 
     public GameState getGameState() {
         return this.gameState;

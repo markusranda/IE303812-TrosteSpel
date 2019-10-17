@@ -19,6 +19,8 @@ import no.ntnu.trostespel.state.GameState;
 import no.ntnu.trostespel.state.MovableState;
 import no.ntnu.trostespel.state.PlayerState;
 
+import java.util.Queue;
+
 public class GameplayEngine extends ScreenAdapter {
 
 
@@ -94,7 +96,9 @@ public class GameplayEngine extends ScreenAdapter {
     }
 
     private void spawnNewProjectiles() {
-        for (MovableState state : receivedState.getProjectiles().values()) {
+        Queue<MovableState> queue = receivedState.getProjectileStateUpdates();
+        while (!queue.isEmpty()) {
+            MovableState state = queue.poll();
             long eid = state.getId();
             long owner = state.getPid();
             if (!gameState.getProjectiles().containsKey(eid)) {

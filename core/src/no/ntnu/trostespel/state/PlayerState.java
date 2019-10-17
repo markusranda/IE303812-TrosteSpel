@@ -5,6 +5,8 @@ import com.google.gson.annotations.Expose;
 
 import java.beans.Transient;
 import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.Queue;
 
 public class PlayerState {
 
@@ -12,10 +14,8 @@ public class PlayerState {
     private Vector2 position;
     private int health;
 
-    @Expose(serialize = false, deserialize = false)
-    private double attackTimer = 0; //
-    @Expose(serialize = false, deserialize = false)
-    private HashMap<Long, MovableState> spawnedObjects = new HashMap<>();
+    private transient double attackTimer = 0; //
+    private transient Queue<MovableState> spawnedObjects = new LinkedList<>();
 
     public PlayerState(long pid) {
         this.pid = pid;
@@ -63,11 +63,11 @@ public class PlayerState {
         this.position.add(displacement);
     }
 
-    public HashMap<Long, MovableState> getSpawnedObjects() {
+    public Queue<MovableState> getSpawnedObjects() {
         return spawnedObjects;
     }
 
     public void resetSpawnedObjects() {
-        this.spawnedObjects = new HashMap<>();
+        this.spawnedObjects.clear();
     }
 }

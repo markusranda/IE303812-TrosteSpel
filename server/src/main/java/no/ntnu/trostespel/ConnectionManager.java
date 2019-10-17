@@ -32,7 +32,6 @@ public class ConnectionManager implements Runnable {
             // Receive message from client
             BufferedReader in = new BufferedReader(new InputStreamReader(client.getInputStream()));
             data = in.readLine();
-            System.out.println(data);
 
             // Send the response back to the client.
             String response = getUniquePlayerId();

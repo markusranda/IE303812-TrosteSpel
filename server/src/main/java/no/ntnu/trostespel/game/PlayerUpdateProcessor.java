@@ -86,7 +86,7 @@ public class PlayerUpdateProcessor implements Runnable {
                 projectile.setAngle(playerAngle);
             }
             if (!attackDir.isEmpty()) {
-                playerState.getSpawnedObjects().put(projectile.getId(), projectile);
+                playerState.getSpawnedObjects().add(projectile);
                 // allow attacks every 0.3 seconds
                 playerState.setAttackTimer(.3 * CommunicationConfig.TICKRATE + 1);
             }
@@ -125,6 +125,5 @@ public class PlayerUpdateProcessor implements Runnable {
         }
         playerState.addPostion(displacement);
         playerAngle = displacement.angle();
-        System.out.println(playerAngle);
     }
 }
