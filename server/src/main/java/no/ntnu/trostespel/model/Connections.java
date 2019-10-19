@@ -27,6 +27,6 @@ public class Connections {
 
     public void setConnection(Connection connection) {
         getConnections().add(connection);
-        System.out.println("New connection added: " + connection.getAddress() + " - " + connection.getPlayerId());
+        System.out.println("New connection added: " + connection.getAddress() + " - " + connection.getPid());
     }
 }

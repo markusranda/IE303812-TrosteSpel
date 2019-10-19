@@ -5,21 +5,22 @@ import java.net.InetAddress;
 public class Connection {
 
     private InetAddress address;
-    private long playerId;
+    private String username;
+    private long pid;
     private double timeArrived;
-    private boolean remove = false;
 
-    public Connection(InetAddress address, long playerId) {
+    public Connection(InetAddress address, long pid, String username) {
         this.address = address;
-        this.playerId = playerId;
+        this.pid = pid;
+        this.username = username;
     }
 
     public InetAddress getAddress() {
         return address;
     }
 
-    public long getPlayerId() {
-        return playerId;
+    public long getPid() {
+        return pid;
     }
 
     public double getTimeArrived() {
@@ -30,11 +31,7 @@ public class Connection {
         this.timeArrived = System.currentTimeMillis();
     }
 
-    public void setToRemove() {
-        this.remove = true;
-    }
-
-    public boolean isRemove() {
-        return remove;
+    public String getUsername() {
+        return username;
     }
 }

@@ -42,7 +42,7 @@ public class ConnectionManager implements Runnable {
             System.out.println("Message sent to the client is " + response);
             bw.flush();
 
-            Connection connection = new Connection(client.getInetAddress(), Long.parseLong(response));
+            Connection connection = new Connection(client.getInetAddress(), Long.parseLong(response), data);
             Connections.getInstance().setConnection(connection);
             client.close();
         } catch (IOException io) {

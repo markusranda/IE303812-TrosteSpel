@@ -8,12 +8,12 @@ import no.ntnu.trostespel.model.Connections;
 import no.ntnu.trostespel.state.GameState;
 import org.javers.core.Javers;
 import org.javers.core.JaversBuilder;
-import org.javers.core.diff.Diff;
 
 import java.io.IOException;
 import java.lang.reflect.Type;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -39,6 +39,8 @@ class GameServer {
     private long timerCounter = 0;
 
     private ThreadPoolExecutor executor;
+
+    private List<Connection> connectionsToDrop = new ArrayList<>();
 
     GameServer() {
         executor = new ThreadPoolExecutor(1, CommunicationConfig.MAX_PLAYERS, 0, TimeUnit.HOURS, new LinkedBlockingQueue<>());
@@ -87,12 +89,17 @@ class GameServer {
             double timeSinceMillis = currentTime - timeArrived;
             if (timeSinceMillis > CommunicationConfig.RETRY_CONNECTION_TIMEOUT && timeArrived != 0.0) {
                 System.out.println(connection.getAddress() + " - Timed out!");
-                connection.setToRemove();
+                connectionsToDrop.add(connection);
             }
         }
-        boolean result = Connections.getInstance().getConnections().removeIf(Connection::isRemove);
-        if (result)
-            System.out.println("Got dropped!");
+        if (connectionsToDrop.size() > 0) {
+            for (Connection connection : connectionsToDrop) {
+                masterGameState.getGameState().players.remove(connection.getPid());
+                Connections.getInstance().getConnections().remove(connection);
+                System.out.println(connection.getUsername() + " - Got dropped from the game!");
+            }
+            connectionsToDrop.clear();
+        }
 
         if (!connections.isEmpty()) {
             update();
