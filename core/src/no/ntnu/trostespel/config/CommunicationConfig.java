@@ -21,6 +21,7 @@ public class CommunicationConfig {
     public static int CLIENT_TCP_CONNECTION_RECEIVE_PORT;
     public static final int TICKRATE = 30;
     public static final int BUF_LENGTH = 2346;
+    public static final int RETRY_CONNECTION_TIMEOUT = 1000;
 
     public static final Type RECEIVED_DATA_TYPE = new TypeToken<GameState<PlayerState, MovableState>>() {}.getType();
 
