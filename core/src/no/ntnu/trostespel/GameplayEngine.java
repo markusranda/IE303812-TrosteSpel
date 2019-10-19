@@ -11,6 +11,7 @@ import com.badlogic.gdx.math.Vector2;
 import no.ntnu.trostespel.config.Assets;
 import no.ntnu.trostespel.config.KeyConfig;
 import no.ntnu.trostespel.config.CommunicationConfig;
+import no.ntnu.trostespel.config.ScreenConfig;
 import no.ntnu.trostespel.entity.Movable;
 import no.ntnu.trostespel.entity.Player;
 import no.ntnu.trostespel.entity.Projectile;
@@ -44,7 +45,7 @@ public class GameplayEngine extends ScreenAdapter {
 
         // init camera
         camera = new OrthographicCamera();
-        camera.setToOrtho(false, 1200, 800);
+        camera.setToOrtho(false, ScreenConfig.SCREEN_WIDTH, ScreenConfig.SCREEN_HEIGHT);
         //
     }
 
