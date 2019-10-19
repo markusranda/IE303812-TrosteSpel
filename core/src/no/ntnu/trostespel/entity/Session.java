@@ -12,7 +12,7 @@ public class Session {
 
     private static final Session instance = new Session();
 
-    private long playerID = 0;
+    private long pid = 0;
 
     private volatile GameState<PlayerState, MovableState> receivedGameState;
 
@@ -33,8 +33,8 @@ public class Session {
         return instance;
     }
 
-    public long getPlayerID() {
-        return playerID;
+    public long getPid() {
+        return pid;
     }
 
     /**
@@ -43,9 +43,9 @@ public class Session {
      * @param playerID The playerID
      * @return True if playerID hasn't been set yet, false otherwise
      */
-    public boolean setPlayerID(long playerID) {
-        if (this.playerID == 0){
-            this.playerID = playerID;
+    public boolean setPid(long playerID) {
+        if (this.pid == 0){
+            this.pid = playerID;
             return true;
         }
         return false;

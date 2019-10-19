@@ -5,7 +5,6 @@ import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
-import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import no.ntnu.trostespel.config.Assets;
@@ -62,7 +61,7 @@ public class GameplayEngine extends ScreenAdapter {
             debug = true;
         }
         if (debug) {
-            long pid = Session.getInstance().getPlayerID();
+            long pid = Session.getInstance().getPid();
             PlayerState state = receivedState.players.get(pid);
 
             int height = 800;
