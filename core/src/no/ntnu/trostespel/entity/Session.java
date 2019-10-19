@@ -24,6 +24,7 @@ public class Session {
     // RTT timers
     private long packetSendTime = 0;
     private long packetReceiveTime = 0;
+    private String username;
 
     private Session() {
     }
@@ -83,5 +84,13 @@ public class Session {
 
     public void setPacketReceiveTime(long packetReceiveTime) {
         this.packetReceiveTime = packetReceiveTime;
+    }
+
+    public void setUserName(String username) {
+        this.username = username;
+    }
+
+    public String getUsername() {
+        return this.username;
     }
 }
