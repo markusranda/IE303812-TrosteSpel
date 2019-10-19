@@ -6,6 +6,8 @@ import com.google.gson.stream.JsonReader;
 import no.ntnu.trostespel.PlayerActions;
 import no.ntnu.trostespel.PlayerUpdateDispatcher;
 import no.ntnu.trostespel.config.CommunicationConfig;
+import no.ntnu.trostespel.model.Connection;
+import no.ntnu.trostespel.model.Connections;
 
 import java.io.*;
 import java.lang.reflect.Type;
@@ -48,9 +50,19 @@ public class GameDataReceiver implements Runnable {
         DatagramPacket packet = new DatagramPacket(buf, buf.length);
 
         while (true) {
-            // blocks until a packet is received
             try {
+                // blocks until a packet is received
                 udpSocket.receive(packet);
+
+                // register arrival
+                for (Connection con : Connections.getInstance().getConnections()) {
+                    if (con.getAddress().equals(packet.getAddress())) {
+                        con.setTimeArrivedToCurrentTime();
+                        break;
+                    }
+                }
+
+                // handle the packet
                 handlePacket(packet);
             } catch (IOException e) {
                 e.printStackTrace();

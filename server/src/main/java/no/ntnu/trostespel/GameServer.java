@@ -80,6 +80,20 @@ class GameServer {
      * Method which will do everything the servers game engine needs to do each tick
      */
     private void tick() {
+
+        for (Connection connection : Connections.getInstance().getConnections()) {
+            double currentTime = System.currentTimeMillis();
+            double timeArrived = connection.getTimeArrived();
+            double timeSinceMillis = currentTime - timeArrived;
+            if (timeSinceMillis > CommunicationConfig.RETRY_CONNECTION_TIMEOUT && timeArrived != 0.0) {
+                System.out.println(connection.getAddress() + " - Timed out!");
+                connection.setToRemove();
+            }
+        }
+        boolean result = Connections.getInstance().getConnections().removeIf(Connection::isRemove);
+        if (result)
+            System.out.println("Got dropped!");
+
         if (!connections.isEmpty()) {
             update();
         } else {
