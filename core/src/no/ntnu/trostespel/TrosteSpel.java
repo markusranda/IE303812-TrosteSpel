@@ -10,6 +10,7 @@ import no.ntnu.trostespel.entity.Session;
 import no.ntnu.trostespel.networking.ConnectionClient;
 import no.ntnu.trostespel.networking.GameDataReceiver;
 import no.ntnu.trostespel.networking.GameDataTransmitter;
+import no.ntnu.trostespel.screen.MainMenuScreen;
 
 import java.util.concurrent.*;
 
@@ -30,9 +31,9 @@ public class TrosteSpel extends Game {
         Assets.load();
         CommunicationConfig.getInstance();
         batch = new SpriteBatch();
-        setScreen(new GameplayEngine(this));
+        setScreen(new MainMenuScreen(this));
 
-        makeServerConnection();
+//        makeServerConnection();
     }
 
     @Override
@@ -41,10 +42,7 @@ public class TrosteSpel extends Game {
         img.dispose();
     }
 
-    private void makeServerConnection(){
-        // TODO: 11.10.2019 Ask the user for username, don't use static String.
-        String username = "LemuriumIntegrale";
-
+    public void makeServerConnection(){
         // Connect to server
         try {
             // TODO: 17.10.2019 This should maybe just be a Thread, that gets removed after connection is complete.
@@ -56,7 +54,7 @@ public class TrosteSpel extends Game {
                     CommunicationConfig.host,
                     CommunicationConfig.SERVER_TCP_CONNECTION_RECEIVE_PORT);
 
-            Callable<Long> connectionThread = () -> connectionClient.initialConnect(username);
+            Callable<Long> connectionThread = () -> connectionClient.initialConnect(Session.getInstance().getUsername());
 
             Future<Long> future = executor.submit(connectionThread);
             long playerId = future.get();
