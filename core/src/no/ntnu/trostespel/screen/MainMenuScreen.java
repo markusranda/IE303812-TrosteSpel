@@ -12,17 +12,21 @@ import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
-import com.badlogic.gdx.scenes.scene2d.ui.TextField;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import com.badlogic.gdx.graphics.*;
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import no.ntnu.trostespel.GameplayEngine;
 import no.ntnu.trostespel.TrosteSpel;
+import no.ntnu.trostespel.config.CommunicationConfig;
 import no.ntnu.trostespel.config.ScreenConfig;
 import no.ntnu.trostespel.entity.Session;
+import no.ntnu.trostespel.networking.ConnectionClient;
 
-import java.util.concurrent.Callable;
+import java.util.concurrent.*;
+
+import static java.util.concurrent.Executors.newSingleThreadExecutor;
 
 public class MainMenuScreen implements Screen {
 
@@ -64,7 +68,6 @@ public class MainMenuScreen implements Screen {
         mainTable.top();
 
         //Create buttons
-        TextButton playButton = new TextButton("Play", skin);
 //        TextButton optionsButton = new TextButton("Options", skin);
         TextButton exitButton = new TextButton("Exit", skin);
         TextButton connect = new TextButton("Connect", skin);
@@ -72,29 +75,41 @@ public class MainMenuScreen implements Screen {
         Input.TextInputListener listener = new Input.TextInputListener() {
             @Override
             public void input(String text) {
-                Session.getInstance().setUserName(text);
-                game.makeServerConnection();
+                try {
+                    // Get username
+                    Session.getInstance().setUserName(text);
+
+                    // Try connecting to the server
+                    ExecutorService executor = newSingleThreadExecutor((
+                            new ThreadFactoryBuilder().setNameFormat("ServerConnection-%d").build()));
+                    Callable connect = ConnectionClient.connect(CommunicationConfig.host,
+                            CommunicationConfig.SERVER_TCP_CONNECTION_RECEIVE_PORT);
+                    Future future = executor.submit(connect);
+
+                    // Retrieve and set the pid
+                    String response = (String) future.get();
+                    long pid = Long.parseLong(response);
+                    Session.getInstance().setPid(pid);
+
+                    // Start the game
+                    ((Game) Gdx.app.getApplicationListener()).setScreen(new GameplayEngine(game));
+
+                } catch (InterruptedException | ExecutionException e) {
+                    e.printStackTrace();
+                }
             }
 
             @Override
-            public void canceled() {
-
-            }
+            public void canceled() { }
         };
 
-        //Add listeners to buttons
-        playButton.addListener(new ClickListener() {
-            @Override
-            public void clicked(InputEvent event, float x, float y) {
-                ((Game) Gdx.app.getApplicationListener()).setScreen(new GameplayEngine(game));
-            }
-        });
 //        optionsButton.addListener(new ClickListener() {
 //            @Override
 //            public void clicked(InputEvent event, float x, float y) {
 //                System.out.println("Options have been pressed!");
 //            }
 //        });
+
         connect.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
@@ -119,13 +134,11 @@ public class MainMenuScreen implements Screen {
 
 
         //Add buttons to table
-        mainTable.add(playButton);
-        mainTable.row();
 //        mainTable.add(optionsButton);
         mainTable.row();
-        mainTable.add(exitButton);
-        mainTable.row();
         mainTable.add(connect);
+        mainTable.row();
+        mainTable.add(exitButton);
 
         //Add table to stage
         stage.addActor(mainTable);

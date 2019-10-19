@@ -2,12 +2,10 @@ package no.ntnu.trostespel;
 
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import no.ntnu.trostespel.config.Assets;
 import no.ntnu.trostespel.config.KeyConfig;
 import no.ntnu.trostespel.config.CommunicationConfig;
 import no.ntnu.trostespel.entity.Session;
-import no.ntnu.trostespel.networking.ConnectionClient;
 import no.ntnu.trostespel.networking.GameDataReceiver;
 import no.ntnu.trostespel.networking.GameDataTransmitter;
 import no.ntnu.trostespel.screen.MainMenuScreen;
@@ -23,7 +21,7 @@ public class TrosteSpel extends Game {
     public SpriteBatch batch;
     public KeyConfig keys;
     private GameDataReceiver gameDataReceiver;
-    private int retryTimer = 1000;
+
 
     @Override
     public void create() {
@@ -32,8 +30,6 @@ public class TrosteSpel extends Game {
         CommunicationConfig.getInstance();
         batch = new SpriteBatch();
         setScreen(new MainMenuScreen(this));
-
-//        makeServerConnection();
     }
 
     @Override
@@ -43,44 +39,17 @@ public class TrosteSpel extends Game {
     }
 
     public void makeServerConnection(){
-        // Connect to server
-        try {
-            // TODO: 17.10.2019 This should maybe just be a Thread, that gets removed after connection is complete.
-            ExecutorService executor = Executors.newSingleThreadExecutor(
-                    new ThreadFactoryBuilder().setNameFormat("InitialConnection-%d").build()
-            );
-
-            ConnectionClient connectionClient = new ConnectionClient(
-                    CommunicationConfig.host,
-                    CommunicationConfig.SERVER_TCP_CONNECTION_RECEIVE_PORT);
-
-            Callable<Long> connectionThread = () -> connectionClient.initialConnect(Session.getInstance().getUsername());
-
-            Future<Long> future = executor.submit(connectionThread);
-            long playerId = future.get();
-            // If no error codes were returned from the connection, go ahead and send data
-            if (playerId > 0) new GameDataTransmitter(playerId);
+            long pid = Session.getInstance().getPid();
+            // Start transmitting updates to server
+            new GameDataTransmitter(pid);
 
             Session session = Session.getInstance();
-            boolean result = session.setPlayerID(playerId);
+            boolean result = session.setPid(pid);
 
-            System.out.println("My playerID is: " + session.getPlayerID());
-
-            // listen for updates from server
+            // Listen for updates from server
             gameDataReceiver = new GameDataReceiver();
             Thread gameDataReceiverThread = new Thread(gameDataReceiver);
             gameDataReceiverThread.setName("GameDataReceiver");
             gameDataReceiverThread.start();
-
-        } catch (Exception e) {
-            System.out.println("Connection to server failed... Trying again in " + retryTimer / 1000 + " seconds");
-            CountDownLatch lock = new CountDownLatch(1);
-            try {
-                lock.await(1000, TimeUnit.MILLISECONDS);
-            } catch (InterruptedException ex) {
-                ex.printStackTrace();
-            }
-            makeServerConnection();
-        }
     }
 }

@@ -1,72 +1,50 @@
 package no.ntnu.trostespel.networking;
 
+import no.ntnu.trostespel.config.CommunicationConfig;
+import no.ntnu.trostespel.entity.Session;
+
 import java.io.*;
 import java.net.InetAddress;
 import java.net.Socket;
-import java.util.Scanner;
+import java.util.concurrent.Callable;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
-public class ConnectionClient implements Runnable {
+public class ConnectionClient {
 
-    public InetAddress getInetAddress() {
-        return socket.getInetAddress();
+
+    public static Callable connect(InetAddress serverAddress, int serverPort) {
+        return () -> doConnect(serverAddress, serverPort);
     }
 
-    private Socket socket;
-    private Scanner scanner;
-    String username = "lemurium";
+    private static String doConnect(InetAddress serverAddress, int serverPort) {
+        String data = null;
+        try {
+            Socket socket = new Socket(serverAddress, serverPort);
+            String username = Session.getInstance().getUsername();
 
-    public ConnectionClient(InetAddress serverAddress, int serverPort) throws Exception {
-        this.socket = new Socket(serverAddress, serverPort);
-        this.scanner = new Scanner(System.in);
-    }
+            System.out.println("\r\nConnected to Server: " + socket.getInetAddress());
 
-    @Override
-    public void run() {
-        long result = initialConnect(username);
-        System.out.println(result);
-    }
+            // Print username to server
+            PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
+            out.println(username);
 
-    /**
-     * Tries to connect to a server with username as parameter, this is the same username
-     * that the player wishes to use in the game. This method will return a long value
-     * with playerID, or a negative number describing what went wrong.
-     * <p>
-     * -1 : username was null
-     * -2 : IOException
-     * -3 : Server didn't respond with a number
-     *
-     * @param username The username the player wishes to use in the game
-     * @return playerID or negative number as error code.
-     */
-    public long initialConnect(String username) {
-        synchronized (this) {
-            if (username == null) return -1;
+            // Get answer from server
+            BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+            data = in.readLine();
+
+            socket.close();
+        } catch (Exception e) {
+            System.out.println("Connection to server failed... Trying again in "
+                    + CommunicationConfig.RETRY_CONNECTION_TIMEOUT / 1000 + " seconds");
+            CountDownLatch lock = new CountDownLatch(1);
             try {
-                System.out.println("\r\nConnected to Server: " + getInetAddress());
-                String data = null;
-
-                // Print username to server
-                PrintWriter out = new PrintWriter(this.socket.getOutputStream(), true);
-                out.println(username);
-
-                // Get answer from server
-                BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-                while (data == null) {
-                    data = in.readLine();
-                }
-
-                socket.close();
-                notify();
-                return Long.parseLong(data);
-
-            } catch (IOException e) {
-                e.printStackTrace();
-                notify();
-                return -2;
-            } catch (NumberFormatException nfe) {
-                notify();
-                return -3;
+                lock.await(1000, TimeUnit.MILLISECONDS);
+            } catch (InterruptedException ex) {
+                ex.printStackTrace();
             }
+            doConnect(serverAddress, serverPort);
         }
+        return data;
     }
 }
