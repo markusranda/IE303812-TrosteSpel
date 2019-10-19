@@ -22,7 +22,7 @@ public class PlayerUpdateDispatcher extends ThreadPoolExecutor {
 
 
     public PlayerUpdateDispatcher() {
-        super(8, 8, 0, TimeUnit.HOURS, new LinkedBlockingQueue<>(24));
+        super(1, 8, 0, TimeUnit.HOURS, new LinkedBlockingQueue<>(8));
         masterGameState = MasterGameState.getInstance();
     }
 

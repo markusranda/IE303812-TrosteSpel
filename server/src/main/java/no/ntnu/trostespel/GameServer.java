@@ -41,7 +41,7 @@ class GameServer {
     private ThreadPoolExecutor executor;
 
     GameServer() {
-        executor = new ThreadPoolExecutor(8, 8, 0, TimeUnit.HOURS, new LinkedBlockingQueue<>());
+        executor = new ThreadPoolExecutor(1, CommunicationConfig.MAX_PLAYERS, 0, TimeUnit.HOURS, new LinkedBlockingQueue<>());
         masterGameState = MasterGameState.getInstance();
         gson = new Gson();
 

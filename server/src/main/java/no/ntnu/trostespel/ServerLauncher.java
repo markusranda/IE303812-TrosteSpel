@@ -3,6 +3,9 @@ package no.ntnu.trostespel;
 import no.ntnu.trostespel.config.CommunicationConfig;
 import no.ntnu.trostespel.udp.GameDataReceiver;
 
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
 public class ServerLauncher {
 
     public static void main(String[] args) throws Exception {
@@ -14,8 +17,8 @@ public class ServerLauncher {
 
         Thread UdpThread = new Thread(UDPClient);
         Thread TcpThread = new Thread(TCPClient);
-        UdpThread.setName("UDPClient");
-        TcpThread.setName("TCPClient");
+        UdpThread.setName("GameDataReceiver");
+        TcpThread.setName("ConnectionClient");
 
         UdpThread.start();
         TcpThread.start();

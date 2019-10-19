@@ -27,14 +27,9 @@ public class GameDataReceiver implements Runnable {
     private long startTime;
     private long nextPrint;
 
-    private final Map<Integer, PlayerUpdateDispatcher> connectedClients;
     private PlayerUpdateDispatcher dispatcher = new PlayerUpdateDispatcher();
 
-
-
-
     public GameDataReceiver(int port) throws IOException {
-        this.connectedClients = new HashMap<>();
         this.udpSocket = new DatagramSocket(port);
         this.gson = new Gson();
     }
@@ -88,7 +83,6 @@ public class GameDataReceiver implements Runnable {
                 e.printStackTrace();
             }
         }
-        //
         if (actions != null) {
             dispatcher.dispatch(actions);
         }
