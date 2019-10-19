@@ -41,7 +41,7 @@ class GameServer {
     private ThreadPoolExecutor executor;
 
     GameServer() {
-        executor = new ThreadPoolExecutor(8, 8, 0, TimeUnit.HOURS, new LinkedBlockingQueue<>());
+        executor = new ThreadPoolExecutor(1, CommunicationConfig.MAX_PLAYERS, 0, TimeUnit.HOURS, new LinkedBlockingQueue<>());
         masterGameState = MasterGameState.getInstance();
         gson = new Gson();
 
@@ -109,11 +109,11 @@ class GameServer {
      * @return Returns a runnable
      */
     private Runnable submitGameState(Connection connection) {
-        GameState nextGameState = masterGameState.getGameState();
-        String json = gson.toJson(nextGameState, RECEIVED_DATA_TYPE);
-        System.out.println(json);
-
         return () -> {
+            GameState nextGameState = masterGameState.getGameState();
+            String json = gson.toJson(nextGameState, RECEIVED_DATA_TYPE);
+            System.out.println(json);
+
             DatagramPacket packet = new DatagramPacket(
                     json.getBytes(),
                     json.getBytes().length,

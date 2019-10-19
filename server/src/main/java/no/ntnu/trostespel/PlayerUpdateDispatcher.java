@@ -22,7 +22,7 @@ public class PlayerUpdateDispatcher extends ThreadPoolExecutor {
 
 
     public PlayerUpdateDispatcher() {
-        super(8, 8, 0, TimeUnit.HOURS, new LinkedBlockingQueue<>(8));
+        super(1, 8, 0, TimeUnit.HOURS, new LinkedBlockingQueue<>(8));
         masterGameState = MasterGameState.getInstance();
     }
 
@@ -45,10 +45,10 @@ public class PlayerUpdateDispatcher extends ThreadPoolExecutor {
             playerState = new PlayerState(actions.pid);
             masterGameState.getGameState().players.put(actions.pid, playerState);
         }
-        //PlayerUpdateProcessor processor = new PlayerUpdateProcessor(playerState, actions, startTime);
-        //execute(processor);
         PlayerUpdateProcessor processor = new PlayerUpdateProcessor(playerState, actions, startTime);
-        processor.run();
+        this.execute(processor);
+//        PlayerUpdateProcessor processor = new PlayerUpdateProcessor(playerState, actions, startTime);
+//        processor.run();
     }
 
     @Override
