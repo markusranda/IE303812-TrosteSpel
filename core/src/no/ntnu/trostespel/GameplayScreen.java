@@ -15,13 +15,15 @@ import no.ntnu.trostespel.entity.Movable;
 import no.ntnu.trostespel.entity.Player;
 import no.ntnu.trostespel.entity.Projectile;
 import no.ntnu.trostespel.entity.Session;
+import no.ntnu.trostespel.networking.GameDataReceiver;
+import no.ntnu.trostespel.networking.GameDataTransmitter;
 import no.ntnu.trostespel.state.GameState;
 import no.ntnu.trostespel.state.MovableState;
 import no.ntnu.trostespel.state.PlayerState;
 
 import java.util.Queue;
 
-public class GameplayEngine extends ScreenAdapter {
+public class GameplayScreen extends ScreenAdapter {
 
 
     private GameState<Player, Movable> gameState;
@@ -30,22 +32,42 @@ public class GameplayEngine extends ScreenAdapter {
     Rectangle lemur;
     private OrthographicCamera camera;
     private boolean debug = false;
-    private BitmapFont font = new BitmapFont();
+    private BitmapFont font;
     private float velocity = 6f;
 
     private GameState<PlayerState, MovableState> receivedState;
 
-    public GameplayEngine(TrosteSpel game) {
+    public GameplayScreen(TrosteSpel game) {
         this.game = game;
         this.gameState = new GameState<>();
-        //
+
+        // init keys
         KeyConfig keys = new KeyConfig();
         keys.loadDefault();
+
+        // init font
+        this.font = new BitmapFont();
 
         // init camera
         camera = new OrthographicCamera();
         camera.setToOrtho(false, ScreenConfig.SCREEN_WIDTH, ScreenConfig.SCREEN_HEIGHT);
-        //
+
+        communicate();
+    }
+
+    private void communicate() {
+        long pid = Session.getInstance().getPid();
+        // Start transmitting updates to server
+        new GameDataTransmitter(pid);
+
+        Session session = Session.getInstance();
+        boolean result = session.setPid(pid);
+
+        // Listen for updates from server
+        GameDataReceiver gameDataReceiver = new GameDataReceiver();
+        Thread gameDataReceiverThread = new Thread(gameDataReceiver);
+        gameDataReceiverThread.setName("GameDataReceiver");
+        gameDataReceiverThread.start();
     }
 
     private void drawPlayers(float delta) {

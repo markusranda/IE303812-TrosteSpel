@@ -1,13 +1,12 @@
 package no.ntnu.trostespel.screen;
 
-import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
+import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
@@ -17,7 +16,7 @@ import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import com.badlogic.gdx.graphics.*;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
-import no.ntnu.trostespel.GameplayEngine;
+import no.ntnu.trostespel.GameplayScreen;
 import no.ntnu.trostespel.TrosteSpel;
 import no.ntnu.trostespel.config.CommunicationConfig;
 import no.ntnu.trostespel.config.ScreenConfig;
@@ -34,15 +33,12 @@ public class MainMenuScreen implements Screen {
     private Stage stage;
     private Viewport viewport;
     private OrthographicCamera camera;
-    private TextureAtlas atlas;
     private Skin skin;
     private TrosteSpel game;
 
     public MainMenuScreen(TrosteSpel game) {
         this.game = game;
-
-        atlas = new TextureAtlas("skin/comic/skin/comic-ui.atlas");
-        skin = new Skin(Gdx.files.internal("skin/comic/skin/comic-ui.json"), atlas);
+        this.skin = TrosteSpel.skin;
 
         batch = new SpriteBatch();
         camera = new OrthographicCamera();
@@ -71,6 +67,7 @@ public class MainMenuScreen implements Screen {
 //        TextButton optionsButton = new TextButton("Options", skin);
         TextButton exitButton = new TextButton("Exit", skin);
         TextButton connect = new TextButton("Connect", skin);
+        TextButton play = new TextButton("Play", skin);
 
         Input.TextInputListener listener = new Input.TextInputListener() {
             @Override
@@ -91,9 +88,6 @@ public class MainMenuScreen implements Screen {
                     long pid = Long.parseLong(response);
                     Session.getInstance().setPid(pid);
 
-                    // Start the game
-                    ((Game) Gdx.app.getApplicationListener()).setScreen(new GameplayEngine(game));
-
                 } catch (InterruptedException | ExecutionException e) {
                     e.printStackTrace();
                 }
@@ -109,6 +103,15 @@ public class MainMenuScreen implements Screen {
 //                System.out.println("Options have been pressed!");
 //            }
 //        });
+
+        play.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                if (Session.getInstance().getPid() != 0) {
+                    game.setScreen(new GameplayScreen(game));
+                }
+            }
+        });
 
         connect.addListener(new ClickListener() {
             @Override
@@ -137,6 +140,8 @@ public class MainMenuScreen implements Screen {
 //        mainTable.add(optionsButton);
         mainTable.row();
         mainTable.add(connect);
+        mainTable.row();
+        mainTable.add(play);
         mainTable.row();
         mainTable.add(exitButton);
 
@@ -177,7 +182,6 @@ public class MainMenuScreen implements Screen {
 
     @Override
     public void dispose() {
-        skin.dispose();
-        atlas.dispose();
+        stage.dispose();
     }
 }
