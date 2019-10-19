@@ -29,8 +29,8 @@ public class TrosteSpel extends Game {
         batch = new SpriteBatch();
 
         // Load skin
-        TextureAtlas atlas = new TextureAtlas("skin/comic/skin/comic-ui.atlas");
-        skin = new Skin(Gdx.files.internal("skin/comic/skin/comic-ui.json"), atlas);
+        TextureAtlas atlas = new TextureAtlas("skin/star-soldier/skin/star-soldier-ui.atlas");
+        skin = new Skin(Gdx.files.internal("skin/star-soldier/skin/star-soldier-ui.json"), atlas);
 
         // Init config
         CommunicationConfig.getInstance();

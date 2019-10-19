@@ -4,19 +4,16 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
-import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.Stage;
-import com.badlogic.gdx.scenes.scene2d.ui.Skin;
-import com.badlogic.gdx.scenes.scene2d.ui.Table;
-import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
+import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import com.badlogic.gdx.graphics.*;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
-import no.ntnu.trostespel.GameplayScreen;
 import no.ntnu.trostespel.TrosteSpel;
 import no.ntnu.trostespel.config.CommunicationConfig;
 import no.ntnu.trostespel.config.ScreenConfig;
@@ -69,6 +66,10 @@ public class MainMenuScreen implements Screen {
         TextButton connect = new TextButton("Connect", skin);
         TextButton play = new TextButton("Play", skin);
 
+        //Create labels
+        Label connectedLabel = new Label("Not Connected", skin, "disconnected");
+        Label.LabelStyle labelStyle = skin.get("connected", Label.LabelStyle.class);
+
         Input.TextInputListener listener = new Input.TextInputListener() {
             @Override
             public void input(String text) {
@@ -87,6 +88,10 @@ public class MainMenuScreen implements Screen {
                     String response = (String) future.get();
                     long pid = Long.parseLong(response);
                     Session.getInstance().setPid(pid);
+
+                    connectedLabel.setText("Connected");
+
+                    connectedLabel.setStyle(labelStyle);
 
                 } catch (InterruptedException | ExecutionException e) {
                     e.printStackTrace();
@@ -139,11 +144,13 @@ public class MainMenuScreen implements Screen {
         //Add buttons to table
 //        mainTable.add(optionsButton);
         mainTable.row();
-        mainTable.add(connect);
+        mainTable.add(connect).minSize(300, 100).padBottom(10).padTop(200);
         mainTable.row();
-        mainTable.add(play);
+        mainTable.add(connectedLabel);
         mainTable.row();
-        mainTable.add(exitButton);
+        mainTable.add(play).minSize(300, 100).padBottom(10);
+        mainTable.row();
+        mainTable.add(exitButton).minSize(300, 100).padBottom(10);
 
         //Add table to stage
         stage.addActor(mainTable);
