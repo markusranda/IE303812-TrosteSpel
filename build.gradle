@@ -63,7 +63,6 @@ project(":desktop") {
 
 
 project(":server") {
-
     dependencies {
         implementation project(":core")
         compile group: 'com.google.code.gson', name: 'gson', version: '2.7'
