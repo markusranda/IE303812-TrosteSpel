@@ -117,9 +117,10 @@ class GameServer {
      */
     private void update() {
         // Send GameState to all clients
+        GameState nextGameState = masterGameState.getGameState();
         // TODO: 15.10.2019 Add concurrency protection, since we will be modifying connecitons on the fly.
         for (Connection con : connections) {
-            executor.execute(submitGameState(con)); //TODO: 15.10.2019 pool these runnables
+            executor.execute(submitGameState(con, nextGameState)); //TODO: 15.10.2019 pool these runnables
         }
     }
 
@@ -129,8 +130,7 @@ class GameServer {
      * @param connection The Connection
      * @return Returns a runnable
      */
-    private Runnable submitGameState(Connection connection) {
-        GameState nextGameState = masterGameState.getGameState();
+    private Runnable submitGameState(Connection connection, GameState nextGameState) {
         String json = gson.toJson(nextGameState, RECEIVED_DATA_TYPE);
         if (!nextGameState.getProjectileStateUpdates().isEmpty()) {
             System.out.println(json);
