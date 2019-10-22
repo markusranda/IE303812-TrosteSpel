@@ -1,5 +1,5 @@
 ## Java
-
+*.jar
 *.class
 *.war
 *.ear
@@ -127,3 +127,4 @@ Thumbs.db
 /ios-moe/xcode/native/
 /gamelibrary/build/
 /server/src/java/META-INF/
+/server/build/

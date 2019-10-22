@@ -13,12 +13,12 @@ import java.net.UnknownHostException;
 import java.util.Properties;
 
 public class CommunicationConfig {
-    private static Properties props;
     public static InetAddress host;
     public static int SERVER_UDP_GAMEDATA_RECEIVE_PORT;
     public static int SERVER_TCP_CONNECTION_RECEIVE_PORT;
     public static int CLIENT_UDP_GAMEDATA_RECEIVE_PORT;
     public static int CLIENT_TCP_CONNECTION_RECEIVE_PORT;
+    public static int CLIENT_TCP_MESSAGE_RECEIVE_PORT;
     public static final int TICKRATE = 30;
     public static final int BUF_LENGTH = 2346;
     public static final int RETRY_CONNECTION_TIMEOUT = 10000; // 10 seconds
@@ -41,13 +41,20 @@ public class CommunicationConfig {
 
 
     private void loadDefault() {
-        props = new Properties();
+        Properties serverProps = new Properties();
+        Properties clientProps = new Properties();
         try {
-            props.load(new FileReader("server.properties"));
+            serverProps.load(new FileReader("server.properties"));
         } catch (IOException e) {
             e.printStackTrace();
         }
-        String savedHost = props.getProperty("host");
+        try {
+            clientProps.load(new FileReader("client.properties"));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        String savedHost = clientProps.getProperty("host");
         if (savedHost.equals("localhost")) {
             try {
                 host = InetAddress.getLocalHost();
@@ -62,10 +69,11 @@ public class CommunicationConfig {
             }
         }
         try {
-            SERVER_UDP_GAMEDATA_RECEIVE_PORT = Integer.parseInt((String) props.get("SERVER_UDP_GAMEDATA_RECEIVE_PORT"));
-            SERVER_TCP_CONNECTION_RECEIVE_PORT = Integer.parseInt((String) props.get("SERVER_TCP_CONNECTION_RECEIVE_PORT"));
-            CLIENT_UDP_GAMEDATA_RECEIVE_PORT = Integer.parseInt((String) props.get("CLIENT_UDP_GAMEDATA_RECEIVE_PORT"));
-            CLIENT_TCP_CONNECTION_RECEIVE_PORT = Integer.parseInt((String) props.get("CLIENT_TCP_CONNECTION_RECEIVE_PORT"));
+            SERVER_UDP_GAMEDATA_RECEIVE_PORT = Integer.parseInt((String) serverProps.get("SERVER_UDP_GAMEDATA_RECEIVE_PORT"));
+            SERVER_TCP_CONNECTION_RECEIVE_PORT = Integer.parseInt((String) serverProps.get("SERVER_TCP_CONNECTION_RECEIVE_PORT"));
+            CLIENT_UDP_GAMEDATA_RECEIVE_PORT = Integer.parseInt((String) clientProps.get("CLIENT_UDP_GAMEDATA_RECEIVE_PORT"));
+            CLIENT_TCP_CONNECTION_RECEIVE_PORT = Integer.parseInt((String) clientProps.get("CLIENT_TCP_CONNECTION_RECEIVE_PORT"));
+            CLIENT_TCP_MESSAGE_RECEIVE_PORT = Integer.parseInt((String) clientProps.get("CLIENT_TCP_MESSAGE_RECEIVE_PORT"));
         } catch (ClassCastException e) {
             e.printStackTrace();
         }
