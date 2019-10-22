@@ -77,7 +77,7 @@ public class GameplayScreen extends ScreenAdapter {
             long pid = Session.getInstance().getPid();
             PlayerState state = receivedState.players.get(pid);
 
-            int height = 800;
+            int height = ScreenConfig.SCREEN_HEIGHT;
             font.draw(game.batch, "Host: " + CommunicationConfig.host + ":" + CommunicationConfig.SERVER_UDP_GAMEDATA_RECEIVE_PORT, 10, height);
             font.draw(game.batch, "Host: " + CommunicationConfig.host + ":" + CommunicationConfig.SERVER_UDP_GAMEDATA_RECEIVE_PORT, 10, height - 20);
             font.draw(game.batch, "Tickrate " + CommunicationConfig.TICKRATE, 10, height - 40);
@@ -149,6 +149,7 @@ public class GameplayScreen extends ScreenAdapter {
 
             //drawPlayers(delta);
             drawUI();
+
             game.batch.end();
         }
 
