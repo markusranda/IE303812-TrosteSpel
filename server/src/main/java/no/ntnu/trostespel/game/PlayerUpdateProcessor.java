@@ -23,10 +23,11 @@ public class PlayerUpdateProcessor implements Runnable {
 
 
     private enum Direction {
-        UP(0),
-        RIGHT(180),
-        DOWN(360),
-        LEFT(-180);
+        // Angle is relative to x-axis, counterclockwise
+        UP(90),
+        RIGHT(0),
+        DOWN(-90),
+        LEFT(180);
         private int dir;
 
         Direction(int i) {
@@ -60,7 +61,7 @@ public class PlayerUpdateProcessor implements Runnable {
 
     private void processAttack(PlayerActions action) {
         if (playerState.getAttackTimer() <= 0) {
-            MovableState projectile = new MovableState(action.pid);
+            MovableState projectile = new MovableState(action.pid, GameState.projectileSpeed);
             EnumSet<Direction> attackDir = EnumSet.noneOf(Direction.class);
 
             if (action.isattackDown) {
@@ -80,7 +81,7 @@ public class PlayerUpdateProcessor implements Runnable {
                 for (Direction dir : attackDir) {
                     direction += dir.value();
                 }
-                direction = direction / 2;
+                direction = direction / attackDir.size();
                 projectile.setAngle(direction);
             } else {
                 projectile.setAngle(playerAngle);

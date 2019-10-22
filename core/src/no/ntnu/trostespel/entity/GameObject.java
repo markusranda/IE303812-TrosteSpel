@@ -41,7 +41,7 @@ public abstract class GameObject extends Sprite {
     }
 
     public Vector2 getPos() {
-        return pos;
+        return pos.cpy();
     }
 
     public void displace(float x, float y) {

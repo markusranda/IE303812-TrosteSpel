@@ -12,10 +12,10 @@ public class MovableState {
     private float angle;
     private Action action;
 
-    public MovableState(long pid) {
+    public MovableState(long pid, float velocity) {
         this.id = createID();
         this.angle = 0;
-        this.velocity = (float) (333 / CommunicationConfig.TICKRATE);
+        this.velocity = velocity;
         this.pid = pid;
         this.action = Action.CREATE;
     }

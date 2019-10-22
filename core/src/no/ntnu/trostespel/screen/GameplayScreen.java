@@ -30,11 +30,9 @@ public class GameplayScreen extends ScreenAdapter {
     private GameState<Player, Movable> gameState;
 
     private TrosteSpel game;
-    Rectangle lemur;
     private OrthographicCamera camera;
     private boolean debug = false;
     private BitmapFont font;
-    private float velocity = 6f;
 
     private GameState<PlayerState, MovableState> receivedState;
 
@@ -71,14 +69,6 @@ public class GameplayScreen extends ScreenAdapter {
         gameDataReceiverThread.start();
     }
 
-    private void drawPlayers(float delta) {
-        for (Player player : gameState.players.values()) {
-            System.out.println(player);
-            player.update(delta);
-            player.draw(game.batch);
-        }
-    }
-
     private void drawUI() {
         if (Gdx.input.isKeyPressed(KeyConfig.toggleDebug)) {
             debug = true;
@@ -97,8 +87,6 @@ public class GameplayScreen extends ScreenAdapter {
     }
 
     private void updatePlayers() {
-        // CAUTION the types in GameState must be the same as in GameDataReceiver
-
         // iterate over received player changes
         for (PlayerState change : receivedState.players.values()) {
             long key = change.getPid();
@@ -110,6 +98,7 @@ public class GameplayScreen extends ScreenAdapter {
             // apply changed values
             Player player = gameState.players.get(key);
             Vector2 pos = change.getPosition();
+            System.out.println(pos);
             player.setPos(pos);
             player.setHealth(change.getHealth());
             player.update(0);
@@ -127,7 +116,8 @@ public class GameplayScreen extends ScreenAdapter {
             if (!gameState.getProjectiles().containsKey(eid)) {
                 Player player = gameState.players.get(owner);
                 if (player != null) {
-                    Projectile newProjectile = new Projectile(player.getPos(), Assets.bullet, state.getVelocity(), state.getAngle());
+                    Vector2 spawnPos = player.getPos();
+                    Projectile newProjectile = new Projectile(spawnPos, Assets.bullet, state.getVelocity(), state.getAngle());
                     gameState.getProjectiles().put(eid, newProjectile);
                 }
             }
