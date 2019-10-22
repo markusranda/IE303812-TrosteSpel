@@ -6,8 +6,6 @@ import no.ntnu.trostespel.game.MasterGameState;
 import no.ntnu.trostespel.model.Connection;
 import no.ntnu.trostespel.model.Connections;
 import no.ntnu.trostespel.state.GameState;
-import org.javers.core.Javers;
-import org.javers.core.JaversBuilder;
 
 import java.io.IOException;
 import java.lang.reflect.Type;
@@ -19,7 +17,6 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
-import static org.javers.core.diff.ListCompareAlgorithm.LEVENSHTEIN_DISTANCE;
 
 /**
  * This class will do every task the server need to do each tick.
@@ -31,7 +28,6 @@ class GameServer {
     private final Type RECEIVED_DATA_TYPE = CommunicationConfig.RECEIVED_DATA_TYPE;
 
     private MasterGameState masterGameState;
-    private Javers javers;
 
     private Gson gson;
 
@@ -43,15 +39,16 @@ class GameServer {
     private List<Connection> connectionsToDrop = new ArrayList<>();
 
     GameServer() {
-        executor = new ThreadPoolExecutor(1, CommunicationConfig.MAX_PLAYERS, 0, TimeUnit.HOURS, new LinkedBlockingQueue<>());
         masterGameState = MasterGameState.getInstance();
         gson = new Gson();
 
-        masterGameState = MasterGameState.getInstance();
-
-        javers = JaversBuilder.javers()
-                .withListCompareAlgorithm(LEVENSHTEIN_DISTANCE)
-                .build();
+        executor = new ThreadPoolExecutor(1, CommunicationConfig.MAX_PLAYERS, 0, TimeUnit.HOURS, new LinkedBlockingQueue<>()){
+            @Override
+            protected void afterExecute(Runnable r, Throwable t) {
+                super.afterExecute(r, t);
+                masterGameState.getGameState().getProjectileStateUpdates().clear();
+            }
+        };
 
         System.out.println("Server is ready to handle incoming connections!");
         heartbeat();
@@ -122,6 +119,7 @@ class GameServer {
         for (Connection con : connections) {
             executor.execute(submitGameState(con, nextGameState)); //TODO: 15.10.2019 pool these runnables
         }
+
     }
 
     /**
@@ -131,14 +129,11 @@ class GameServer {
      * @return Returns a runnable
      */
     private Runnable submitGameState(Connection connection, GameState nextGameState) {
-        String json = gson.toJson(nextGameState, RECEIVED_DATA_TYPE);
-        if (!nextGameState.getProjectileStateUpdates().isEmpty()) {
-            System.out.println(json);
-        }
-        nextGameState.getProjectileStateUpdates().clear();
-
-
         return () -> {
+            String json = gson.toJson(nextGameState, RECEIVED_DATA_TYPE);
+            if (!nextGameState.getProjectileStateUpdates().isEmpty()) {
+                System.out.println(json);
+            }
             DatagramPacket packet = new DatagramPacket(
                     json.getBytes(),
                     json.getBytes().length,
