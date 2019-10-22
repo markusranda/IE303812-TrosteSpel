@@ -18,9 +18,6 @@ public class PlayerUpdateDispatcher extends ThreadPoolExecutor {
     private long startTime = 0;
     private MasterGameState masterGameState;
 
-
-
-
     public PlayerUpdateDispatcher() {
         super(1, 8, 0, TimeUnit.HOURS, new LinkedBlockingQueue<>(8));
         masterGameState = MasterGameState.getInstance();

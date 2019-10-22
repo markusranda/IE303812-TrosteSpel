@@ -22,16 +22,13 @@ public class Projectile extends Movable {
     @Override
     public void update(float delta) {
         super.update(delta);
-        //Vector2 heading = new Vector2();
-        //double rad = Math.toRadians(angle);
-        //heading.x = (float) Math.sin(rad);
-        //heading.y = (float) Math.cos(rad);
-        //heading.nor();
-        //heading.scl(velocity * delta);
-        //System.out.println(delta);
+
+        // update the heading vector
         heading.setAngle(angle);
         heading.setLength(velocity);
-        Vector2 position = getPos().cpy();
+
+        // apply the heading vector
+        Vector2 position = getPos();
         Vector2 newPos = position.add(heading);
         setPos(newPos);
 
