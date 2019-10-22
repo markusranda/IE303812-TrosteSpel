@@ -8,13 +8,13 @@ import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Shape2D;
 import com.badlogic.gdx.math.Vector2;
 
-public abstract class GameObject extends Sprite {
-    Texture texture;
-    Rectangle shape;
-    float width;
-    float height;
+public abstract class GameObject {
+    protected   Texture texture;
+    protected Rectangle shape;
+    protected float width;
+    protected float height;
 
-    float stateTime;
+    protected float stateTime;
 
     private Vector2 pos;
 
@@ -52,4 +52,7 @@ public abstract class GameObject extends Sprite {
     public void setPos(Vector2 pos) {
         this.pos = pos;
     }
+
+
+
 }

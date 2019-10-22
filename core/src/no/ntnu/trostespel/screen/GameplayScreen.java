@@ -109,7 +109,7 @@ public class GameplayScreen extends ScreenAdapter {
     }
 
     private void spawnNewProjectiles() {
-        Queue<MovableState> queue = receivedState.getProjectileStateUpdates();
+        Queue<MovableState> queue = receivedState.getProjectilesStateUpdates();
         while (!queue.isEmpty()) {
             MovableState state = queue.poll();
             long eid = state.getId();

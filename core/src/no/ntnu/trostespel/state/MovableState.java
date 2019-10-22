@@ -2,22 +2,49 @@ package no.ntnu.trostespel.state;
 
 import com.badlogic.gdx.math.Vector2;
 import no.ntnu.trostespel.config.CommunicationConfig;
+import no.ntnu.trostespel.entity.Movable;
 
 import java.util.concurrent.atomic.AtomicLong;
 
-public class MovableState {
+public class MovableState extends ObjectState {
+
     private long id;
     private long pid;
     private float velocity;
     private float angle;
     private Action action;
 
+    private transient Vector2 heading;
+    public final transient int damage = 20;
+
     public MovableState(long pid, float velocity) {
+        super(24f, 24f, Vector2.Zero);
+        this.heading = new Vector2(1, 0); // Unit vector
         this.id = createID();
         this.angle = 0;
         this.velocity = velocity;
         this.pid = pid;
         this.action = Action.CREATE;
+    }
+
+    private MovableState(long id, long pid) {
+        super(24f, 24f, Vector2.Zero);
+        this.heading = new Vector2(0, 0); // Unit vector
+        this.angle = 0;
+        this.velocity = 0;
+        this.pid = pid;
+        this.action = Action.CREATE;
+        this.id = id;
+    }
+
+    /**
+     * @param pid
+     * @return a new movablestate with the kill action
+     */
+    public static MovableState kill(long id, long pid) {
+        MovableState returnVal = new MovableState(id, pid);
+        returnVal.setAction(Action.KILL);
+        return returnVal;
     }
 
 
@@ -29,7 +56,7 @@ public class MovableState {
         return action;
     }
 
-    public void setId(int id) {
+    private void setId(int id) {
         this.id = id;
     }
 
@@ -62,7 +89,18 @@ public class MovableState {
     }
 
     private static AtomicLong idCounter = new AtomicLong();
+
     public static long createID() {
         return idCounter.getAndIncrement();
+    }
+
+    public Vector2 getHeading() {
+        heading.setAngle(angle);
+        heading.setLength(velocity);
+        return heading;
+    }
+
+    public void setHeading(Vector2 heading) {
+        this.heading = heading;
     }
 }

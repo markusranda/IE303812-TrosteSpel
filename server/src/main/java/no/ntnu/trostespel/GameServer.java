@@ -1,5 +1,6 @@
 package no.ntnu.trostespel;
 
+import com.badlogic.gdx.Gdx;
 import com.google.gson.Gson;
 import no.ntnu.trostespel.config.CommunicationConfig;
 import no.ntnu.trostespel.game.MasterGameState;
@@ -35,7 +36,7 @@ class GameServer {
 
     private Gson gson;
 
-    private long tickCounter = 0;
+    private static long tickCounter = 0;
     private long timerCounter = 0;
 
     private ThreadPoolExecutor executor;
@@ -106,7 +107,8 @@ class GameServer {
         } else {
             if (tickCounter >= timerCounter) {
                 System.out.println("Waiting for at least one connection..");
-                timerCounter = tickCounter + 1000;
+                long currentTick = tickCounter;
+                timerCounter = currentTick + 1000;
             }
         }
         tickCounter++;
@@ -132,11 +134,10 @@ class GameServer {
      */
     private Runnable submitGameState(Connection connection, GameState nextGameState) {
         String json = gson.toJson(nextGameState, RECEIVED_DATA_TYPE);
-        if (!nextGameState.getProjectileStateUpdates().isEmpty()) {
+        if (!nextGameState.getProjectilesStateUpdates().isEmpty()) {
             System.out.println(json);
         }
-        nextGameState.getProjectileStateUpdates().clear();
-
+        nextGameState.getProjectilesStateUpdates().clear();
 
         return () -> {
             DatagramPacket packet = new DatagramPacket(
@@ -154,5 +155,9 @@ class GameServer {
                 e.printStackTrace();
             }
         };
+    }
+
+    public static long getTickcounter() {
+        return tickCounter;
     }
 }
