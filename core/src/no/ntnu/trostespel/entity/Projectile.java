@@ -31,7 +31,9 @@ public class Projectile extends Movable {
         //System.out.println(delta);
         heading.setAngle(angle);
         heading.setLength(velocity);
-        getPos().add(heading);
+        Vector2 position = getPos().cpy();
+        Vector2 newPos = position.add(heading);
+        setPos(newPos);
 
     }
 
