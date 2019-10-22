@@ -1,9 +1,7 @@
 apply plugin: "java"
 
 sourceCompatibility = 1.8
-sourceSets.main.java.srcDirs = [ "src/" ]
-sourceSets.main.resources.srcDirs = ["../core/assets"]
-
+sourceSets.main.java.srcDirs = [ "src/main/java" ]
 project.ext.mainClassName = "no.ntnu.trostespel.ServerLauncher"
 
 task run(dependsOn: classes, type: JavaExec) {
