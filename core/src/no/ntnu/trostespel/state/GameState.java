@@ -15,8 +15,8 @@ public class GameState<P, M> {
     private transient static double BASE_PLAYER_SPEED = 300d;
     public transient static double playerSpeed = BASE_PLAYER_SPEED / CommunicationConfig.TICKRATE;
 
-    private transient static float BASE_PROJECTILE_SPEED = 900f;
-    public transient static float projectileSpeed = BASE_PROJECTILE_SPEED / CommunicationConfig.TICKRATE;
+    private transient static double BASE_PROJECTILE_SPEED = 300d;
+    public transient static double projectileSpeed = BASE_PROJECTILE_SPEED / CommunicationConfig.TICKRATE;
 
 
     private transient HashMap<Long, M> projectiles;

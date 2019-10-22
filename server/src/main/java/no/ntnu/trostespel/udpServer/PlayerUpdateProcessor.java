@@ -1,7 +1,8 @@
-package no.ntnu.trostespel.game;
+package no.ntnu.trostespel.udpServer;
 
 import com.badlogic.gdx.math.Vector2;
 import no.ntnu.trostespel.config.CommunicationConfig;
+import no.ntnu.trostespel.game.MasterGameState;
 import no.ntnu.trostespel.state.GameState;
 import no.ntnu.trostespel.PlayerActions;
 import no.ntnu.trostespel.state.PlayerState;

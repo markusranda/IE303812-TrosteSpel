@@ -69,7 +69,6 @@ public class MasterGameState {
             Vector2 position = v.getPosition().cpy();
             Vector2 newPos = position.add(heading);
             v.setPosition(newPos);
-
             detectCollision(v);
         });
 

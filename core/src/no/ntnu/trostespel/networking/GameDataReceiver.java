@@ -36,17 +36,17 @@ public class GameDataReceiver implements Runnable {
     private String data;
     private StringReader sr;
     private JsonReader reader;
+    private DatagramSocket udpSocket;
 
     private long packetReceiveTime = 0;
 
+    public GameDataReceiver(DatagramSocket socket) {
+        this.udpSocket = socket;
+    }
+
     @Override
     public void run() {
-        DatagramSocket udpSocket = null;
-        try {
-            udpSocket = new DatagramSocket(CLIENT_UDP_GAMEDATA_RECEIVE_PORT);
-        } catch (SocketException e) {
-            e.printStackTrace();
-        }
+
         DatagramPacket packet;
         byte[] buf = new byte[BUF_LENGTH];
 
@@ -76,6 +76,9 @@ public class GameDataReceiver implements Runnable {
             }
         }
     }
+
+
+
 
     /**
      * Calculate round trip time of packet

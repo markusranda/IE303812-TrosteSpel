@@ -55,18 +55,7 @@ public class GameplayScreen extends ScreenAdapter {
     }
 
     private void communicate() {
-        long pid = Session.getInstance().getPid();
-        // Start transmitting updates to server
-        new GameDataTransmitter(pid);
-
-        Session session = Session.getInstance();
-        boolean result = session.setPid(pid);
-
-        // Listen for updates from server
-        GameDataReceiver gameDataReceiver = new GameDataReceiver();
-        Thread gameDataReceiverThread = new Thread(gameDataReceiver);
-        gameDataReceiverThread.setName("GameDataReceiver");
-        gameDataReceiverThread.start();
+        game.startUdpConnection();
     }
 
     private void drawUI() {

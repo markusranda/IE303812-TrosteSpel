@@ -32,6 +32,10 @@ public class ConnectionManager implements Runnable {
             // Receive message from client
             BufferedReader in = new BufferedReader(new InputStreamReader(client.getInputStream()));
             data = in.readLine();
+            String[] msg = data.split(" ");
+            String uName = msg[0];
+            String udpPortStr = msg[1];
+            int udpPort = Integer.parseInt(udpPortStr);
 
             // Send the response back to the client.
             String response = getUniquePlayerId();
@@ -42,7 +46,7 @@ public class ConnectionManager implements Runnable {
             System.out.println("Message sent to the client is " + response);
             bw.flush();
 
-            Connection connection = new Connection(client.getInetAddress(), Long.parseLong(response), data);
+            Connection connection = new Connection(client.getInetAddress(), udpPort, Long.parseLong(response), uName);
             Connections.getInstance().setConnection(connection);
             client.close();
         } catch (IOException io) {

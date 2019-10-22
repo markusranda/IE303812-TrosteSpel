@@ -1,15 +1,12 @@
-package no.ntnu.trostespel;
+package no.ntnu.trostespel.udpServer;
 
 
+import no.ntnu.trostespel.PlayerActions;
 import no.ntnu.trostespel.game.MasterGameState;
-import no.ntnu.trostespel.game.PlayerUpdateProcessor;
-import no.ntnu.trostespel.state.GameState;
 import no.ntnu.trostespel.state.PlayerState;
 
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.*;
 
 /**
@@ -38,13 +35,12 @@ public class PlayerUpdateDispatcher extends ThreadPoolExecutor {
         long currentTick = GameServer.getTickcounter();
         long pid = actions.pid;
         if (!workers.containsKey(pid)) {
-            workers.put(actions.pid, currentTick);
+            workers.put(actions.pid, currentTick - 1);
 
         }
 
         if (workers.get(pid) < currentTick) {
             executeCMD(actions, currentTick);
-            updateMaster(actions.pid);
         } else {
             System.out.println("OOPS! TOO FAST " + actions.pid);
             System.out.println(workers.toString());
@@ -59,15 +55,14 @@ public class PlayerUpdateDispatcher extends ThreadPoolExecutor {
             masterGameState.getGameState().players.put(actions.pid, playerState);
         }
         PlayerUpdateProcessor processor = new PlayerUpdateProcessor(playerState, actions, startTime);
+        workers.put(processor.getPid(), startTime);
         execute(processor);
     }
 
     @Override
     protected void afterExecute(Runnable r, Throwable t) {
         super.afterExecute(r, t);
-        this.remove(r)
-        workers.put(((PlayerUpdateProcessor) r).getPid(), ((PlayerUpdateProcessor) r).getStartTime());
-        //remove(r);
+        updateMaster(((PlayerUpdateProcessor) r).getPid());
     }
 
     private void updateMaster(long pid) {

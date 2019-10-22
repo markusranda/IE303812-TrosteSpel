@@ -10,14 +10,14 @@ public class MovableState extends ObjectState {
 
     private long id;
     private long pid;
-    private float velocity;
+    private double velocity;
     private float angle;
     private Action action;
 
     private transient Vector2 heading;
     public final transient int damage = 20;
 
-    public MovableState(long pid, float velocity) {
+    public MovableState(long pid, double velocity) {
         super(24f, 24f, Vector2.Zero);
         this.heading = new Vector2(1, 0); // Unit vector
         this.id = createID();
@@ -72,7 +72,7 @@ public class MovableState extends ObjectState {
         return id;
     }
 
-    public float getVelocity() {
+    public double getVelocity() {
         return velocity;
     }
 
@@ -96,7 +96,7 @@ public class MovableState extends ObjectState {
 
     public Vector2 getHeading() {
         heading.setAngle(angle);
-        heading.setLength(velocity);
+        heading.setLength((float) velocity);
         return heading;
     }
 
