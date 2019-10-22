@@ -80,9 +80,10 @@ public class GameplayScreen extends ScreenAdapter {
             int height = ScreenConfig.SCREEN_HEIGHT;
             font.draw(game.batch, "Host: " + CommunicationConfig.host + ":" + CommunicationConfig.SERVER_UDP_GAMEDATA_RECEIVE_PORT, 10, height);
             font.draw(game.batch, "Host: " + CommunicationConfig.host + ":" + CommunicationConfig.SERVER_UDP_GAMEDATA_RECEIVE_PORT, 10, height - 20);
-            font.draw(game.batch, "Tickrate " + CommunicationConfig.TICKRATE, 10, height - 40);
-            font.draw(game.batch, "Connected players " + receivedState.players.size(), 10, height - 60);
-            font.draw(game.batch, "Position " + state.getPosition(), 10, height - 80);
+            font.draw(game.batch, "Framterate: " + Gdx.graphics.getFramesPerSecond(), 10, height - 40);
+            font.draw(game.batch, "Tickrate: " + CommunicationConfig.TICKRATE, 10, height - 60);
+            font.draw(game.batch, "Connected players " + receivedState.players.size(), 10, height - 80);
+            font.draw(game.batch, "Position " + state.getPosition(), 10, height - 100);
         }
     }
 
