@@ -1,7 +1,8 @@
-package no.ntnu.trostespel.game;
+package no.ntnu.trostespel.udpServer;
 
 import com.badlogic.gdx.math.Vector2;
 import no.ntnu.trostespel.config.CommunicationConfig;
+import no.ntnu.trostespel.game.MasterGameState;
 import no.ntnu.trostespel.state.GameState;
 import no.ntnu.trostespel.PlayerActions;
 import no.ntnu.trostespel.state.PlayerState;
@@ -48,12 +49,13 @@ public class PlayerUpdateProcessor implements Runnable {
         this.actions = actions;
         this.startTime = startTime;
         this.playerState = playerState;
+        this.displacement = new Vector2(0, 0);
+        this.pid = actions.pid;
     }
 
     @Override
     public void run() {
         pid = actions.pid;
-        this.displacement = displacement = new Vector2(0, 0);
         processActionButtons(actions);
         processMovement(actions);
         processAttack(actions);
@@ -76,8 +78,8 @@ public class PlayerUpdateProcessor implements Runnable {
             if (action.isattackRight) {
                 attackDir.add(Direction.RIGHT);
             }
+            float direction = 0;
             if (attackDir.size() <= 2) {
-                float direction = 0;
                 for (Direction dir : attackDir) {
                     direction += dir.value();
                 }
@@ -85,6 +87,12 @@ public class PlayerUpdateProcessor implements Runnable {
                 projectile.setAngle(direction);
             } else {
                 projectile.setAngle(playerAngle);
+            }
+            if (Math.abs(displacement.angle() - direction) <= 90) {
+                Vector2 heading = projectile.getHeading();
+                heading.add(displacement);
+                projectile.setAngle(heading.angle());
+                projectile.setVelocity(heading.len());
             }
             if (!attackDir.isEmpty()) {
                 playerState.getSpawnedObjects().add(projectile);
@@ -108,23 +116,34 @@ public class PlayerUpdateProcessor implements Runnable {
     }
 
     private void processMovement(PlayerActions action) {
-        if (displacement.x == 0) {
-            if (action.isleft) {
-                displacement.x += -GameState.playerSpeed;
-            }
-            if (action.isright) {
-                displacement.x += GameState.playerSpeed;
-            }
+        if (action.isleft) {
+            displacement.x += -GameState.playerSpeed;
         }
-        if (displacement.y == 0) {
-            if (action.isup) {
-                displacement.y += GameState.playerSpeed;
-            }
-            if (action.isdown) {
-                displacement.y += -GameState.playerSpeed;
-            }
+        if (action.isright) {
+            displacement.x += GameState.playerSpeed;
         }
-        playerState.addPostion(displacement);
+
+        if (action.isup) {
+            displacement.y += GameState.playerSpeed;
+        }
+        if (action.isdown) {
+            displacement.y += -GameState.playerSpeed;
+        }
+        if (!displacement.isZero()) {
+            Vector2 pos = playerState.getPosition();
+            pos.x += displacement.x;
+            pos.y += displacement.y;
+            playerState.setPosition(pos);
+        }
+
         playerAngle = displacement.angle();
+    }
+
+    public long getStartTime() {
+        return this.startTime;
+    }
+
+    public long getPid() {
+        return this.pid;
     }
 }

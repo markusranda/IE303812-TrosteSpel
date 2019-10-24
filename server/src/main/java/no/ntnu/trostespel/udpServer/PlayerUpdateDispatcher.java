@@ -1,12 +1,13 @@
-package no.ntnu.trostespel;
+package no.ntnu.trostespel.udpServer;
 
 
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
+import no.ntnu.trostespel.PlayerActions;
 import no.ntnu.trostespel.game.MasterGameState;
-import no.ntnu.trostespel.game.PlayerUpdateProcessor;
 import no.ntnu.trostespel.state.PlayerState;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.*;
 
 /**
@@ -15,12 +16,15 @@ import java.util.concurrent.*;
  */
 public class PlayerUpdateDispatcher extends ThreadPoolExecutor {
 
-    private long startTime = 0;
     private MasterGameState masterGameState;
 
+    private Map<Long, Long> workers;
+
     public PlayerUpdateDispatcher() {
-        super(1, 8, 0, TimeUnit.HOURS, new LinkedBlockingQueue<>(8));
+        super(1, 8, 0, TimeUnit.HOURS, new LinkedBlockingQueue<>(8),
+                new ThreadFactoryBuilder().setNameFormat("Dispathcher-thread-%d").build());
         masterGameState = MasterGameState.getInstance();
+        this.workers = new HashMap<>();
     }
 
     /**
@@ -30,26 +34,39 @@ public class PlayerUpdateDispatcher extends ThreadPoolExecutor {
      * @param actions the update to queue
      */
     public void dispatch(PlayerActions actions) {
-        processCMD(actions);
-        updateMaster(actions.pid);
+        // each player only gets one update per tick
+        // excess updates get discarded
+        long currentTick = GameServer.getTickcounter();
+        long pid = actions.pid;
+        if (!workers.containsKey(pid)) {
+            workers.put(actions.pid, currentTick - 1);
+        }
+
+        if (workers.get(pid) < currentTick) {
+            executeCMD(actions, currentTick);
+        } else {
+        }
     }
 
-    private void processCMD(PlayerActions actions) {
-        startTime = System.currentTimeMillis();
 
+    private void executeCMD(PlayerActions actions, long startTime) {
         PlayerState playerState = (PlayerState) masterGameState.getGameState().players.get(actions.pid);
         if (playerState == null) {
             playerState = new PlayerState(actions.pid);
             masterGameState.getGameState().players.put(actions.pid, playerState);
         }
         PlayerUpdateProcessor processor = new PlayerUpdateProcessor(playerState, actions, startTime);
+        workers.put(processor.getPid(), startTime);
         execute(processor);
     }
 
     @Override
     protected void afterExecute(Runnable r, Throwable t) {
         super.afterExecute(r, t);
-        //remove(r);
+        if (r instanceof PlayerUpdateProcessor) {
+            long pid = ((PlayerUpdateProcessor) r).getPid();
+            updateMaster(pid);
+        }
     }
 
     private void updateMaster(long pid) {

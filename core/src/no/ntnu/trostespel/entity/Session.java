@@ -5,6 +5,7 @@ import no.ntnu.trostespel.state.GameState;
 import no.ntnu.trostespel.state.MovableState;
 import no.ntnu.trostespel.state.PlayerState;
 
+import java.net.DatagramSocket;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
@@ -25,6 +26,7 @@ public class Session {
     private long packetSendTime = 0;
     private long packetReceiveTime = 0;
     private String username;
+    private DatagramSocket udpSocket;
 
     private Session() {
     }
@@ -44,7 +46,7 @@ public class Session {
      * @return True if playerID hasn't been set yet, false otherwise
      */
     public boolean setPid(long playerID) {
-        if (this.pid == 0){
+        if (this.pid == 0) {
             this.pid = playerID;
             return true;
         }
@@ -92,5 +94,13 @@ public class Session {
 
     public String getUsername() {
         return this.username;
+    }
+
+    public DatagramSocket getUdpSocket() {
+        return udpSocket;
+    }
+
+    public void setUdpSocket(DatagramSocket udpSocket) {
+        this.udpSocket = udpSocket;
     }
 }

@@ -1,10 +1,8 @@
 package no.ntnu.trostespel;
 
 import no.ntnu.trostespel.config.CommunicationConfig;
-import no.ntnu.trostespel.udp.GameDataReceiver;
-
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import no.ntnu.trostespel.udpServer.GameDataReceiver;
+import no.ntnu.trostespel.udpServer.GameServer;
 
 public class ServerLauncher {
 
@@ -12,17 +10,15 @@ public class ServerLauncher {
         // Initialize ConnectionConfig
         CommunicationConfig.getInstance();
 
-        GameDataReceiver UDPClient = new GameDataReceiver(CommunicationConfig.SERVER_UDP_GAMEDATA_RECEIVE_PORT);
+        GameServer UDPServer = new GameServer();
         ConnectionManager TCPClient = new ConnectionManager(CommunicationConfig.SERVER_TCP_CONNECTION_RECEIVE_PORT);
 
-        Thread UdpThread = new Thread(UDPClient);
+        Thread UdpThread = new Thread(UDPServer);
         Thread TcpThread = new Thread(TCPClient);
         UdpThread.setName("GameDataReceiver");
         TcpThread.setName("ConnectionClient");
 
         UdpThread.start();
         TcpThread.start();
-
-        new GameServer();
     }
 }
