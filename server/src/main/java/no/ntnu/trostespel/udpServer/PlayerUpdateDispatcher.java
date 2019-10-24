@@ -32,18 +32,17 @@ public class PlayerUpdateDispatcher extends ThreadPoolExecutor {
      * @param actions the update to queue
      */
     public void dispatch(PlayerActions actions) {
+        // each player only gets one update per tick
+        // excess updates get discarded
         long currentTick = GameServer.getTickcounter();
         long pid = actions.pid;
         if (!workers.containsKey(pid)) {
             workers.put(actions.pid, currentTick - 1);
-
         }
 
         if (workers.get(pid) < currentTick) {
             executeCMD(actions, currentTick);
         } else {
-            System.out.println("OOPS! TOO FAST " + actions.pid);
-            System.out.println(workers.toString());
         }
     }
 

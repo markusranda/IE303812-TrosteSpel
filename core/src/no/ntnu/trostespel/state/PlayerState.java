@@ -3,6 +3,7 @@ package no.ntnu.trostespel.state;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.google.gson.annotations.Expose;
+import no.ntnu.trostespel.config.CommunicationConfig;
 import org.w3c.dom.css.Rect;
 
 import java.beans.Transient;
@@ -15,6 +16,9 @@ public class PlayerState extends ObjectState{
     private long pid;
     private int health;
 
+    private transient double velocity;
+    private transient double maxVelocity;
+    public transient int accelrationTimer = 90 / CommunicationConfig.TICKRATE;
     private transient double attackTimer = 0; //
     private transient Queue<MovableState> spawnedObjects = new LinkedList<>();
 
@@ -51,7 +55,21 @@ public class PlayerState extends ObjectState{
         return pid;
     }
 
+    public double getVelocity() {
+        return velocity;
+    }
 
+    public double getMaxVelocity() {
+        return maxVelocity;
+    }
+
+    public void setVelocity(double velocity) {
+        this.velocity = velocity;
+    }
+
+    public void setMaxVelocity(double maxVelocity) {
+        this.maxVelocity = maxVelocity;
+    }
 
     public Queue<MovableState> getSpawnedObjects() {
         return spawnedObjects;

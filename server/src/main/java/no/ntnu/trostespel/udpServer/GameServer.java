@@ -9,6 +9,7 @@ import no.ntnu.trostespel.model.Connections;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicLong;
 
 
 /**
@@ -20,7 +21,7 @@ public class GameServer implements Runnable{
     private List<Connection> connections = Connections.getInstance().getConnections();
     private MasterGameState masterGameState;
 
-    private static long tickCounter = 0;
+    private static AtomicLong tickCounter = new AtomicLong(0);
     private long timerCounter = 0;
 
 
@@ -61,13 +62,13 @@ public class GameServer implements Runnable{
         if (!connections.isEmpty()) {
             update();
         } else {
-            if (tickCounter >= timerCounter) {
+            long currentTick;
+            if ((currentTick = tickCounter.get()) >= timerCounter) {
                 System.out.println("Waiting for at least one connection..");
-                long currentTick = tickCounter;
                 timerCounter = currentTick + 1000;
             }
         }
-        tickCounter++;
+        tickCounter.incrementAndGet();
     }
 
     private void update() {
@@ -107,7 +108,7 @@ public class GameServer implements Runnable{
 
 
     public static long getTickcounter() {
-        return tickCounter;
+        return tickCounter.get();
     }
 
     @Override

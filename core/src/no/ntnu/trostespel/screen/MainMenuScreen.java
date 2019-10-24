@@ -87,7 +87,7 @@ public class MainMenuScreen implements Screen {
 
                     // Retrieve and set the pid
                     Response response = (Response) future.get();
-                    Session.getInstance().setPid(response.getPid());
+                        Session.getInstance().setPid(response.getPid());
                     Session.getInstance().setUdpSocket(response.getSocket());
 
                     connectedLabel.setText("Connected");

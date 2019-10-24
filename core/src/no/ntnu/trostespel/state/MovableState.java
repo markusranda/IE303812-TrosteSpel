@@ -89,7 +89,6 @@ public class MovableState extends ObjectState {
     }
 
     private static AtomicLong idCounter = new AtomicLong();
-
     public static long createID() {
         return idCounter.getAndIncrement();
     }

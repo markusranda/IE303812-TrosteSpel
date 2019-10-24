@@ -19,9 +19,9 @@ public class MasterGameState {
 
     private volatile GameState<PlayerState, MovableState> gameState;
 
-    private static MasterGameState single_instance = null;
+    private static volatile MasterGameState single_instance = null;
 
-    public static MasterGameState getInstance() {
+    public synchronized static MasterGameState getInstance() {
         if (single_instance == null) {
             single_instance = new MasterGameState(new GameState<>());
         }
@@ -37,7 +37,6 @@ public class MasterGameState {
      */
     public void update(long pid) {
         PlayerState player = gameState.players.get(pid);
-
         // TODO: update the state of the game here, checking collisions with projectiles, updating health etc
         // TODO: make this function not run on the main thread
         // add new objects spawned by the players

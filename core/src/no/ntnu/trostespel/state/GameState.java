@@ -12,8 +12,8 @@ import java.util.function.BiConsumer;
 
 public class GameState<P, M> {
 
-    private transient static double BASE_PLAYER_SPEED = 300d;
-    public transient static double playerSpeed = BASE_PLAYER_SPEED / CommunicationConfig.TICKRATE;
+    private transient static final double BASE_PLAYER_SPEED = 300d;
+    public transient static final double playerSpeed = BASE_PLAYER_SPEED / CommunicationConfig.TICKRATE;
 
     private transient static double BASE_PROJECTILE_SPEED = 300d;
     public transient static double projectileSpeed = BASE_PROJECTILE_SPEED / CommunicationConfig.TICKRATE;

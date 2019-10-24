@@ -38,39 +38,29 @@ public class ConnectionManager implements Runnable {
             int udpPort = Integer.parseInt(udpPortStr);
 
             // Send the response back to the client.
-            String response = getUniquePlayerId();
+            Connection connection = new Connection(client.getInetAddress(), udpPort, uName);
             OutputStream os = client.getOutputStream();
             OutputStreamWriter osw = new OutputStreamWriter(os);
             BufferedWriter bw = new BufferedWriter(osw);
+
+            String response = String.valueOf(connection.getPid());
             bw.write(response);
             System.out.println("Message sent to the client is " + response);
             bw.flush();
 
-            Connection connection = new Connection(client.getInetAddress(), udpPort, Long.parseLong(response), uName);
             Connections.getInstance().setConnection(connection);
             client.close();
+            System.out.println();
+            System.out.println("Now serving " + Connections.getInstance().getConnections().size() + " player(s)");
+            System.out.println(Connections.getInstance().getConnections());
         } catch (IOException io) {
+            io.printStackTrace();
             run();
         }
         run();
     }
 
-    private String getUniquePlayerId() {
-        if (firstTimeRunning) {
-            firstTimeRunning = false;
-            return String.valueOf(pid);
-        } else {
-            pid++;
-            return String.valueOf(pid);
-        }
-    }
-
-
     public InetAddress getSocketAddress() {
         return this.server.getInetAddress();
-    }
-
-    public int getPort() {
-        return this.server.getLocalPort();
     }
 }

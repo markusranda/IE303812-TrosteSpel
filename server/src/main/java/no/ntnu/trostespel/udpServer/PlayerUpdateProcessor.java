@@ -56,7 +56,6 @@ public class PlayerUpdateProcessor implements Runnable {
     @Override
     public void run() {
         pid = actions.pid;
-        displacement.setZero();
         processActionButtons(actions);
         processMovement(actions);
         processAttack(actions);
@@ -79,8 +78,8 @@ public class PlayerUpdateProcessor implements Runnable {
             if (action.isattackRight) {
                 attackDir.add(Direction.RIGHT);
             }
+            float direction = 0;
             if (attackDir.size() <= 2) {
-                float direction = 0;
                 for (Direction dir : attackDir) {
                     direction += dir.value();
                 }
@@ -88,6 +87,12 @@ public class PlayerUpdateProcessor implements Runnable {
                 projectile.setAngle(direction);
             } else {
                 projectile.setAngle(playerAngle);
+            }
+            if (Math.abs(displacement.angle() - direction) <= 90) {
+                Vector2 heading = projectile.getHeading();
+                heading.add(displacement);
+                projectile.setAngle(heading.angle());
+                projectile.setVelocity(heading.len());
             }
             if (!attackDir.isEmpty()) {
                 playerState.getSpawnedObjects().add(projectile);
@@ -111,21 +116,18 @@ public class PlayerUpdateProcessor implements Runnable {
     }
 
     private void processMovement(PlayerActions action) {
-        if (displacement.x == 0) {
-            if (action.isleft) {
-                displacement.x += -GameState.playerSpeed;
-            }
-            if (action.isright) {
-                displacement.x += GameState.playerSpeed;
-            }
+        if (action.isleft) {
+            displacement.x += -GameState.playerSpeed;
         }
-        if (displacement.y == 0) {
-            if (action.isup) {
-                displacement.y += GameState.playerSpeed;
-            }
-            if (action.isdown) {
-                displacement.y += -GameState.playerSpeed;
-            }
+        if (action.isright) {
+            displacement.x += GameState.playerSpeed;
+        }
+
+        if (action.isup) {
+            displacement.y += GameState.playerSpeed;
+        }
+        if (action.isdown) {
+            displacement.y += -GameState.playerSpeed;
         }
         playerState.addPostion(displacement);
         playerAngle = displacement.angle();
