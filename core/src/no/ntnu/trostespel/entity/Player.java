@@ -75,4 +75,8 @@ public class Player extends Movable {
     public void setHealth(int health) {
         this.health = health;
     }
+
+    public TextureRegion getTextureRegion() {
+        return currentFrame;
+    }
 }

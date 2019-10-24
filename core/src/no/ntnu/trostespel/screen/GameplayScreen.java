@@ -6,8 +6,14 @@ import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.maps.MapLayer;
+import com.badlogic.gdx.maps.objects.TextureMapObject;
+import com.badlogic.gdx.maps.tiled.TiledMap;
+import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.math.Vector3;
 import no.ntnu.trostespel.TrosteSpel;
 import no.ntnu.trostespel.config.Assets;
 import no.ntnu.trostespel.config.KeyConfig;
@@ -28,6 +34,9 @@ import java.util.Queue;
 public class GameplayScreen extends ScreenAdapter {
 
 
+    private final TiledMap tiledMap;
+    private final OrthogonalTiledMapRendererWithSprites tiledMapRenderer;
+    private final MapLayer objectLayer;
     private GameState<Player, Movable> gameState;
 
     private TrosteSpel game;
@@ -41,21 +50,27 @@ public class GameplayScreen extends ScreenAdapter {
         this.game = game;
         this.gameState = new GameState<>();
 
+        // init camera
+        float w = Gdx.graphics.getWidth();
+        float h = Gdx.graphics.getHeight();
+
+        camera = new OrthographicCamera();
+        camera.setToOrtho(false, w, h);
+        camera.update();
+
         // init keys
         KeyConfig keys = new KeyConfig();
         keys.loadDefault();
 
-        // init font
-        this.font = new BitmapFont();
+        // init world
+        tiledMap = new TmxMapLoader().load("map/tutorial_map.tmx");
+        tiledMapRenderer = new OrthogonalTiledMapRendererWithSprites(tiledMap);
 
-        // init camera
-        camera = new OrthographicCamera(ScreenConfig.SCREEN_WIDTH, ScreenConfig.SCREEN_HEIGHT );
-        camera.position.set(camera.viewportWidth / 2f, camera.viewportHeight / 2f, 0);
+        objectLayer = tiledMap.getLayers().get("objects");
 
+        // start sending and listening for data
         communicate();
     }
-
-
 
     private void communicate() {
         game.startUdpConnection();
@@ -94,6 +109,20 @@ public class GameplayScreen extends ScreenAdapter {
             player.setPos(pos);
             player.setHealth(change.getHealth());
             player.update(0);
+
+
+            Vector3 newCoordinates = new Vector3(change.getPosition(), 0);
+            Vector3 position = camera.unproject(newCoordinates);
+            TextureMapObject character = (TextureMapObject) tiledMap.getLayers().get("objects").getObjects().get(0);
+            character.setX(position.x);
+            character.setY(position.y);
+
+            // add player to object layer
+            TextureMapObject tmo = new TextureMapObject(player.getTextureRegion());
+            tmo.setX(player.getPos().x);
+            tmo.setY(player.getPos().y);
+            objectLayer.getObjects().add(tmo);
+
             player.draw(game.batch);
 
         }
@@ -136,17 +165,9 @@ public class GameplayScreen extends ScreenAdapter {
         this.receivedState = Session.getInstance().getReceivedGameState();
         if (this.receivedState != null) {
 
-            // Makes camera follow player
-            long pid = Session.getInstance().getPid();
-            Player player = gameState.players.get(pid);
-            if (player != null) {
-                camera.position.x = player.getPos().x;
-                camera.position.y = player.getPos().y;
-                camera.update();
-                game.batch.setProjectionMatrix(camera.combined);
-                System.out.println(Session.getInstance().getPid() + ": PlayerPos: " + player.getPos());
-                System.out.println(Session.getInstance().getPid() + ": Camera: " + camera.position);
-            }
+            camera.update();
+            tiledMapRenderer.setView(camera);
+            tiledMapRenderer.render();
 
             game.batch.begin();
             Gdx.gl.glClearColor(1, 0, 0, 1);
