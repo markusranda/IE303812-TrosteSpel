@@ -55,9 +55,14 @@ public class MasterGameState {
         for (PlayerState playerState : gameState.players.values()) {
             if (obj.getHitbox().overlaps(playerState.getHitbox())) {
                 if (obj.getPid() != pid) {
-                    obj.setAction(Action.KILL);
+                    long id = obj.getId();
+                    System.out.println("HIT");
                     int currentHP = playerState.getHealth();
                     playerState.setHealth(currentHP - obj.damage);
+                    gameState.getProjectiles().remove(id);
+
+                    obj.setAction(Action.KILL);
+                    gameState.getProjectilesStateUpdates().add(obj);
                 }
             }
         }
@@ -91,10 +96,10 @@ public class MasterGameState {
                     long key = update.getId();
                     switch (action) {
                         case KILL:
-                            this.removeProjectile(key);
-                            this.putProjectileStateUpdate(MovableState.kill(key, pid));
+                            //
                         case CREATE:
                             MovableState projectile = new MovableState(pid, GameState.projectileSpeed);
+                            projectile.setId(key);
                             this.putProjectile(key, projectile);
                     }
                 }
