@@ -1,5 +1,6 @@
 package no.ntnu.trostespel.screen;
 
+import com.badlogic.gdx.ApplicationListener;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.graphics.GL20;
@@ -48,11 +49,13 @@ public class GameplayScreen extends ScreenAdapter {
         this.font = new BitmapFont();
 
         // init camera
-        camera = new OrthographicCamera();
-        camera.setToOrtho(false, ScreenConfig.SCREEN_WIDTH, ScreenConfig.SCREEN_HEIGHT);
+        camera = new OrthographicCamera(ScreenConfig.SCREEN_WIDTH, ScreenConfig.SCREEN_WIDTH * (16 / 9));
+        camera.position.set(camera.viewportWidth / 2f, camera.viewportHeight / 2f, 0);
 
         communicate();
     }
+
+
 
     private void communicate() {
         long pid = Session.getInstance().getPid();
@@ -99,7 +102,6 @@ public class GameplayScreen extends ScreenAdapter {
             // apply changed values
             Player player = gameState.players.get(key);
             Vector2 pos = change.getPosition();
-            System.out.println(pos);
             player.setPos(pos);
             player.setHealth(change.getHealth());
             player.update(0);
@@ -126,28 +128,35 @@ public class GameplayScreen extends ScreenAdapter {
     }
 
     private void updateProjectiles() {
-        for (Movable projectile : gameState.getProjectiles().values()){
+        for (Movable projectile : gameState.getProjectiles().values()) {
             projectile.update(Gdx.graphics.getDeltaTime());
             projectile.draw(game.batch);
         }
     }
-
-
 
     @Override
     public void render(float delta) {
         this.receivedState = Session.getInstance().getReceivedGameState();
         if (this.receivedState != null) {
 
+            // Makes camera follow player
+            long pid = Session.getInstance().getPid();
+            Player player = gameState.players.get(pid);
+            if (player != null) {
+                camera.position.x = player.getPos().x;
+                camera.position.y = player.getPos().y;
+                camera.update();
+                game.batch.setProjectionMatrix(camera.combined);
+                System.out.println(Session.getInstance().getPid() + ": PlayerPos: " + player.getPos());
+                System.out.println(Session.getInstance().getPid() + ": Camera: " + camera.position);
+            }
+
             game.batch.begin();
             Gdx.gl.glClearColor(1, 0, 0, 1);
             Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-            game.batch.setProjectionMatrix(camera.combined);
-
             updatePlayers();
             updateProjectiles();
             spawnNewProjectiles();
-
             //drawPlayers(delta);
             drawUI();
 
