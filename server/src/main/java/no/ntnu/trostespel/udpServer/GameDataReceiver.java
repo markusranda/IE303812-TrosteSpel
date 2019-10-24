@@ -1,23 +1,16 @@
-package no.ntnu.trostespel.udp;
+package no.ntnu.trostespel.udpServer;
 
 import com.google.gson.Gson;
-import com.google.gson.JsonSyntaxException;
 import com.google.gson.stream.JsonReader;
 import no.ntnu.trostespel.PlayerActions;
-import no.ntnu.trostespel.PlayerUpdateDispatcher;
-import no.ntnu.trostespel.config.CommunicationConfig;
 import no.ntnu.trostespel.model.Connection;
 import no.ntnu.trostespel.model.Connections;
 
 import java.io.*;
-import java.lang.reflect.Type;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.concurrent.ExecutorService;
 
 public class GameDataReceiver implements Runnable {
     private DatagramSocket udpSocket;

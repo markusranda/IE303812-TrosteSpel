@@ -1,7 +1,8 @@
-package no.ntnu.trostespel.game;
+package no.ntnu.trostespel.udpServer;
 
 import com.badlogic.gdx.math.Vector2;
 import no.ntnu.trostespel.config.CommunicationConfig;
+import no.ntnu.trostespel.game.MasterGameState;
 import no.ntnu.trostespel.state.GameState;
 import no.ntnu.trostespel.PlayerActions;
 import no.ntnu.trostespel.state.PlayerState;
@@ -48,12 +49,14 @@ public class PlayerUpdateProcessor implements Runnable {
         this.actions = actions;
         this.startTime = startTime;
         this.playerState = playerState;
+        this.displacement = new Vector2(0, 0);
+        this.pid = actions.pid;
     }
 
     @Override
     public void run() {
         pid = actions.pid;
-        this.displacement = displacement = new Vector2(0, 0);
+        displacement.setZero();
         processActionButtons(actions);
         processMovement(actions);
         processAttack(actions);
@@ -126,5 +129,13 @@ public class PlayerUpdateProcessor implements Runnable {
         }
         playerState.addPostion(displacement);
         playerAngle = displacement.angle();
+    }
+
+    public long getStartTime() {
+        return this.startTime;
+    }
+
+    public long getPid() {
+        return this.pid;
     }
 }

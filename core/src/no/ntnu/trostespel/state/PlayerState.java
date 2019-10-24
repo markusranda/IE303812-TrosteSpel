@@ -1,37 +1,34 @@
 package no.ntnu.trostespel.state;
 
+import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.google.gson.annotations.Expose;
+import org.w3c.dom.css.Rect;
 
 import java.beans.Transient;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Queue;
 
-public class PlayerState {
+public class PlayerState extends ObjectState{
 
     private long pid;
-    private Vector2 position;
     private int health;
 
     private transient double attackTimer = 0; //
     private transient Queue<MovableState> spawnedObjects = new LinkedList<>();
 
     public PlayerState(long pid) {
+        super(72, 90, Vector2.Zero);
         this.pid = pid;
-        this.position = Vector2.Zero;
         this.health = 0;
         this.attackTimer = 0;
     }
 
     public PlayerState(long pid, Vector2 position, int health) {
+        super(72, 90, position);
         this.pid = pid;
-        this.position = position;
         this.health = health;
-    }
-
-    public void setPosition(Vector2 position) {
-        this.position = position;
     }
 
     public void setHealth(int health) {
@@ -40,10 +37,6 @@ public class PlayerState {
 
     public void setAttackTimer(double attackTimer) {
         this.attackTimer = attackTimer;
-    }
-
-    public Vector2 getPosition() {
-        return position;
     }
 
     public int getHealth() {
@@ -59,9 +52,6 @@ public class PlayerState {
     }
 
 
-    public void addPostion(Vector2 displacement) {
-        this.position.add(displacement);
-    }
 
     public Queue<MovableState> getSpawnedObjects() {
         return spawnedObjects;

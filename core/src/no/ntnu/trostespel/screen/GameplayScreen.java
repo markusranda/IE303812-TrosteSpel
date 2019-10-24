@@ -55,18 +55,7 @@ public class GameplayScreen extends ScreenAdapter {
     }
 
     private void communicate() {
-        long pid = Session.getInstance().getPid();
-        // Start transmitting updates to server
-        new GameDataTransmitter(pid);
-
-        Session session = Session.getInstance();
-        boolean result = session.setPid(pid);
-
-        // Listen for updates from server
-        GameDataReceiver gameDataReceiver = new GameDataReceiver();
-        Thread gameDataReceiverThread = new Thread(gameDataReceiver);
-        gameDataReceiverThread.setName("GameDataReceiver");
-        gameDataReceiverThread.start();
+        game.startUdpConnection();
     }
 
     private void drawUI() {
@@ -79,11 +68,11 @@ public class GameplayScreen extends ScreenAdapter {
 
             int height = ScreenConfig.SCREEN_HEIGHT;
             font.draw(game.batch, "Host: " + CommunicationConfig.host + ":" + CommunicationConfig.SERVER_UDP_GAMEDATA_RECEIVE_PORT, 10, height);
-            font.draw(game.batch, "Host: " + CommunicationConfig.host + ":" + CommunicationConfig.SERVER_UDP_GAMEDATA_RECEIVE_PORT, 10, height - 20);
+            font.draw(game.batch, "Local Port: " + Session.getInstance().getUdpSocket().getLocalPort(), 10, height - 20);
             font.draw(game.batch, "Framterate: " + Gdx.graphics.getFramesPerSecond(), 10, height - 40);
             font.draw(game.batch, "Tickrate: " + CommunicationConfig.TICKRATE, 10, height - 60);
             font.draw(game.batch, "Connected players " + receivedState.players.size(), 10, height - 80);
-            font.draw(game.batch, "Position " + state.getPosition(), 10, height - 100);
+            font.draw(game.batch, "Player: " + pid + "  " + state.getPosition(), 10, height - 100);
         }
     }
 
@@ -109,7 +98,7 @@ public class GameplayScreen extends ScreenAdapter {
     }
 
     private void spawnNewProjectiles() {
-        Queue<MovableState> queue = receivedState.getProjectileStateUpdates();
+        Queue<MovableState> queue = receivedState.getProjectilesStateUpdates();
         while (!queue.isEmpty()) {
             MovableState state = queue.poll();
             long eid = state.getId();
