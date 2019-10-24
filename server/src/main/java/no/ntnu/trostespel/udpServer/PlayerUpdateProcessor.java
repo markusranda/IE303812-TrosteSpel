@@ -129,7 +129,13 @@ public class PlayerUpdateProcessor implements Runnable {
         if (action.isdown) {
             displacement.y += -GameState.playerSpeed;
         }
-        playerState.addPostion(displacement);
+        if (!displacement.isZero()) {
+            Vector2 pos = playerState.getPosition();
+            pos.x += displacement.x;
+            pos.y += displacement.y;
+            playerState.setPosition(pos);
+        }
+
         playerAngle = displacement.angle();
     }
 

@@ -103,14 +103,22 @@ public class GameplayScreen extends ScreenAdapter {
             MovableState state = queue.poll();
             long eid = state.getId();
             long owner = state.getPid();
-            if (!gameState.getProjectiles().containsKey(eid)) {
-                Player player = gameState.players.get(owner);
-                if (player != null) {
-                    Vector2 spawnPos = player.getPos();
-                    Projectile newProjectile = new Projectile(spawnPos, Assets.bullet, state.getVelocity(), state.getAngle());
-                    gameState.getProjectiles().put(eid, newProjectile);
-                }
+            switch (state.getAction()) {
+                case CREATE:
+                    if (!gameState.getProjectiles().containsKey(eid)) {
+                        Player player = gameState.players.get(owner);
+                        if (player != null) {
+                            Vector2 spawnPos = player.getPos();
+                            Projectile newProjectile = new Projectile(spawnPos, Assets.bullet, state.getVelocity(), state.getAngle());
+                            gameState.getProjectiles().put(eid, newProjectile);
+                        }
+                    }
+                case KILL:
+                    if (!gameState.getProjectiles().containsKey(eid)) {
+                        gameState.getProjectiles().remove(eid);
+                    }
             }
+
         }
     }
 

@@ -6,7 +6,7 @@ import com.badlogic.gdx.math.Vector2;
 public class ObjectState {
 
     private transient Rectangle hitbox;
-    private Vector2 position;
+    private volatile Vector2 position;
 
     public ObjectState(float x, float y, Vector2 position) {
         this.hitbox = new Rectangle(0, 0, x, y);
@@ -14,11 +14,13 @@ public class ObjectState {
     }
 
     public Rectangle getHitbox() {
+        hitbox.x = position.x;
+        hitbox.y = position.y;
         return hitbox;
     }
 
     public Vector2 getPosition() {
-        return position;
+        return this.position.cpy();
     }
 
     public void setPosition(Vector2 position) {

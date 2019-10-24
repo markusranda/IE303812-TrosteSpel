@@ -1,6 +1,7 @@
 package no.ntnu.trostespel.udpServer;
 
 
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import no.ntnu.trostespel.PlayerActions;
 import no.ntnu.trostespel.game.MasterGameState;
 import no.ntnu.trostespel.state.PlayerState;
@@ -20,7 +21,8 @@ public class PlayerUpdateDispatcher extends ThreadPoolExecutor {
     private Map<Long, Long> workers;
 
     public PlayerUpdateDispatcher() {
-        super(1, 8, 0, TimeUnit.HOURS, new LinkedBlockingQueue<>(8));
+        super(1, 8, 0, TimeUnit.HOURS, new LinkedBlockingQueue<>(8),
+                new ThreadFactoryBuilder().setNameFormat("Dispathcher-thread-%d").build());
         masterGameState = MasterGameState.getInstance();
         this.workers = new HashMap<>();
     }
@@ -61,7 +63,10 @@ public class PlayerUpdateDispatcher extends ThreadPoolExecutor {
     @Override
     protected void afterExecute(Runnable r, Throwable t) {
         super.afterExecute(r, t);
-        updateMaster(((PlayerUpdateProcessor) r).getPid());
+        if (r instanceof PlayerUpdateProcessor) {
+            long pid = ((PlayerUpdateProcessor) r).getPid();
+            updateMaster(pid);
+        }
     }
 
     private void updateMaster(long pid) {

@@ -12,6 +12,9 @@ import no.ntnu.trostespel.state.PlayerState;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Queue;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadPoolExecutor;
 import java.util.function.BiConsumer;
 
 //TODO: make MasterGameState threadsafe
@@ -20,6 +23,8 @@ public class MasterGameState {
     private volatile GameState<PlayerState, MovableState> gameState;
 
     private static volatile MasterGameState single_instance = null;
+
+    private ExecutorService executor;
 
     public synchronized static MasterGameState getInstance() {
         if (single_instance == null) {
@@ -30,59 +35,30 @@ public class MasterGameState {
 
     private MasterGameState(GameState<PlayerState, MovableState> gameState) {
         this.gameState = gameState;
+        this.executor = Executors.newSingleThreadExecutor();
     }
 
     /**
      * @param pid the id of the player to update
      */
     public void update(long pid) {
-        PlayerState player = gameState.players.get(pid);
-        // TODO: update the state of the game here, checking collisions with projectiles, updating health etc
-        // TODO: make this function not run on the main thread
-        // add new objects spawned by the players
-        // to the gamestate
-
-        // add new movable updates to the gamestate, which will be sent to the players
-        putProjectileStateUpdates(player.getSpawnedObjects());
-
-        // process all new movable updates on the serverside
-        for (MovableState update : player.getSpawnedObjects()) {
-            Action action = update.getAction();
-            long key = update.getId();
-            switch (action) {
-                case KILL:
-                    this.removeProjectile(key);
-                    this.putProjectileStateUpdate(MovableState.kill(key, pid));
-                case CREATE:
-                    MovableState projectile = new MovableState(pid, GameState.projectileSpeed);
-                    this.putProjectile(key, projectile);
-            }
-        }
-        player.resetSpawnedObjects();
-
-        // update projectiles positions and check collisions
-        this.projectileForEach((k, v) -> {
-            // update the heading vector
-            Vector2 heading = v.getHeading();
-            // apply the heading vector
-            Vector2 position = v.getPosition().cpy();
-            Vector2 newPos = position.add(heading);
-            v.setPosition(newPos);
-            detectCollision(v);
-        });
-
+        executor.submit(getUpdateRunnable(pid));
     }
+
+
 
     /**
      * Check if given gameObject collides with any player
      */
-    private void detectCollision(MovableState obj) {
+    private void detectCollision(MovableState obj, long pid) {
         // TODO: can be optimized using a quadtree
         for (PlayerState playerState : gameState.players.values()) {
             if (obj.getHitbox().overlaps(playerState.getHitbox())) {
-                obj.setAction(Action.KILL);
-                int currentHP = playerState.getHealth();
-                playerState.setHealth(currentHP - obj.damage);
+                if (obj.getPid() != pid) {
+                    obj.setAction(Action.KILL);
+                    int currentHP = playerState.getHealth();
+                    playerState.setHealth(currentHP - obj.damage);
+                }
             }
         }
     }
@@ -96,24 +72,65 @@ public class MasterGameState {
         return this.gameState;
     }
 
+    private Runnable getUpdateRunnable(long pid) {
+        class updater implements Runnable {
+            @Override
+            public void run() {
+                PlayerState player = gameState.players.get(pid);
+                // TODO: update the state of the game here, checking collisions with projectiles, updating health etc
+                // TODO: make this function not run on the main thread
+                // add new objects spawned by the players
+                // to the gamestate
 
-    private void putProjectile(long k, MovableState v) {
-        gameState.getProjectiles().put(k, v);
-    }
+                // add new movable updates to the gamestate, which will be sent to the players
+                putProjectileStateUpdates(player.getSpawnedObjects());
 
-    private void removeProjectile(long key) {
-        gameState.getProjectiles().remove(key);
-    }
+                // process all new movable updates on the serverside
+                for (MovableState update : player.getSpawnedObjects()) {
+                    Action action = update.getAction();
+                    long key = update.getId();
+                    switch (action) {
+                        case KILL:
+                            this.removeProjectile(key);
+                            this.putProjectileStateUpdate(MovableState.kill(key, pid));
+                        case CREATE:
+                            MovableState projectile = new MovableState(pid, GameState.projectileSpeed);
+                            this.putProjectile(key, projectile);
+                    }
+                }
+                player.resetSpawnedObjects();
 
-    private void putProjectileStateUpdates(Queue<MovableState> updates) {
-        gameState.getProjectilesStateUpdates().addAll(updates);
-    }
+                // update projectiles positions and check collisions
+                this.projectileForEach((k, v) -> {
+                    // update the heading vector
+                    Vector2 heading = v.getHeading();
+                    // apply the heading vector
+                    Vector2 position = v.getPosition().cpy();
+                    Vector2 newPos = position.add(heading);
+                    v.setPosition(newPos);
+                    detectCollision(v, pid);
+                });
+            }
+            private void putProjectile(long k, MovableState v) {
+                gameState.getProjectiles().put(k, v);
+            }
 
-    private void putProjectileStateUpdate(MovableState update) {
-        gameState.getProjectilesStateUpdates().add(update);
-    }
+            private void removeProjectile(long key) {
+                gameState.getProjectiles().remove(key);
+            }
 
-    private void projectileForEach(BiConsumer<Long, MovableState> action) {
-        gameState.getProjectiles().forEach(action);
+            private void putProjectileStateUpdates(Queue<MovableState> updates) {
+                gameState.getProjectilesStateUpdates().addAll(updates);
+            }
+
+            private void putProjectileStateUpdate(MovableState update) {
+                gameState.getProjectilesStateUpdates().add(update);
+            }
+
+            private void projectileForEach(BiConsumer<Long, MovableState> action) {
+                gameState.getProjectiles().forEach(action);
+            }
+        }
+        return new updater();
     }
 }

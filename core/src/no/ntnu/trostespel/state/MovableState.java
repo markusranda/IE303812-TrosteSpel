@@ -15,7 +15,7 @@ public class MovableState extends ObjectState {
     private Action action;
 
     private transient Vector2 heading;
-    public final transient int damage = 20;
+    public final transient int damage = 5;
 
     public MovableState(long pid, double velocity) {
         super(24f, 24f, Vector2.Zero);
