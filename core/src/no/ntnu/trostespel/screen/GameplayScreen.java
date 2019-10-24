@@ -49,7 +49,7 @@ public class GameplayScreen extends ScreenAdapter {
         this.font = new BitmapFont();
 
         // init camera
-        camera = new OrthographicCamera(ScreenConfig.SCREEN_WIDTH, ScreenConfig.SCREEN_WIDTH * (16 / 9));
+        camera = new OrthographicCamera(ScreenConfig.SCREEN_WIDTH, ScreenConfig.SCREEN_HEIGHT );
         camera.position.set(camera.viewportWidth / 2f, camera.viewportHeight / 2f, 0);
 
         communicate();
