@@ -1,25 +1,15 @@
-package no.ntnu.trostespel;
+package no.ntnu.trostespel.udpServer;
 
 import com.google.gson.Gson;
 import no.ntnu.trostespel.config.CommunicationConfig;
 import no.ntnu.trostespel.game.MasterGameState;
 import no.ntnu.trostespel.model.Connection;
 import no.ntnu.trostespel.model.Connections;
-import no.ntnu.trostespel.state.GameState;
-import org.javers.core.Javers;
-import org.javers.core.JaversBuilder;
 
 import java.io.IOException;
-import java.lang.reflect.Type;
-import java.net.DatagramPacket;
-import java.net.DatagramSocket;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
 
-import static org.javers.core.diff.ListCompareAlgorithm.LEVENSHTEIN_DISTANCE;
 
 /**
  * This class will do every task the server need to do each tick.
