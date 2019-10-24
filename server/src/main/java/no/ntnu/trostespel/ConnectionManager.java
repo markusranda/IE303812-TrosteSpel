@@ -46,6 +46,7 @@ public class ConnectionManager implements Runnable {
             Connections.getInstance().setConnection(connection);
             client.close();
         } catch (IOException io) {
+            io.printStackTrace();
             run();
         }
         run();
