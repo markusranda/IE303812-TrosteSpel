@@ -12,7 +12,7 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-import static no.ntnu.trostespel.config.CommunicationConfig.CLIENT_UDP_GAMEDATA_RECEIVE_PORT;
+import static no.ntnu.trostespel.config.CommunicationConfig.CLIENT_UDP_GAMEDATA_PORT;
 
 public class ConnectionClient {
 
@@ -23,7 +23,7 @@ public class ConnectionClient {
 
     private static Response doConnect(InetAddress serverAddress, int serverPort) {
         Response data = null;
-        DatagramSocket udpSocket = doCreateUDPSocket(CLIENT_UDP_GAMEDATA_RECEIVE_PORT);
+        DatagramSocket udpSocket = doCreateUDPSocket(CLIENT_UDP_GAMEDATA_PORT);
         if (udpSocket == null) {
             udpSocket = doCreateUDPSocket(0);
         }
