@@ -14,9 +14,13 @@ buildscript {
     }
 }
 
-def passwordFile = rootProject.file('connection.properties');
-def passwordProperties = new Properties()
-passwordProperties.load(new FileInputStream(passwordFile))
+def sshprofile = rootProject.file('SshProfile.properties');
+def sshProperties = new Properties()
+sshProperties.load(new FileInputStream(sshprofile))
+
+ext.ssh_password = sshProperties.getProperty('password');
+ext.ssh_host = sshProperties.getProperty('host');
+ext.ssh_user = sshProperties.getProperty('user');
 
 task run(dependsOn: classes, type: JavaExec) {
     main = project.mainClassName
@@ -67,9 +71,9 @@ task remoteDeploy {
 
 remotes {
     gameServer {
-        host = 'markus-sanntid.northeurope.cloudapp.azure.com'
-        user = 'lars'
-        password = passwordProperties.getProperty('password')
+        host = ssh_host
+        user = ssh_user
+        password = ssh_password
     }
 }
 
