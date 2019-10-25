@@ -69,8 +69,7 @@ remotes {
     gameServer {
         host = 'markus-sanntid.northeurope.cloudapp.azure.com'
         user = 'lars'
-        //password = passwordProperties.getProperty('password')
-        password = 'klengre333'
+        password = passwordProperties.getProperty('password')
     }
 }
 
