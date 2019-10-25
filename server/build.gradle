@@ -1,8 +1,22 @@
 apply plugin: "java"
+apply plugin: 'org.hidetake.ssh'
 
 sourceCompatibility = 1.8
 sourceSets.main.java.srcDirs = [ "src/main/java" ]
 project.ext.mainClassName = "no.ntnu.trostespel.ServerLauncher"
+
+buildscript {
+    repositories {
+        jcenter()
+    }
+    dependencies {
+        classpath 'org.hidetake:gradle-ssh-plugin:2.10.1'
+    }
+}
+
+def passwordFile = rootProject.file('connection.properties');
+def passwordProperties = new Properties()
+passwordProperties.load(new FileInputStream(passwordFile))
 
 task run(dependsOn: classes, type: JavaExec) {
     main = project.mainClassName
@@ -27,6 +41,37 @@ task dist(type: Jar) {
         configurations.compileClasspath.collect { it.isDirectory() ? it : zipTree(it) }
     }
     with jar
+}
+
+ssh.settings {
+    knownHosts = allowAnyHosts
+}
+
+task remoteDeploy {
+    doLast {
+        ssh.run {
+            settings {
+                pty = true
+                //dryRun = true
+            }
+            session(remotes.gameServer) {
+                //def a = executeSudo('kill -9 `jps -v | grep server-1.0.jar | awk {\'print $1\'}`')
+                def b = put from: 'build/libs/server-1.0.jar', into: '/home/lars'
+                def c = execute('java -jar server-1.0.jar')
+            }
+        }
+    }
+}
+
+
+
+remotes {
+    gameServer {
+        host = 'markus-sanntid.northeurope.cloudapp.azure.com'
+        user = 'lars'
+        //password = passwordProperties.getProperty('password')
+        password = 'klengre333'
+    }
 }
 
 dist.dependsOn classes

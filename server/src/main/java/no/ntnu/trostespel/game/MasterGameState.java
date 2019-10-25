@@ -56,7 +56,6 @@ public class MasterGameState {
             if (obj.getHitbox().overlaps(playerState.getHitbox())) {
                 if (obj.getPid() != pid) {
                     long id = obj.getId();
-                    System.out.println("HIT");
                     int currentHP = playerState.getHealth();
                     playerState.setHealth(currentHP - obj.damage);
                     gameState.getProjectiles().remove(id);

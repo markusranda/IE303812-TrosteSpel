@@ -46,7 +46,6 @@ public class GameDataSender extends ThreadPoolExecutor{
         // TODO: 15.10.2019 Add concurrency protection, since we will be modifying connecitons on the fly.
         String json = gson.toJson(nextGameState, RECEIVED_DATA_TYPE);
         connectionsSize = connections.size();
-        System.out.println(json);
         for (Connection con : connections) {
             execute(send(con, json));
         }
