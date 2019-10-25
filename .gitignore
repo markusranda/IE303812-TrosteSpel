@@ -128,3 +128,5 @@ Thumbs.db
 /gamelibrary/build/
 /server/src/java/META-INF/
 /server/build/
+/server.properties
+/client.properties
