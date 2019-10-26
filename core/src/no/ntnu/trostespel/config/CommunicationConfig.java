@@ -71,7 +71,7 @@ public class CommunicationConfig {
         try {
             SERVER_UDP_GAMEDATA_RECEIVE_PORT = Integer.parseInt((String) serverProps.get("SERVER_UDP_GAMEDATA_RECEIVE_PORT"));
             SERVER_TCP_CONNECTION_RECEIVE_PORT = Integer.parseInt((String) serverProps.get("SERVER_TCP_CONNECTION_RECEIVE_PORT"));
-            CLIENT_UDP_GAMEDATA_PORT = Integer.parseInt((String) clientProps.get("CLIENT_UDP_GAMEDATA_RECEIVE_PORT"));
+            CLIENT_UDP_GAMEDATA_PORT = Integer.parseInt((String) clientProps.get("CLIENT_UDP_GAMEDATA_PORT"));
             CLIENT_TCP_CONNECTION_RECEIVE_PORT = Integer.parseInt((String) clientProps.get("CLIENT_TCP_CONNECTION_RECEIVE_PORT"));
             CLIENT_TCP_MESSAGE_RECEIVE_PORT = Integer.parseInt((String) clientProps.get("CLIENT_TCP_MESSAGE_RECEIVE_PORT"));
         } catch (ClassCastException e) {
