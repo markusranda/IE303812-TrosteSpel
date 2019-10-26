@@ -72,6 +72,10 @@ public class MovableState extends ObjectState {
         return id;
     }
 
+    public void setId(long id) {
+        this.id = id;
+    }
+
     public double getVelocity() {
         return velocity;
     }

@@ -13,19 +13,13 @@ public class GameDataTransmitter {
 
     private ScheduledExecutorService ticker;
     private UserInputManager manager;
-    private DatagramSocket socket;
     private Runnable emitter;
 
-    public GameDataTransmitter(long pid) {
+    public GameDataTransmitter(DatagramSocket socket, long pid) {
         ticker = Executors.newSingleThreadScheduledExecutor(
                 new ThreadFactoryBuilder().setNameFormat("GameDataTransmitter-%d").build());
 
         this.emitter = emitter();
-        try {
-            socket = new DatagramSocket();
-        } catch (SocketException e) {
-            e.printStackTrace();
-        }
         manager = new UserInputManager(socket);
         manager.setPid(pid);
         run();

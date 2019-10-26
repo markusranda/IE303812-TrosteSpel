@@ -24,7 +24,6 @@ public class GameServer implements Runnable{
     private static AtomicLong tickCounter = new AtomicLong(0);
     private long timerCounter = 0;
 
-
     private List<Connection> connectionsToDrop = new ArrayList<>();
 
     GameDataReceiver receiver;
