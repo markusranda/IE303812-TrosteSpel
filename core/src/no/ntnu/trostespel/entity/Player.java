@@ -18,6 +18,15 @@ public class Player extends Movable {
     private boolean flip = false;
     private Weapon weapon;
     private int health;
+    private long pid;
+
+    public long getPid() {
+        return pid;
+    }
+
+    public void setPid(long pid) {
+        this.pid = pid;
+    }
 
     private enum Direction {
         right,
