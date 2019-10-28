@@ -19,6 +19,7 @@ public class Player extends Movable {
     private Weapon weapon;
     private int health;
     private long pid;
+    private boolean addedToLayer = false;
 
     public long getPid() {
         return pid;
@@ -26,6 +27,22 @@ public class Player extends Movable {
 
     public void setPid(long pid) {
         this.pid = pid;
+    }
+
+    public boolean addedToLayer() {
+        return addedToLayer;
+    }
+
+    public void setAddedToLayer(boolean addedToLayer) {
+        this.addedToLayer = addedToLayer;
+    }
+
+    public float getWidth() {
+        return this.width;
+    }
+
+    public float getHeight() {
+        return this.height;
     }
 
     private enum Direction {
@@ -67,9 +84,9 @@ public class Player extends Movable {
             stateTime += Gdx.graphics.getDeltaTime();
             currentFrame = run.getKeyFrame(stateTime, true);
             flip = (getDirection() == Direction.left);
-            batch.draw(currentFrame, flip ? getPos().x+width : getPos().x, getPos().y, flip ? -width : width, height);
+//            batch.draw(currentFrame, flip ? getPos().x+width : getPos().x, getPos().y, flip ? -width : width / 2, height / 2);
         } else {
-            batch.draw(texture, flip ? getPos().x+width : getPos().x, getPos().y, flip ? -width : width, height);
+//            batch.draw(texture, flip ? getPos().x+width : getPos().x, getPos().y, flip ? -width : width / 2 , height / 2);
         }
     }
 

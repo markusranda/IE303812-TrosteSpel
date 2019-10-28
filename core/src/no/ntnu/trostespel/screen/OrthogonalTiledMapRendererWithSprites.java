@@ -4,6 +4,7 @@ import com.badlogic.gdx.maps.MapObject;
 import com.badlogic.gdx.maps.objects.TextureMapObject;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
+import no.ntnu.trostespel.entity.Player;
 
 
 public class OrthogonalTiledMapRendererWithSprites extends OrthogonalTiledMapRenderer {
@@ -14,9 +15,9 @@ public class OrthogonalTiledMapRendererWithSprites extends OrthogonalTiledMapRen
 
     @Override
     public void renderObject(MapObject object) {
-        if(object instanceof TextureMapObject) {
-            TextureMapObject textureObj = (TextureMapObject) object;
-            batch.draw(textureObj.getTextureRegion(), textureObj.getX(), textureObj.getY());
+        Player player = (Player) object.getProperties().get("player");
+        if (player.getTextureRegion() != null) {
+            batch.draw(player.getTextureRegion(), player.getPos().x, player.getPos().y, player.getWidth(), player.getHeight());
         }
     }
 }
