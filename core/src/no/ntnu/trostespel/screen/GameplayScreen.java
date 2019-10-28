@@ -55,7 +55,7 @@ public class GameplayScreen extends ScreenAdapter {
         float h = Gdx.graphics.getHeight();
 
         camera = new OrthographicCamera();
-        camera.setToOrtho(false, w, h);
+        camera.setToOrtho(false, w/2, h/2);
         camera.update();
 
         // init keys
@@ -108,23 +108,25 @@ public class GameplayScreen extends ScreenAdapter {
             Vector2 pos = change.getPosition();
             player.setPos(pos);
             player.setHealth(change.getHealth());
+            player.setPid(change.getPid());
             player.update(0);
 
-
-            Vector3 newCoordinates = new Vector3(change.getPosition(), 0);
-            Vector3 position = camera.unproject(newCoordinates);
-            TextureMapObject character = (TextureMapObject) tiledMap.getLayers().get("objects").getObjects().get(0);
-            character.setX(position.x);
-            character.setY(position.y);
-
-            // add player to object layer
-            TextureMapObject tmo = new TextureMapObject(player.getTextureRegion());
-            tmo.setX(player.getPos().x);
-            tmo.setY(player.getPos().y);
-            objectLayer.getObjects().add(tmo);
+            if (player.getPid() == Session.getInstance().getPid()) {
+                camera.position.x = player.getPos().x;
+                camera.position.y = player.getPos().y;
+            }
 
             player.draw(game.batch);
 
+            // add player to object layer
+//            if (!player.addedToLayer()) {
+                TextureMapObject tmo = new TextureMapObject(player.getTextureRegion());
+                tmo.setX(player.getPos().x);
+                tmo.setY(player.getPos().y);
+                objectLayer.getObjects().add(tmo);
+                player.setAddedToLayer(true);
+                System.out.println(player.getPid() + " - Has been added to the layer!");
+//            }
         }
     }
 
@@ -164,22 +166,20 @@ public class GameplayScreen extends ScreenAdapter {
     public void render(float delta) {
         this.receivedState = Session.getInstance().getReceivedGameState();
         if (this.receivedState != null) {
-
-            camera.update();
-            tiledMapRenderer.setView(camera);
-            tiledMapRenderer.render();
-
             game.batch.begin();
             Gdx.gl.glClearColor(1, 0, 0, 1);
             Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+
+            // Update all entities
             updatePlayers();
             updateProjectiles();
             spawnNewProjectiles();
-            //drawPlayers(delta);
             drawUI();
 
             game.batch.end();
         }
-
+        camera.update();
+        tiledMapRenderer.setView(camera);
+        tiledMapRenderer.render();
     }
 }

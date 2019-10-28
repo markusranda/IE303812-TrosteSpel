@@ -19,6 +19,7 @@ public class Player extends Movable {
     private Weapon weapon;
     private int health;
     private long pid;
+    private boolean addedToLayer = false;
 
     public long getPid() {
         return pid;
@@ -26,6 +27,14 @@ public class Player extends Movable {
 
     public void setPid(long pid) {
         this.pid = pid;
+    }
+
+    public boolean addedToLayer() {
+        return addedToLayer;
+    }
+
+    public void setAddedToLayer(boolean addedToLayer) {
+        this.addedToLayer = addedToLayer;
     }
 
     private enum Direction {
