@@ -112,7 +112,7 @@ public class GameServer implements Runnable{
 
     @Override
     public void run() {
-        Thread receiverThread = new Thread(receiver, "GameData Receiver");
+        Thread receiverThread = new Thread(receiver, "GameDataReceiver");
         receiverThread.start();
 
         System.out.println("Server is ready to handle incoming connections!");

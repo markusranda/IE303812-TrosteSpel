@@ -10,7 +10,7 @@ import no.ntnu.trostespel.state.MovableState;
 
 import java.util.EnumSet;
 
-public class PlayerUpdateProcessor implements Runnable {
+public class PlayerUpdateProcessor {
 
     private PlayerActions actions;
     private long startTime;
@@ -45,15 +45,13 @@ public class PlayerUpdateProcessor implements Runnable {
      * @param actions     the actions to process
      * @param startTime
      */
-    public PlayerUpdateProcessor(PlayerState playerState, PlayerActions actions, long startTime) {
+    public PlayerUpdateProcessor(PlayerState playerState, PlayerActions actions) {
         this.actions = actions;
-        this.startTime = startTime;
         this.playerState = playerState;
         this.displacement = new Vector2(0, 0);
         this.pid = actions.pid;
     }
 
-    @Override
     public void run() {
         pid = actions.pid;
         processActionButtons(actions);

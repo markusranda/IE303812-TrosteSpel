@@ -2,10 +2,17 @@ package no.ntnu.trostespel.udpServer;
 
 
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
+import com.google.gson.Gson;
+import com.google.gson.stream.JsonReader;
 import no.ntnu.trostespel.PlayerActions;
+import no.ntnu.trostespel.config.CommunicationConfig;
 import no.ntnu.trostespel.game.MasterGameState;
 import no.ntnu.trostespel.state.PlayerState;
 
+import java.io.IOException;
+import java.io.StringReader;
+import java.net.DatagramPacket;
+import java.net.SocketAddress;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.*;
@@ -18,46 +25,33 @@ public class PlayerUpdateDispatcher extends ThreadPoolExecutor {
 
     private MasterGameState masterGameState;
 
-    private Map<Long, Long> workers;
+    private Map<SocketAddress, Long> workers;
 
     public PlayerUpdateDispatcher() {
-        super(1, 8, 0, TimeUnit.HOURS, new LinkedBlockingQueue<>(8),
+        super(1, 8, CommunicationConfig.RETRY_CONNECTION_TIMEOUT, TimeUnit.HOURS, new LinkedBlockingQueue<>(8),
                 new ThreadFactoryBuilder().setNameFormat("Dispathcher-thread-%d").build());
         masterGameState = MasterGameState.getInstance();
-        this.workers = new HashMap<>();
+        this.workers = new ConcurrentHashMap<>(8);
     }
 
     /**
      * dispatch actions for processing and update
      * masterGameState
      *
-     * @param actions the update to queue
+     * @param packet the packet to queue
      */
-    public void dispatch(PlayerActions actions) {
-        // each player only gets one update per tick
-        // excess updates get discarded
+    public void dispatch(DatagramPacket packet) {
         long currentTick = GameServer.getTickcounter();
-        long pid = actions.pid;
-        if (!workers.containsKey(pid)) {
-            workers.put(actions.pid, currentTick - 1);
+        SocketAddress socketAddr = packet.getSocketAddress();
+        if (!workers.containsKey(socketAddr)) {
+            workers.put(socketAddr, 0L);
         }
-
-        if (workers.get(pid) < currentTick) {
-            executeCMD(actions, currentTick);
+        if (workers.get(socketAddr) < currentTick) {
+            workers.put(socketAddr, currentTick);
+            execute(doDispatch(packet));
         } else {
+            System.out.println(workers.size());
         }
-    }
-
-
-    private void executeCMD(PlayerActions actions, long startTime) {
-        PlayerState playerState = (PlayerState) masterGameState.getGameState().players.get(actions.pid);
-        if (playerState == null) {
-            playerState = new PlayerState(actions.pid);
-            masterGameState.getGameState().players.put(actions.pid, playerState);
-        }
-        PlayerUpdateProcessor processor = new PlayerUpdateProcessor(playerState, actions, startTime);
-        workers.put(processor.getPid(), startTime);
-        execute(processor);
     }
 
     @Override
@@ -67,6 +61,21 @@ public class PlayerUpdateDispatcher extends ThreadPoolExecutor {
             long pid = ((PlayerUpdateProcessor) r).getPid();
             updateMaster(pid);
         }
+    }
+
+    private Runnable doDispatch(DatagramPacket packet) {
+        return new Runnable() {
+            @Override
+            public void run() {
+                PlayerActions actions = new PacketDeserializer().deserialize(packet);
+                PlayerState playerState = (PlayerState) masterGameState.getGameState().players.get(actions.pid);
+                if (playerState == null) {
+                    playerState = new PlayerState(actions.pid);
+                    masterGameState.getGameState().players.put(actions.pid, playerState);
+                }
+                new PlayerUpdateProcessor(playerState, actions).run();
+            }
+        };
     }
 
     private void updateMaster(long pid) {

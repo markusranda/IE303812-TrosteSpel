@@ -54,42 +54,11 @@ public class GameDataReceiver implements Runnable {
                         break;
                     }
                 }
-
-                // handle the packet
-                handlePacket(packet);
+                dispatcher.dispatch(packet);
             } catch (IOException e) {
                 e.printStackTrace();
             }
             countCmd();
-        }
-    }
-
-
-    private String data;
-    private StringReader sr;
-    private JsonReader reader;
-    PlayerActions actions = null;
-    private void handlePacket(DatagramPacket packet) {
-        // convert data to java object
-        data = new String(packet.getData());
-        sr = new StringReader(data);
-        reader = new JsonReader(sr);
-        reader.setLenient(true);
-        try {
-            actions = gson.fromJson(reader, PlayerActions.class);
-        } catch (Exception e) {
-            e.printStackTrace();
-            System.out.println(data);
-            actions = null;
-        } finally {
-            try {
-                reader.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-        if (actions != null) {
-            dispatcher.dispatch(actions);
         }
     }
 

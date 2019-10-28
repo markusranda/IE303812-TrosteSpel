@@ -51,7 +51,7 @@ ssh.settings {
     knownHosts = allowAnyHosts
 }
 
-task remoteDeploy {
+task remoteDeploy(dependsOn: dist) {
     doLast {
         ssh.run {
             settings {

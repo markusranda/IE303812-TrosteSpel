@@ -1,5 +1,6 @@
 package no.ntnu.trostespel.udpServer;
 
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.google.gson.Gson;
 import no.ntnu.trostespel.config.CommunicationConfig;
 import no.ntnu.trostespel.game.MasterGameState;
@@ -28,7 +29,8 @@ public class GameDataSender extends ThreadPoolExecutor{
     private AtomicInteger completedCount;
 
     public GameDataSender() {
-        super(8, MAX_PLAYERS, 0, TimeUnit.HOURS, new LinkedBlockingQueue<>(16));
+        super(1, MAX_PLAYERS, 0, TimeUnit.HOURS, new LinkedBlockingQueue<>(16),
+                new ThreadFactoryBuilder().setNameFormat("GameDataSender-%d").build());
         this.masterGameState = MasterGameState.getInstance();
         completedCount = new AtomicInteger();
     }

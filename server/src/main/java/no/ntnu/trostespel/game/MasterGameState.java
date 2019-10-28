@@ -1,6 +1,7 @@
 package no.ntnu.trostespel.game;
 
 import com.badlogic.gdx.math.Vector2;
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import no.ntnu.trostespel.entity.GameObject;
 import no.ntnu.trostespel.entity.Movable;
 import no.ntnu.trostespel.entity.Projectile;
@@ -35,7 +36,8 @@ public class MasterGameState {
 
     private MasterGameState(GameState<PlayerState, MovableState> gameState) {
         this.gameState = gameState;
-        this.executor = Executors.newSingleThreadExecutor();
+        this.executor = Executors.newSingleThreadExecutor(
+                new ThreadFactoryBuilder().setNameFormat("MasterGameState-Updater").build());
     }
 
     /**

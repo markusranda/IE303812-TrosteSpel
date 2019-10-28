@@ -15,7 +15,7 @@ public class ServerLauncher {
 
         Thread UdpThread = new Thread(UDPServer);
         Thread TcpThread = new Thread(TCPClient);
-        UdpThread.setName("GameDataReceiver");
+        UdpThread.setName("Server-Main");
         TcpThread.setName("ConnectionClient");
 
         UdpThread.start();
