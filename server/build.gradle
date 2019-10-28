@@ -51,6 +51,7 @@ ssh.settings {
     knownHosts = allowAnyHosts
 }
 
+
 task remoteDeploy(dependsOn: dist) {
     doLast {
         ssh.run {
@@ -60,8 +61,9 @@ task remoteDeploy(dependsOn: dist) {
             }
             session(remotes.gameServer) {
                 //def a = executeSudo('kill -9 `jps -v | grep server-1.0.jar | awk {\'print $1\'}`')
-                def b = put from: 'build/libs/server-1.0.jar', into: '/home/lars'
-                def c = execute('java -jar server-1.0.jar')
+                execute('pkill -f "java.*server-1.0.jar"', ignoreError: true)
+                put from: file('build/libs/server-1.0.jar'), into: '/home/lars'
+                execute('java -jar server-1.0.jar')
             }
         }
     }

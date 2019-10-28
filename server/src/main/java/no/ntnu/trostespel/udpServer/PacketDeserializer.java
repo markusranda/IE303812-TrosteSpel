@@ -1,5 +1,6 @@
 package no.ntnu.trostespel.udpServer;
 
+import com.badlogic.gdx.utils.Pool;
 import com.google.gson.Gson;
 import com.google.gson.stream.JsonReader;
 import no.ntnu.trostespel.PlayerActions;
@@ -8,7 +9,7 @@ import java.io.IOException;
 import java.io.StringReader;
 import java.net.DatagramPacket;
 
-public class PacketDeserializer {
+public class PacketDeserializer{
 
     private Gson gson = new Gson();
     private String data;
@@ -39,4 +40,5 @@ public class PacketDeserializer {
         }
         return actions;
     }
+
 }

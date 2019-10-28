@@ -1,6 +1,8 @@
 package no.ntnu.trostespel.udpServer;
 
 
+import com.badlogic.gdx.utils.Pool;
+import com.badlogic.gdx.utils.PooledLinkedList;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.google.gson.Gson;
 import com.google.gson.stream.JsonReader;
@@ -24,14 +26,20 @@ import java.util.concurrent.*;
 public class PlayerUpdateDispatcher extends ThreadPoolExecutor {
 
     private MasterGameState masterGameState;
-
+    private Pool<PacketDeserializer> deserializerPool;
     private Map<SocketAddress, Long> workers;
 
     public PlayerUpdateDispatcher() {
-        super(1, 8, CommunicationConfig.RETRY_CONNECTION_TIMEOUT, TimeUnit.HOURS, new LinkedBlockingQueue<>(8),
+        super(1, CommunicationConfig.MAX_PLAYERS, CommunicationConfig.RETRY_CONNECTION_TIMEOUT, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<>(8),
                 new ThreadFactoryBuilder().setNameFormat("Dispathcher-thread-%d").build());
         masterGameState = MasterGameState.getInstance();
         this.workers = new ConcurrentHashMap<>(8);
+        deserializerPool = new Pool<PacketDeserializer>() {
+            @Override
+            protected PacketDeserializer newObject() {
+                return new PacketDeserializer();
+            }
+        };
     }
 
     /**
@@ -64,17 +72,16 @@ public class PlayerUpdateDispatcher extends ThreadPoolExecutor {
     }
 
     private Runnable doDispatch(DatagramPacket packet) {
-        return new Runnable() {
-            @Override
-            public void run() {
-                PlayerActions actions = new PacketDeserializer().deserialize(packet);
-                PlayerState playerState = (PlayerState) masterGameState.getGameState().players.get(actions.pid);
-                if (playerState == null) {
-                    playerState = new PlayerState(actions.pid);
-                    masterGameState.getGameState().players.put(actions.pid, playerState);
-                }
-                new PlayerUpdateProcessor(playerState, actions).run();
+        return () -> {
+            PacketDeserializer deserializer = deserializerPool.obtain();
+            PlayerActions actions = deserializer.deserialize(packet);
+            deserializerPool.free(deserializer);
+            PlayerState playerState = (PlayerState) masterGameState.getGameState().players.get(actions.pid);
+            if (playerState == null) {
+                playerState = new PlayerState(actions.pid);
+                masterGameState.getGameState().players.put(actions.pid, playerState);
             }
+            new PlayerUpdateProcessor(playerState, actions).run();
         };
     }
 
