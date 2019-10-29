@@ -70,7 +70,7 @@ public class GameplayScreen extends ScreenAdapter {
     }
 
     private void communicate() {
-        game.startUdpConnection();
+        game.startUdpConnection(tiledMap);
     }
 
     private void drawUI() {

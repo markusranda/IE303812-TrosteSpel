@@ -4,6 +4,7 @@ import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
+import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import no.ntnu.trostespel.config.Assets;
 import no.ntnu.trostespel.config.KeyConfig;
@@ -43,14 +44,14 @@ public class TrosteSpel extends Game {
         setScreen(new MainMenuScreen(this));
     }
 
-    public void startUdpConnection() {
+    public void startUdpConnection(TiledMap tiledMap) {
         long pid = Session.getInstance().getPid();
         Session session = Session.getInstance();
         DatagramSocket socket = session.getUdpSocket();
         boolean result = session.setPid(pid);
 
         // Start transmitting updates to server
-        new GameDataTransmitter(socket, pid);
+        new GameDataTransmitter(socket, pid, tiledMap);
 
         // Listen for updates from server
         GameDataReceiver gameDataReceiver = new GameDataReceiver(socket);
