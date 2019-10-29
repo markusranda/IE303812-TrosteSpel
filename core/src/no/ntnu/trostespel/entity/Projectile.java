@@ -35,7 +35,17 @@ public class Projectile extends Movable {
     }
 
     @Override
-    public void draw(SpriteBatch batch) {
-        batch.draw(texture, getPos().x, getPos().y, 24, 24);
+    public void draw(SpriteBatch batch) {}
+
+    public Texture getTextureRegion() {
+        return texture;
+    }
+
+    public float getWidth() {
+        return width;
+    }
+
+    public float getHeight() {
+        return height;
     }
 }

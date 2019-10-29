@@ -1,21 +1,16 @@
 package no.ntnu.trostespel.screen;
 
-import com.badlogic.gdx.ApplicationListener;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.maps.MapLayer;
 import com.badlogic.gdx.maps.MapObject;
-import com.badlogic.gdx.maps.objects.TextureMapObject;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader;
-import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.math.Vector3;
 import no.ntnu.trostespel.TrosteSpel;
 import no.ntnu.trostespel.config.Assets;
 import no.ntnu.trostespel.config.KeyConfig;
@@ -25,8 +20,6 @@ import no.ntnu.trostespel.entity.Movable;
 import no.ntnu.trostespel.entity.Player;
 import no.ntnu.trostespel.entity.Projectile;
 import no.ntnu.trostespel.entity.Session;
-import no.ntnu.trostespel.networking.GameDataReceiver;
-import no.ntnu.trostespel.networking.GameDataTransmitter;
 import no.ntnu.trostespel.state.GameState;
 import no.ntnu.trostespel.state.MovableState;
 import no.ntnu.trostespel.state.PlayerState;
@@ -36,8 +29,10 @@ import java.util.Queue;
 public class GameplayScreen extends ScreenAdapter {
 
 
+    public static final String MAP_OBJECT_ID_PROJECTILE = "projectile";
+    public static final String MAP_OBJECT_ID_PLAYER = "player";
     private final TiledMap tiledMap;
-    private final OrthogonalTiledMapRendererWithSprites tiledMapRenderer;
+    private final OrthogonalTiledMapRendererPlus tiledMapRenderer;
     private final MapLayer objectLayer;
     private GameState<Player, Movable> gameState;
 
@@ -66,7 +61,7 @@ public class GameplayScreen extends ScreenAdapter {
 
         // init world
         tiledMap = new TmxMapLoader().load("map/tutorial_map.tmx");
-        tiledMapRenderer = new OrthogonalTiledMapRendererWithSprites(tiledMap);
+        tiledMapRenderer = new OrthogonalTiledMapRendererPlus(tiledMap);
 
         objectLayer = tiledMap.getLayers().get("objects");
 
@@ -122,12 +117,8 @@ public class GameplayScreen extends ScreenAdapter {
 
             // add player to object layer
             if (!player.addedToLayer()) {
-//                TextureMapObject tmo = new TextureMapObject(player.getTextureRegion());
-//                tmo.setX(player.getPos().x);
-//                tmo.setY(player.getPos().y);
                 MapObject mapObject = new MapObject();
-                mapObject.getProperties().put("player", player);
-//                objectLayer.getObjects().add(tmo);
+                mapObject.getProperties().put(MAP_OBJECT_ID_PLAYER, player);
                 objectLayer.getObjects().add(mapObject);
                 player.setAddedToLayer(true);
                 System.out.println(player.getPid() + " - Has been added to the layer!");
@@ -149,6 +140,11 @@ public class GameplayScreen extends ScreenAdapter {
                             Vector2 spawnPos = player.getPos();
                             Projectile newProjectile = new Projectile(spawnPos, Assets.bullet, state.getVelocity(), state.getAngle());
                             gameState.getProjectiles().put(eid, newProjectile);
+
+                            // Add projectile to object layer
+                            MapObject mapObject = new MapObject();
+                            mapObject.getProperties().put(MAP_OBJECT_ID_PROJECTILE, newProjectile);
+                            objectLayer.getObjects().add(mapObject);
                         }
                     }
                 case KILL:
