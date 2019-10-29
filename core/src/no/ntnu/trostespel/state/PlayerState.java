@@ -23,7 +23,7 @@ public class PlayerState extends ObjectState{
     private transient Queue<MovableState> spawnedObjects = new LinkedList<>();
 
     public PlayerState(long pid) {
-        super(72, 90, Vector2.Zero);
+        super(72, 90, new Vector2(55, 55));
         this.pid = pid;
         this.health = 0;
         this.attackTimer = 0;
