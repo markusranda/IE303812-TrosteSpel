@@ -19,6 +19,7 @@ import no.ntnu.trostespel.config.CommunicationConfig;
 import no.ntnu.trostespel.config.ScreenConfig;
 import no.ntnu.trostespel.entity.Session;
 import no.ntnu.trostespel.networking.ConnectionClient;
+import no.ntnu.trostespel.networking.Response;
 
 import java.util.concurrent.*;
 
@@ -85,9 +86,9 @@ public class MainMenuScreen implements Screen {
                     Future future = executor.submit(connect);
 
                     // Retrieve and set the pid
-                    String response = (String) future.get();
-                    long pid = Long.parseLong(response);
-                    Session.getInstance().setPid(pid);
+                    Response response = (Response) future.get();
+                        Session.getInstance().setPid(response.getPid());
+                    Session.getInstance().setUdpSocket(response.getSocket());
 
                     connectedLabel.setText("Connected");
 
@@ -184,7 +185,7 @@ public class MainMenuScreen implements Screen {
 
     @Override
     public void hide() {
-
+        dispose();
     }
 
     @Override

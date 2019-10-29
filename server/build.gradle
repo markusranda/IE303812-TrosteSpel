@@ -1,8 +1,26 @@
 apply plugin: "java"
+apply plugin: 'org.hidetake.ssh'
 
 sourceCompatibility = 1.8
 sourceSets.main.java.srcDirs = [ "src/main/java" ]
 project.ext.mainClassName = "no.ntnu.trostespel.ServerLauncher"
+
+buildscript {
+    repositories {
+        jcenter()
+    }
+    dependencies {
+        classpath 'org.hidetake:gradle-ssh-plugin:2.10.1'
+    }
+}
+
+def sshprofile = rootProject.file('SshProfile.properties');
+def sshProperties = new Properties()
+sshProperties.load(new FileInputStream(sshprofile))
+
+ext.ssh_password = sshProperties.getProperty('password');
+ext.ssh_host = sshProperties.getProperty('host');
+ext.ssh_user = sshProperties.getProperty('user');
 
 task run(dependsOn: classes, type: JavaExec) {
     main = project.mainClassName
@@ -27,6 +45,38 @@ task dist(type: Jar) {
         configurations.compileClasspath.collect { it.isDirectory() ? it : zipTree(it) }
     }
     with jar
+}
+
+ssh.settings {
+    knownHosts = allowAnyHosts
+}
+
+
+task remoteDeploy(dependsOn: dist) {
+    doLast {
+        ssh.run {
+            settings {
+                pty = true
+                //dryRun = true
+            }
+            session(remotes.gameServer) {
+                //def a = executeSudo('kill -9 `jps -v | grep server-1.0.jar | awk {\'print $1\'}`')
+                execute('pkill -f "java.*server-1.0.jar"', ignoreError: true)
+                put from: file('build/libs/server-1.0.jar'), into: '/home/lars'
+                execute('java -jar server-1.0.jar')
+            }
+        }
+    }
+}
+
+
+
+remotes {
+    gameServer {
+        host = ssh_host
+        user = ssh_user
+        password = ssh_password
+    }
 }
 
 dist.dependsOn classes

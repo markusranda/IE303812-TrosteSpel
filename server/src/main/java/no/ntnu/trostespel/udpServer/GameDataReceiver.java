@@ -1,23 +1,14 @@
-package no.ntnu.trostespel.udp;
+package no.ntnu.trostespel.udpServer;
 
 import com.google.gson.Gson;
-import com.google.gson.JsonSyntaxException;
-import com.google.gson.stream.JsonReader;
-import no.ntnu.trostespel.PlayerActions;
-import no.ntnu.trostespel.PlayerUpdateDispatcher;
-import no.ntnu.trostespel.config.CommunicationConfig;
 import no.ntnu.trostespel.model.Connection;
 import no.ntnu.trostespel.model.Connections;
 
 import java.io.*;
-import java.lang.reflect.Type;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.concurrent.ExecutorService;
 
 public class GameDataReceiver implements Runnable {
     private DatagramSocket udpSocket;
@@ -47,10 +38,13 @@ public class GameDataReceiver implements Runnable {
         startTime = System.currentTimeMillis();
         nextPrint = startTime + 10000;
         byte[] buf = new byte[2346];
-        DatagramPacket packet = new DatagramPacket(buf, buf.length);
+
 
         while (true) {
             try {
+                // Create new DatagramPacket for each received packet
+                DatagramPacket packet = new DatagramPacket(buf, buf.length);
+
                 // blocks until a packet is received
                 udpSocket.receive(packet);
 
@@ -61,9 +55,8 @@ public class GameDataReceiver implements Runnable {
                         break;
                     }
                 }
-
-                // handle the packet
-                handlePacket(packet);
+                // Process the packet
+                dispatcher.dispatch(packet);
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -71,36 +64,8 @@ public class GameDataReceiver implements Runnable {
         }
     }
 
-
-    private String data;
-    private StringReader sr;
-    private JsonReader reader;
-    PlayerActions actions = null;
-    private void handlePacket(DatagramPacket packet) {
-        // convert data to java object
-        data = new String(packet.getData());
-        sr = new StringReader(data);
-        reader = new JsonReader(sr);
-        reader.setLenient(true);
-        try {
-            actions = gson.fromJson(reader, PlayerActions.class);
-        } catch (Exception e) {
-            e.printStackTrace();
-            System.out.println(data);
-            actions = null;
-        } finally {
-            try {
-                reader.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-        if (actions != null) {
-            dispatcher.dispatch(actions);
-        }
-    }
-
     private long count = 0;
+
     private void countCmd() {
         count++;
         long time = System.currentTimeMillis();

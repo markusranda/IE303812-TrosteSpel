@@ -1,12 +1,9 @@
 package no.ntnu.trostespel.networking;
 
-import com.badlogic.gdx.utils.Json;
 import com.google.gson.Gson;
 import com.google.gson.JsonIOException;
 import com.google.gson.JsonSyntaxException;
 import com.google.gson.stream.JsonReader;
-import com.google.gson.stream.MalformedJsonException;
-import no.ntnu.trostespel.entity.Player;
 import no.ntnu.trostespel.entity.Session;
 import no.ntnu.trostespel.state.GameState;
 import no.ntnu.trostespel.config.CommunicationConfig;
@@ -17,10 +14,8 @@ import java.io.StringReader;
 import java.lang.reflect.Type;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
-import java.net.SocketException;
 
 import static no.ntnu.trostespel.config.CommunicationConfig.BUF_LENGTH;
-import static no.ntnu.trostespel.config.CommunicationConfig.CLIENT_UDP_GAMEDATA_RECEIVE_PORT;
 
 /**
  * Listens for updates from server, and applies them to this GameState
@@ -36,17 +31,17 @@ public class GameDataReceiver implements Runnable {
     private String data;
     private StringReader sr;
     private JsonReader reader;
+    private DatagramSocket udpSocket;
 
     private long packetReceiveTime = 0;
 
+    public GameDataReceiver(DatagramSocket socket) {
+        this.udpSocket = socket;
+    }
+
     @Override
     public void run() {
-        DatagramSocket udpSocket = null;
-        try {
-            udpSocket = new DatagramSocket(CLIENT_UDP_GAMEDATA_RECEIVE_PORT);
-        } catch (SocketException e) {
-            e.printStackTrace();
-        }
+
         DatagramPacket packet;
         byte[] buf = new byte[BUF_LENGTH];
 
@@ -75,6 +70,9 @@ public class GameDataReceiver implements Runnable {
             }
         }
     }
+
+
+
 
     /**
      * Calculate round trip time of packet

@@ -17,7 +17,7 @@ public class ConnectionManager implements Runnable {
     long pid = 100;
     private boolean firstTimeRunning = true;
 
-    public ConnectionManager(int port) throws Exception {
+    public ConnectionManager(int port) throws IOException {
         this.server = new ServerSocket(port, 1, null);
     }
 
@@ -32,19 +32,27 @@ public class ConnectionManager implements Runnable {
             // Receive message from client
             BufferedReader in = new BufferedReader(new InputStreamReader(client.getInputStream()));
             data = in.readLine();
+            String[] msg = data.split(" ");
+            String uName = msg[0];
+            String udpPortStr = msg[1];
+            int udpPort = Integer.parseInt(udpPortStr);
 
             // Send the response back to the client.
-            String response = getUniquePlayerId();
+            Connection connection = new Connection(client.getInetAddress(), udpPort, uName);
             OutputStream os = client.getOutputStream();
             OutputStreamWriter osw = new OutputStreamWriter(os);
             BufferedWriter bw = new BufferedWriter(osw);
+
+            String response = String.valueOf(connection.getPid());
             bw.write(response);
             System.out.println("Message sent to the client is " + response);
             bw.flush();
 
-            Connection connection = new Connection(client.getInetAddress(), Long.parseLong(response), data);
             Connections.getInstance().setConnection(connection);
             client.close();
+            System.out.println();
+            System.out.println("Now serving " + Connections.getInstance().getConnections().size() + " player(s)");
+            System.out.println(Connections.getInstance().getConnections());
         } catch (IOException io) {
             io.printStackTrace();
             run();
@@ -52,22 +60,7 @@ public class ConnectionManager implements Runnable {
         run();
     }
 
-    private String getUniquePlayerId() {
-        if (firstTimeRunning) {
-            firstTimeRunning = false;
-            return String.valueOf(pid);
-        } else {
-            pid++;
-            return String.valueOf(pid);
-        }
-    }
-
-
     public InetAddress getSocketAddress() {
         return this.server.getInetAddress();
-    }
-
-    public int getPort() {
-        return this.server.getLocalPort();
     }
 }

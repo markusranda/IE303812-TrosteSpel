@@ -8,8 +8,12 @@ import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import no.ntnu.trostespel.config.Assets;
 import no.ntnu.trostespel.config.KeyConfig;
 import no.ntnu.trostespel.config.CommunicationConfig;
+import no.ntnu.trostespel.entity.Session;
 import no.ntnu.trostespel.networking.GameDataReceiver;
+import no.ntnu.trostespel.networking.GameDataTransmitter;
 import no.ntnu.trostespel.screen.MainMenuScreen;
+
+import java.net.DatagramSocket;
 
 import static no.ntnu.trostespel.config.Assets.img;
 
@@ -37,6 +41,22 @@ public class TrosteSpel extends Game {
 
         // Set the screen to Main Menu
         setScreen(new MainMenuScreen(this));
+    }
+
+    public void startUdpConnection() {
+        long pid = Session.getInstance().getPid();
+        Session session = Session.getInstance();
+        DatagramSocket socket = session.getUdpSocket();
+        boolean result = session.setPid(pid);
+
+        // Start transmitting updates to server
+        new GameDataTransmitter(socket, pid);
+
+        // Listen for updates from server
+        GameDataReceiver gameDataReceiver = new GameDataReceiver(socket);
+        Thread gameDataReceiverThread = new Thread(gameDataReceiver);
+        gameDataReceiverThread.setName("GameDataReceiver");
+        gameDataReceiverThread.start();
     }
 
     @Override
