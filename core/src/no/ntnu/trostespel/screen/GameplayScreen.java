@@ -121,7 +121,6 @@ public class GameplayScreen extends ScreenAdapter {
                 mapObject.getProperties().put(MAP_OBJECT_ID_PLAYER, player);
                 objectLayer.getObjects().add(mapObject);
                 player.setAddedToLayer(true);
-                System.out.println(player.getPid() + " - Has been added to the layer!");
             }
         }
     }
