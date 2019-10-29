@@ -17,7 +17,7 @@ public class ConnectionManager implements Runnable {
     long pid = 100;
     private boolean firstTimeRunning = true;
 
-    public ConnectionManager(int port) throws Exception {
+    public ConnectionManager(int port) throws IOException {
         this.server = new ServerSocket(port, 1, null);
     }
 

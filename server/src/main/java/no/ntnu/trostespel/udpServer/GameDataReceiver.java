@@ -1,8 +1,6 @@
 package no.ntnu.trostespel.udpServer;
 
 import com.google.gson.Gson;
-import com.google.gson.stream.JsonReader;
-import no.ntnu.trostespel.PlayerActions;
 import no.ntnu.trostespel.model.Connection;
 import no.ntnu.trostespel.model.Connections;
 
@@ -40,10 +38,13 @@ public class GameDataReceiver implements Runnable {
         startTime = System.currentTimeMillis();
         nextPrint = startTime + 10000;
         byte[] buf = new byte[2346];
-        DatagramPacket packet = new DatagramPacket(buf, buf.length);
+
 
         while (true) {
             try {
+                // Create new DatagramPacket for each received packet
+                DatagramPacket packet = new DatagramPacket(buf, buf.length);
+
                 // blocks until a packet is received
                 udpSocket.receive(packet);
 
@@ -54,6 +55,7 @@ public class GameDataReceiver implements Runnable {
                         break;
                     }
                 }
+                // Process the packet
                 dispatcher.dispatch(packet);
             } catch (IOException e) {
                 e.printStackTrace();
@@ -63,6 +65,7 @@ public class GameDataReceiver implements Runnable {
     }
 
     private long count = 0;
+
     private void countCmd() {
         count++;
         long time = System.currentTimeMillis();

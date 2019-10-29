@@ -1,6 +1,7 @@
 package no.ntnu.trostespel.udpServer;
 
 import com.google.gson.Gson;
+import no.ntnu.trostespel.ConnectionManager;
 import no.ntnu.trostespel.config.CommunicationConfig;
 import no.ntnu.trostespel.game.MasterGameState;
 import no.ntnu.trostespel.model.Connection;
@@ -15,7 +16,7 @@ import java.util.concurrent.atomic.AtomicLong;
 /**
  * This class will do every task the server need to do each tick.
  */
-public class GameServer implements Runnable{
+public class GameServer{
 
 
     private List<Connection> connections = Connections.getInstance().getConnections();
@@ -37,6 +38,23 @@ public class GameServer implements Runnable{
         } catch (IOException e) {
             e.printStackTrace();
         }
+        Thread receiverThread = new Thread(receiver, "GameDataReceiver");
+        receiverThread.start();
+
+        ConnectionManager TCPClient = null;
+        try {
+            TCPClient = new ConnectionManager(CommunicationConfig.SERVER_TCP_CONNECTION_RECEIVE_PORT);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        Thread TcpThread = new Thread(TCPClient);
+        TcpThread.setName("ConnectionClient");
+        TcpThread.start();
+
+
+        System.out.println("Server is ready to handle incoming connections!");
+        heartbeat();
     }
 
     private void heartbeat() {
@@ -108,14 +126,5 @@ public class GameServer implements Runnable{
 
     public static long getTickcounter() {
         return tickCounter.get();
-    }
-
-    @Override
-    public void run() {
-        Thread receiverThread = new Thread(receiver, "GameDataReceiver");
-        receiverThread.start();
-
-        System.out.println("Server is ready to handle incoming connections!");
-        heartbeat();
     }
 }
