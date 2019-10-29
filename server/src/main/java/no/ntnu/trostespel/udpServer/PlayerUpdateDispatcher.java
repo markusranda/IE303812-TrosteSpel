@@ -58,34 +58,50 @@ public class PlayerUpdateDispatcher extends ThreadPoolExecutor {
             workers.put(socketAddr, currentTick);
             execute(doDispatch(packet));
         } else {
-            System.out.println(workers.size());
         }
     }
 
     @Override
     protected void afterExecute(Runnable r, Throwable t) {
         super.afterExecute(r, t);
-        if (r instanceof PlayerUpdateProcessor) {
-            long pid = ((PlayerUpdateProcessor) r).getPid();
+        if (r instanceof Updater) {
+            long pid = ((Updater) r).getPid();
             updateMaster(pid);
         }
     }
 
     private Runnable doDispatch(DatagramPacket packet) {
-        return () -> {
+        return new Updater(packet);
+    }
+
+    private void updateMaster(long pid) {
+        masterGameState.update(pid);
+    }
+
+    class Updater implements Runnable {
+        private long pid = -1;
+        private DatagramPacket packet;
+
+        public Updater(DatagramPacket packet) {
+            this.packet = packet;
+        }
+
+        @Override
+        public void run() {
             PacketDeserializer deserializer = deserializerPool.obtain();
             PlayerActions actions = deserializer.deserialize(packet);
             deserializerPool.free(deserializer);
+            this.pid = actions.pid;
             PlayerState playerState = (PlayerState) masterGameState.getGameState().players.get(actions.pid);
             if (playerState == null) {
                 playerState = new PlayerState(actions.pid);
                 masterGameState.getGameState().players.put(actions.pid, playerState);
             }
             new PlayerUpdateProcessor(playerState, actions).run();
-        };
-    }
+        }
 
-    private void updateMaster(long pid) {
-        masterGameState.update(pid);
+        public long getPid() {
+            return this.pid;
+        }
     }
 }
