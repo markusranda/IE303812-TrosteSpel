@@ -48,6 +48,8 @@ public class GameplayScreen extends ScreenAdapter {
         this.game = game;
         this.gameState = new GameState<>();
 
+        this.font = new BitmapFont();
+
         // init camera
         float w = Gdx.graphics.getWidth();
         float h = Gdx.graphics.getHeight();
@@ -86,12 +88,14 @@ public class GameplayScreen extends ScreenAdapter {
             PlayerState state = receivedState.players.get(pid);
 
             int height = ScreenConfig.SCREEN_HEIGHT;
+            game.batch.begin();
             font.draw(game.batch, "Host: " + CommunicationConfig.host + ":" + CommunicationConfig.SERVER_UDP_GAMEDATA_RECEIVE_PORT, 10, height);
             font.draw(game.batch, "Local Port: " + Session.getInstance().getUdpSocket().getLocalPort(), 10, height - 20);
             font.draw(game.batch, "Framterate: " + Gdx.graphics.getFramesPerSecond(), 10, height - 40);
             font.draw(game.batch, "Tickrate: " + CommunicationConfig.TICKRATE, 10, height - 60);
             font.draw(game.batch, "Connected players " + receivedState.players.size(), 10, height - 80);
             font.draw(game.batch, "Player: " + pid + "  " + state.getPosition(), 10, height - 100);
+            game.batch.end();
         }
     }
 
