@@ -131,4 +131,5 @@ Thumbs.db
 /server.properties
 /client.properties
 /sshProfile.properties
+/sshprofile.properties
 /transferjar.bat
