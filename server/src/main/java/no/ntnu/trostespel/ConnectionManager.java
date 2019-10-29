@@ -13,12 +13,14 @@ import java.net.Socket;
 
 public class ConnectionManager implements Runnable {
 
+    private final String mapFileName;
     private ServerSocket server;
     long pid = 100;
     private boolean firstTimeRunning = true;
 
-    public ConnectionManager(int port) throws IOException {
+    public ConnectionManager(int port, String mapFileName) throws IOException {
         this.server = new ServerSocket(port, 1, null);
+        this.mapFileName = mapFileName;
     }
 
     @Override
@@ -43,7 +45,7 @@ public class ConnectionManager implements Runnable {
             OutputStreamWriter osw = new OutputStreamWriter(os);
             BufferedWriter bw = new BufferedWriter(osw);
 
-            String response = String.valueOf(connection.getPid());
+            String response = connection.getPid() + " " + mapFileName;
             bw.write(response);
             System.out.println("Message sent to the client is " + response);
             bw.flush();

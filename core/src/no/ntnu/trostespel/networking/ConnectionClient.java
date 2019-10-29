@@ -40,9 +40,12 @@ public class ConnectionClient {
 
             // Get answer from server
             BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-            long pid = Long.parseLong(in.readLine());
+            String responseString = in.readLine();
+            String[] responseStringArray = responseString.split(" ");
+            long pid = Long.parseLong(responseStringArray[0]);
+            String mapFileName = responseStringArray[1];
 
-            data = new Response(udpSocket, Session.getInstance().getUsername(), pid);
+            data = new Response(udpSocket, Session.getInstance().getUsername(), pid, mapFileName);
 
             socket.close();
         } catch (Exception e) {

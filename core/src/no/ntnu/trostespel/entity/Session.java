@@ -27,6 +27,7 @@ public class Session {
     private long packetReceiveTime = 0;
     private String username;
     private DatagramSocket udpSocket;
+    private String mapFileName;
 
     private Session() {
     }
@@ -102,5 +103,13 @@ public class Session {
 
     public void setUdpSocket(DatagramSocket udpSocket) {
         this.udpSocket = udpSocket;
+    }
+
+    public void setMapName(String mapFileName) {
+        this.mapFileName = mapFileName;
+    }
+
+    public String getMapFileName() {
+        return mapFileName;
     }
 }
