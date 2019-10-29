@@ -5,7 +5,11 @@ import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
-import com.badlogic.gdx.math.Rectangle;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.maps.MapLayer;
+import com.badlogic.gdx.maps.MapObject;
+import com.badlogic.gdx.maps.tiled.TiledMap;
+import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 import com.badlogic.gdx.math.Vector2;
 import no.ntnu.trostespel.TrosteSpel;
 import no.ntnu.trostespel.config.Assets;
@@ -16,8 +20,6 @@ import no.ntnu.trostespel.entity.Movable;
 import no.ntnu.trostespel.entity.Player;
 import no.ntnu.trostespel.entity.Projectile;
 import no.ntnu.trostespel.entity.Session;
-import no.ntnu.trostespel.networking.GameDataReceiver;
-import no.ntnu.trostespel.networking.GameDataTransmitter;
 import no.ntnu.trostespel.state.GameState;
 import no.ntnu.trostespel.state.MovableState;
 import no.ntnu.trostespel.state.PlayerState;
@@ -27,6 +29,11 @@ import java.util.Queue;
 public class GameplayScreen extends ScreenAdapter {
 
 
+    public static final String MAP_OBJECT_ID_PROJECTILE = "projectile";
+    public static final String MAP_OBJECT_ID_PLAYER = "player";
+    private final TiledMap tiledMap;
+    private final OrthogonalTiledMapRendererPlus tiledMapRenderer;
+    private final MapLayer objectLayer;
     private GameState<Player, Movable> gameState;
 
     private TrosteSpel game;
@@ -40,17 +47,25 @@ public class GameplayScreen extends ScreenAdapter {
         this.game = game;
         this.gameState = new GameState<>();
 
+        // init camera
+        float w = Gdx.graphics.getWidth();
+        float h = Gdx.graphics.getHeight();
+
+        camera = new OrthographicCamera();
+        camera.setToOrtho(false, w/2, h/2);
+        camera.update();
+
         // init keys
         KeyConfig keys = new KeyConfig();
         keys.loadDefault();
 
-        // init font
-        this.font = new BitmapFont();
+        // init world
+        tiledMap = new TmxMapLoader().load("map/tutorial_map.tmx");
+        tiledMapRenderer = new OrthogonalTiledMapRendererPlus(tiledMap);
 
-        // init camera
-        camera = new OrthographicCamera();
-        camera.setToOrtho(false, ScreenConfig.SCREEN_WIDTH, ScreenConfig.SCREEN_HEIGHT);
+        objectLayer = tiledMap.getLayers().get("objects");
 
+        // start sending and listening for data
         communicate();
     }
 
@@ -88,12 +103,26 @@ public class GameplayScreen extends ScreenAdapter {
             // apply changed values
             Player player = gameState.players.get(key);
             Vector2 pos = change.getPosition();
-            System.out.println(pos);
             player.setPos(pos);
             player.setHealth(change.getHealth());
+            player.setPid(change.getPid());
             player.update(0);
-            player.draw(game.batch);
 
+            if (player.getPid() == Session.getInstance().getPid()) {
+                camera.position.x = player.getPos().x;
+                camera.position.y = player.getPos().y;
+            }
+
+            player.draw((SpriteBatch) tiledMapRenderer.getBatch());
+
+            // add player to object layer
+            if (!player.addedToLayer()) {
+                MapObject mapObject = new MapObject();
+                mapObject.getProperties().put(MAP_OBJECT_ID_PLAYER, player);
+                objectLayer.getObjects().add(mapObject);
+                player.setAddedToLayer(true);
+                System.out.println(player.getPid() + " - Has been added to the layer!");
+            }
         }
     }
 
@@ -111,6 +140,11 @@ public class GameplayScreen extends ScreenAdapter {
                             Vector2 spawnPos = player.getPos();
                             Projectile newProjectile = new Projectile(spawnPos, Assets.bullet, state.getVelocity(), state.getAngle());
                             gameState.getProjectiles().put(eid, newProjectile);
+
+                            // Add projectile to object layer
+                            MapObject mapObject = new MapObject();
+                            mapObject.getProperties().put(MAP_OBJECT_ID_PROJECTILE, newProjectile);
+                            objectLayer.getObjects().add(mapObject);
                         }
                     }
                 case KILL:
@@ -123,33 +157,30 @@ public class GameplayScreen extends ScreenAdapter {
     }
 
     private void updateProjectiles() {
-        for (Movable projectile : gameState.getProjectiles().values()){
+        for (Movable projectile : gameState.getProjectiles().values()) {
             projectile.update(Gdx.graphics.getDeltaTime());
             projectile.draw(game.batch);
         }
     }
 
-
-
     @Override
     public void render(float delta) {
         this.receivedState = Session.getInstance().getReceivedGameState();
         if (this.receivedState != null) {
-
-            game.batch.begin();
+            tiledMapRenderer.getBatch().begin();
             Gdx.gl.glClearColor(1, 0, 0, 1);
             Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-            game.batch.setProjectionMatrix(camera.combined);
 
+            // Update all entities
             updatePlayers();
             updateProjectiles();
             spawnNewProjectiles();
-
-            //drawPlayers(delta);
             drawUI();
 
-            game.batch.end();
+            tiledMapRenderer.getBatch().end();
         }
-
+        camera.update();
+        tiledMapRenderer.setView(camera);
+        tiledMapRenderer.render();
     }
 }

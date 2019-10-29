@@ -67,7 +67,6 @@ public class GameDataReceiver implements Runnable {
             } catch (JsonSyntaxException e) {
                 e.printStackTrace();
                 System.out.println(data);
-            } catch (Exception e) {
             }
         }
     }

@@ -46,6 +46,7 @@ public class ConnectionClient {
 
             socket.close();
         } catch (Exception e) {
+            e.printStackTrace();
             System.out.println("Connection to server failed... Trying again in "
                     + CommunicationConfig.RETRY_CONNECTION_TIMEOUT / 1000 + " seconds");
             CountDownLatch lock = new CountDownLatch(1);
