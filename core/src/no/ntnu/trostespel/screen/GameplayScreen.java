@@ -62,7 +62,7 @@ public class GameplayScreen extends ScreenAdapter {
         keys.loadDefault();
 
         // init world
-        tiledMap = new TmxMapLoader().load("map/tutorial_map.tmx");
+        tiledMap = new TmxMapLoader().load(Session.getInstance().getMapFileName());
         tiledObjectMapRenderer = new ObjectMapRenderer(tiledMap);
 
         objectLayer = tiledMap.getLayers().get("objects");

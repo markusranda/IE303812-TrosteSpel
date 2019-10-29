@@ -1,17 +1,18 @@
 package no.ntnu.trostespel.networking;
 
-import java.io.StringReader;
 import java.net.DatagramSocket;
 
 public class Response {
+    private final String mapFileName;
     private DatagramSocket socket;
     private String username;
     private long pid;
 
-    public Response(DatagramSocket socket, String username, long pid) {
+    public Response(DatagramSocket socket, String username, long pid, String mapFileName) {
         this.socket = socket;
         this.username = username;
         this.pid = pid;
+        this.mapFileName = mapFileName;
     }
 
     public DatagramSocket getSocket() {
@@ -24,5 +25,9 @@ public class Response {
 
     public long getPid() {
         return pid;
+    }
+
+    public String getMapFileName() {
+        return mapFileName;
     }
 }

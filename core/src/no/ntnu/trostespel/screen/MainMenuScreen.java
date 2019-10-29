@@ -4,7 +4,6 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.OrthographicCamera;
-import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
@@ -89,6 +88,7 @@ public class MainMenuScreen implements Screen {
                     Response response = (Response) future.get();
                         Session.getInstance().setPid(response.getPid());
                     Session.getInstance().setUdpSocket(response.getSocket());
+                    Session.getInstance().setMapName(response.getMapFileName());
 
                     connectedLabel.setText("Connected");
 

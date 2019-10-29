@@ -1,6 +1,13 @@
 package no.ntnu.trostespel.udpServer;
 
-import com.google.gson.Gson;
+import com.badlogic.gdx.files.FileHandle;
+import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.maps.ImageResolver;
+import com.badlogic.gdx.maps.tiled.TiledMap;
+import com.badlogic.gdx.maps.tiled.TmxMapLoader;
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.utils.Array;
+import com.badlogic.gdx.utils.ObjectMap;
 import no.ntnu.trostespel.ConnectionManager;
 import no.ntnu.trostespel.config.CommunicationConfig;
 import no.ntnu.trostespel.game.MasterGameState;
@@ -11,6 +18,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;
+
+import static no.ntnu.trostespel.config.MapConfig.PVP_VILLAGE_FILENAME;
 
 
 /**
@@ -32,6 +41,10 @@ public class GameServer{
 
     public GameServer() {
         masterGameState = MasterGameState.getInstance();
+
+        // Load map to be played
+        String mapFileName = PVP_VILLAGE_FILENAME;
+        System.out.println("Loading map " + mapFileName);
         try {
             this.receiver = new GameDataReceiver(CommunicationConfig.SERVER_UDP_GAMEDATA_RECEIVE_PORT);
             this.sender = new GameDataSender();
@@ -43,7 +56,7 @@ public class GameServer{
 
         ConnectionManager TCPClient = null;
         try {
-            TCPClient = new ConnectionManager(CommunicationConfig.SERVER_TCP_CONNECTION_RECEIVE_PORT);
+            TCPClient = new ConnectionManager(CommunicationConfig.SERVER_TCP_CONNECTION_RECEIVE_PORT, mapFileName);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -56,7 +69,6 @@ public class GameServer{
         System.out.println("Server is ready to handle incoming connections!");
         heartbeat();
     }
-
     private void heartbeat() {
         double ns = 1000000000.0 / CommunicationConfig.TICKRATE;
         double delta = 0;
