@@ -53,6 +53,4 @@ public abstract class GameObject {
         this.pos = pos;
     }
 
-
-
 }

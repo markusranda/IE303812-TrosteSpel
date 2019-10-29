@@ -32,7 +32,7 @@ public class GameplayScreen extends ScreenAdapter {
     public static final String MAP_OBJECT_ID_PROJECTILE = "projectile";
     public static final String MAP_OBJECT_ID_PLAYER = "player";
     private final TiledMap tiledMap;
-    private final OrthogonalTiledMapRendererPlus tiledMapRenderer;
+    private final ObjectMapRenderer tiledObjectMapRenderer;
     private final MapLayer objectLayer;
     private GameState<Player, Movable> gameState;
 
@@ -61,7 +61,7 @@ public class GameplayScreen extends ScreenAdapter {
 
         // init world
         tiledMap = new TmxMapLoader().load("map/tutorial_map.tmx");
-        tiledMapRenderer = new OrthogonalTiledMapRendererPlus(tiledMap);
+        tiledObjectMapRenderer = new ObjectMapRenderer(tiledMap);
 
         objectLayer = tiledMap.getLayers().get("objects");
 
@@ -113,7 +113,7 @@ public class GameplayScreen extends ScreenAdapter {
                 camera.position.y = player.getPos().y;
             }
 
-            player.draw((SpriteBatch) tiledMapRenderer.getBatch());
+            player.draw((SpriteBatch) tiledObjectMapRenderer.getBatch());
 
             // add player to object layer
             if (!player.addedToLayer()) {
@@ -167,7 +167,7 @@ public class GameplayScreen extends ScreenAdapter {
     public void render(float delta) {
         this.receivedState = Session.getInstance().getReceivedGameState();
         if (this.receivedState != null) {
-            tiledMapRenderer.getBatch().begin();
+            tiledObjectMapRenderer.getBatch().begin();
             Gdx.gl.glClearColor(1, 0, 0, 1);
             Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
@@ -177,10 +177,10 @@ public class GameplayScreen extends ScreenAdapter {
             spawnNewProjectiles();
             drawUI();
 
-            tiledMapRenderer.getBatch().end();
+            tiledObjectMapRenderer.getBatch().end();
         }
         camera.update();
-        tiledMapRenderer.setView(camera);
-        tiledMapRenderer.render();
+        tiledObjectMapRenderer.setView(camera);
+        tiledObjectMapRenderer.render();
     }
 }

@@ -45,6 +45,14 @@ public class Player extends Movable {
         return this.height;
     }
 
+    public boolean isMoving() {
+        return moving;
+    }
+
+    public TextureRegion getCurrentframe() {
+        return this.currentFrame;
+    }
+
     private enum Direction {
         right,
         left
@@ -79,15 +87,10 @@ public class Player extends Movable {
     }
 
     @Override
-    public void draw(SpriteBatch batch) {
-        if (moving) {
-            stateTime += Gdx.graphics.getDeltaTime();
-            currentFrame = run.getKeyFrame(stateTime, true);
-            flip = (getDirection() == Direction.left);
-//            batch.draw(currentFrame, flip ? getPos().x+width : getPos().x, getPos().y, flip ? -width : width / 2, height / 2);
-        } else {
-//            batch.draw(texture, flip ? getPos().x+width : getPos().x, getPos().y, flip ? -width : width / 2 , height / 2);
-        }
+    public void draw(SpriteBatch batch) { }
+
+    public Texture getTexture() {
+        return this.texture;
     }
 
     public Weapon getWeapon() {
@@ -102,7 +105,13 @@ public class Player extends Movable {
         this.health = health;
     }
 
-    public TextureRegion getTextureRegion() {
-        return currentFrame;
+    public void animateWalking() {
+        stateTime += Gdx.graphics.getDeltaTime();
+        currentFrame = run.getKeyFrame(stateTime, true);
+        flip = (getDirection() == Direction.left);
+    }
+
+    public boolean getFlip() {
+        return this.flip;
     }
 }
