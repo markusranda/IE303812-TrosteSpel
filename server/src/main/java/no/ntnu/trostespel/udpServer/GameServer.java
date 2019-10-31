@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;
 
+import static no.ntnu.trostespel.config.MapConfig.PVP_JUNGLE_ISLAND_FILENAME;
 import static no.ntnu.trostespel.config.MapConfig.PVP_VILLAGE_FILENAME;
 
 
@@ -43,7 +44,7 @@ public class GameServer{
         masterGameState = MasterGameState.getInstance();
 
         // Load map to be played
-        String mapFileName = PVP_VILLAGE_FILENAME;
+        String mapFileName = PVP_JUNGLE_ISLAND_FILENAME;
         System.out.println("Loading map " + mapFileName);
         try {
             this.receiver = new GameDataReceiver(CommunicationConfig.SERVER_UDP_GAMEDATA_RECEIVE_PORT);

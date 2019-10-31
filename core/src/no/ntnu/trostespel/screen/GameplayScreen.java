@@ -41,7 +41,6 @@ public class GameplayScreen extends ScreenAdapter {
     private final ObjectMapRenderer tiledObjectMapRenderer;
     private final MapLayer objectLayer;
     private final MapLayer collisionLayer;
-    private final TiledMapTileLayer treesAndRocksLayer;
     private GameState<Player, Movable> gameState;
 
     private TrosteSpel game;
@@ -76,8 +75,7 @@ public class GameplayScreen extends ScreenAdapter {
         objectLayer = tiledMap.getLayers().get("objects");
 
         collisionLayer = tiledMap.getLayers().get("collisions");
-        treesAndRocksLayer = (TiledMapTileLayer) tiledMap.getLayers().get("trees_and_rocks");
-        gameState.setCollidables(treesAndRocksLayer);
+        gameState.setCollidables((TiledMapTileLayer) collisionLayer);
 
         collisionLayer.setVisible(false);
 

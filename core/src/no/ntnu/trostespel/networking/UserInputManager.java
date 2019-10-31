@@ -87,13 +87,8 @@ public class UserInputManager {
         if (!gameState.players.isEmpty()) {
             myPlayer = gameState.players.get(Session.getInstance().getPid());
         }
-        canLeft = canLeft();
-        canRight = canRight();
-        canUp = canUp();
-        canDown = canDown();
 
-
-        if (canUp) {
+        if (canUp()) {
             model.isup = Gdx.input.isKeyPressed(KeyConfig.up);
             if (model.isup) {
                 model.isup = willCollide(Direction.up);
@@ -101,7 +96,7 @@ public class UserInputManager {
         } else {
             model.isup = false;
         }
-        if (canDown) {
+        if (canDown()) {
             model.isdown = Gdx.input.isKeyPressed(KeyConfig.down);
             if (model.isdown) {
                 model.isdown = willCollide(Direction.down);
@@ -109,7 +104,7 @@ public class UserInputManager {
         } else {
             model.isdown = false;
         }
-        if (canLeft) {
+        if (canLeft()) {
             model.isleft = Gdx.input.isKeyPressed(KeyConfig.left);
             if (model.isleft) {
                 model.isleft = willCollide(Direction.left);
@@ -117,7 +112,7 @@ public class UserInputManager {
         } else {
             model.isleft = false;
         }
-        if (canRight) {
+        if (canRight()) {
             model.isright = Gdx.input.isKeyPressed(KeyConfig.right);
             if (model.isright) {
                 model.isright = willCollide(Direction.right);
@@ -144,7 +139,7 @@ public class UserInputManager {
 
     private boolean canRight() {
         if (myPlayer != null) {
-            if ((int) myPlayer.getPos().x + 2 > 1023 - 64) {
+            if ((int) myPlayer.getPos().x + 2 > gameState.getCollidables().getWidth() - 64) {
                 return false;
             }
         }
@@ -171,7 +166,7 @@ public class UserInputManager {
 
     private boolean canUp() {
         if (myPlayer != null) {
-            if ((int) myPlayer.getPos().y + 2 > 1023 - 64) {
+            if ((int) myPlayer.getPos().y + 2 > gameState.getCollidables().getWidth() - 64) {
                 return false;
             }
         }
