@@ -76,17 +76,10 @@ public class GameplayScreen extends ScreenAdapter {
         treesAndRocksLayer = (TiledMapTileLayer) tiledMap.getLayers().get("trees_and_rocks");
         gameState.setCollidables(treesAndRocksLayer);
 
-        initTreesAndRocks();
         collisionLayer.setVisible(false);
 
         // start sending and listening for data
         communicate();
-    }
-
-    private void initTreesAndRocks() {
-        int h = treesAndRocksLayer.getHeight();
-        int w = treesAndRocksLayer.getWidth();
-
     }
 
     private void communicate() {
