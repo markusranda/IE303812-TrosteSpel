@@ -209,7 +209,6 @@ public class UserInputManager {
                 player.getCenter(playerCenter);
                 recCenter.sub(playerCenter).nor();
                 float dot = unitVector.dot(recCenter);
-                System.out.println(dot);
 
                 if (dot <= 0) {
                     return true;
