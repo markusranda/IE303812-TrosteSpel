@@ -29,6 +29,7 @@ public class PacketDeserializer{
             actions = gson.fromJson(reader, PlayerActions.class);
         } catch (Exception e) {
             e.printStackTrace();
+            System.out.println("Failed to deserialize");
             System.out.println(data);
             actions = null;
         } finally {

@@ -11,7 +11,7 @@ import com.badlogic.gdx.maps.MapObject;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.utils.DelayedRemovalArray;
 import no.ntnu.trostespel.TrosteSpel;
 import no.ntnu.trostespel.config.Assets;
 import no.ntnu.trostespel.config.KeyConfig;
@@ -21,6 +21,7 @@ import no.ntnu.trostespel.entity.Movable;
 import no.ntnu.trostespel.entity.Player;
 import no.ntnu.trostespel.entity.Projectile;
 import no.ntnu.trostespel.entity.Session;
+import no.ntnu.trostespel.state.Action;
 import no.ntnu.trostespel.state.GameState;
 import no.ntnu.trostespel.state.MovableState;
 import no.ntnu.trostespel.state.PlayerState;
@@ -56,7 +57,7 @@ public class GameplayScreen extends ScreenAdapter {
         float h = Gdx.graphics.getHeight();
 
         camera = new OrthographicCamera();
-        camera.setToOrtho(false, w/2, h/2);
+        camera.setToOrtho(false, w / 2, h / 2);
         camera.update();
 
         // init keys
@@ -116,11 +117,6 @@ public class GameplayScreen extends ScreenAdapter {
             Vector2 pos = change.getPosition();
             player.setPos(pos);
 
-            // setting unprojected pos
-            Vector3 unprojectedPos = new Vector3(pos, 0);
-            camera.unproject(unprojectedPos);
-            player.setUnprojectedPos(unprojectedPos);
-
             player.setHealth(change.getHealth());
             player.setPid(change.getPid());
             player.update(0);
@@ -148,55 +144,54 @@ public class GameplayScreen extends ScreenAdapter {
             MovableState state = queue.poll();
             long eid = state.getId();
             long owner = state.getPid();
-            switch (state.getAction()) {
-                case CREATE:
-                    if (!gameState.getProjectiles().containsKey(eid)) {
-                        Player player = gameState.players.get(owner);
-                        if (player != null) {
-                            Vector2 spawnPos = player.getPos();
-                            Projectile newProjectile = new Projectile(spawnPos, Assets.bullet, state.getVelocity(), state.getAngle());
-                            gameState.getProjectiles().put(eid, newProjectile);
+            Action action = state.getAction();
+            if (action == Action.CREATE) {
+                if (!gameState.getProjectiles().containsKey(eid)) {
+                    Player player = gameState.players.get(owner);
+                    if (player != null) {
+                        Vector2 spawnPos = player.getPos();
+                        Projectile newProjectile = new Projectile(spawnPos, Assets.bullet, state.getVelocity(), state.getAngle());
+                        gameState.getProjectiles().put(eid, newProjectile);
 
-                            // Add projectile to object layer
-                            MapObject mapObject = new MapObject();
-                            mapObject.getProperties().put(MAP_OBJECT_ID_PROJECTILE, newProjectile);
-                            objectLayer.getObjects().add(mapObject);
-                        }
+                        // Add projectile to object layer
+                        MapObject mapObject = new MapObject();
+                        mapObject.getProperties().put(MAP_OBJECT_ID_PROJECTILE, newProjectile);
+                        objectLayer.getObjects().add(mapObject);
                     }
-                case KILL:
-                    if (!gameState.getProjectiles().containsKey(eid)) {
-                        gameState.getProjectiles().remove(eid);
-                    }
+                }
+            } else if (action == Action.KILL) {
+                Movable remove = gameState.getProjectiles().remove(eid);
             }
-
         }
     }
 
-    private void updateProjectiles() {
-        for (Movable projectile : gameState.getProjectiles().values()) {
-            projectile.update(Gdx.graphics.getDeltaTime());
-            projectile.draw(game.batch);
+        private void updateProjectiles () {
+            for (Movable projectile : gameState.getProjectiles().values()) {
+                projectile.update(Gdx.graphics.getDeltaTime());
+                projectile.draw(game.batch);
+            }
+        }
+
+        @Override
+        public void render ( float delta){
+            this.receivedState = Session.getInstance().getReceivedGameState();
+            if (this.receivedState != null) {
+                tiledObjectMapRenderer.getBatch().begin();
+                Gdx.gl.glClearColor(1, 0, 0, 1);
+                Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+
+                // Update all entities
+                spawnNewProjectiles();
+
+                updatePlayers();
+                updateProjectiles();
+                drawUI();
+
+                tiledObjectMapRenderer.getBatch().end();
+            }
+            camera.update();
+            tiledObjectMapRenderer.setView(camera);
+            tiledObjectMapRenderer.render();
+
         }
     }
-
-    @Override
-    public void render(float delta) {
-        this.receivedState = Session.getInstance().getReceivedGameState();
-        if (this.receivedState != null) {
-            tiledObjectMapRenderer.getBatch().begin();
-            Gdx.gl.glClearColor(1, 0, 0, 1);
-            Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-
-            // Update all entities
-            updatePlayers();
-            updateProjectiles();
-            spawnNewProjectiles();
-            drawUI();
-
-            tiledObjectMapRenderer.getBatch().end();
-        }
-        camera.update();
-        tiledObjectMapRenderer.setView(camera);
-        tiledObjectMapRenderer.render();
-    }
-}

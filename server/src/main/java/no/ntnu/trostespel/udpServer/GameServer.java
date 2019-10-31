@@ -48,11 +48,13 @@ public class GameServer{
         try {
             this.receiver = new GameDataReceiver(CommunicationConfig.SERVER_UDP_GAMEDATA_RECEIVE_PORT);
             this.sender = new GameDataSender();
+            System.out.println("Started GameDataSender " + this.sender.toString());
         } catch (IOException e) {
             e.printStackTrace();
         }
         Thread receiverThread = new Thread(receiver, "GameDataReceiver");
         receiverThread.start();
+        System.out.println("Started GameDataReceiver " + this.receiver.toString());
 
         ConnectionManager TCPClient = null;
         try {
@@ -64,6 +66,7 @@ public class GameServer{
         Thread TcpThread = new Thread(TCPClient);
         TcpThread.setName("ConnectionClient");
         TcpThread.start();
+        System.out.println("Started TCPClient with address " + TCPClient.getSocketAddress());
 
 
         System.out.println("Server is ready to handle incoming connections!");
@@ -75,6 +78,7 @@ public class GameServer{
 
         long lastTime = System.nanoTime();
 
+        System.out.println("Starting tick-loop with frequecy " + ns + "ns");
         while (true) {
             long now = System.nanoTime();
             delta += (now - lastTime) / ns;
@@ -111,6 +115,7 @@ public class GameServer{
         } catch (InterruptedException e) {
             // Server is running too slow
             e.printStackTrace();
+            sender.purge();
         }
     }
 

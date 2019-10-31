@@ -29,7 +29,7 @@ public class GameDataSender extends ThreadPoolExecutor{
     private AtomicInteger completedCount;
 
     public GameDataSender() {
-        super(1, MAX_PLAYERS, 0, TimeUnit.HOURS, new LinkedBlockingQueue<>(16),
+        super(1, MAX_PLAYERS, CommunicationConfig.RETRY_CONNECTION_TIMEOUT, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<>(16),
                 new ThreadFactoryBuilder().setNameFormat("GameDataSender-%d").build());
         this.masterGameState = MasterGameState.getInstance();
         completedCount = new AtomicInteger();
@@ -40,9 +40,10 @@ public class GameDataSender extends ThreadPoolExecutor{
      * Does the update tasks for the server.
      */
     public void broadcast(List<Connection> connections) throws InterruptedException {
-        if (completedCount.get() != 0) {
+        /*if (completedCount.get() != 0) {
             throw new InterruptedException("Game data broadcast was interrupted");
-        }
+            // TODO: Change approach; this can potentially deadlock if one connection hangs
+        }*/
         // Send GameState to all clients
         nextGameState = masterGameState.getGameState();
         // TODO: 15.10.2019 Add concurrency protection, since we will be modifying connecitons on the fly.
@@ -69,9 +70,8 @@ public class GameDataSender extends ThreadPoolExecutor{
 
             packet.setData(json.getBytes());
             try {
-                DatagramSocket socket = new DatagramSocket();
+                DatagramSocket socket = connection.getClientSocket();
                 socket.send(packet);
-                socket.close();
             } catch (IOException e) {
                 e.printStackTrace();
             }
