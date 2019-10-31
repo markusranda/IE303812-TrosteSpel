@@ -59,6 +59,11 @@ public class Player extends Movable {
     public TextureRegion getCurrentframe() {
         return this.currentFrame;
     }
+
+    public void removedFromLayer() {
+        addedToLayer = false;
+    }
+
     private enum Direction {
         right,
         left

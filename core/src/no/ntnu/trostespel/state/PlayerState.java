@@ -24,6 +24,7 @@ public class PlayerState extends ObjectState{
     private transient final short invincibilityFrames = 3;
     private transient long lastTimeDamageTaken = 0;
     private Action action;
+    private long timeOfDeath;
 
     public PlayerState(long pid) {
         super(72, 90, new Vector2(55, 55));
@@ -93,6 +94,7 @@ public class PlayerState extends ObjectState{
 
     public void setDead() {
         action = Action.DEAD;
+        timeOfDeath = System.currentTimeMillis();
     }
 
     public Action getAction() {
@@ -101,5 +103,15 @@ public class PlayerState extends ObjectState{
 
     public boolean isDead() {
         return action == Action.DEAD;
+    }
+
+    public long getTimeOfDeath() {
+        return timeOfDeath;
+    }
+
+    public void setAlive() {
+        action = Action.ALIVE;
+        health = 100;
+        timeOfDeath = 0;
     }
 }

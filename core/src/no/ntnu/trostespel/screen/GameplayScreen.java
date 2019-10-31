@@ -122,6 +122,9 @@ public class GameplayScreen extends ScreenAdapter {
                             Player player = (Player) obj;
                             if (player.getPid() == change.getPid()) {
                                 innerIterator.remove();
+                                if (gameState.players.containsKey(key)) {
+                                gameState.players.get(key).removedFromLayer();
+                                }
                             }
                         }
                     }
