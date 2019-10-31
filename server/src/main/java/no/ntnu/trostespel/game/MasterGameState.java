@@ -103,7 +103,6 @@ public class MasterGameState {
                         removeProjectile(k);
                     } else {
                         Vector2 heading = v.getHeading();
-                        System.out.println(heading);
                         // apply the heading vector
                         Vector2 position = v.getPosition();
                         Vector2 newPos = position.add(heading);
@@ -155,7 +154,8 @@ public class MasterGameState {
             private void detectCollision(MovableState obj, long currentTick) {
                 // TODO: can be optimized using a quadtree
                 for (PlayerState playerState : gameState.players.values()) {
-                    if (playerState.getPid() == obj.getPid()) {
+                    if (playerState.getPid() == obj.getPid()
+                            || playerState.getAction() == Action.DEAD) {
                         continue;
                     }
                     if (playerState.getHitbox().contains(obj.getPosition())) {
