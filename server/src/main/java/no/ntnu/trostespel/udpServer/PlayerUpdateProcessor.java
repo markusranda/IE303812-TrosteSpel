@@ -55,9 +55,11 @@ public class PlayerUpdateProcessor {
 
     public void run() {
         pid = actions.pid;
-        processActionButtons(actions);
-        processMovement(actions);
-        processAttack(actions);
+        if (!playerState.isDead()) {
+            processActionButtons(actions);
+            processMovement(actions);
+            processAttack(actions);
+        }
     }
 
     private void processAttack(PlayerActions action) {

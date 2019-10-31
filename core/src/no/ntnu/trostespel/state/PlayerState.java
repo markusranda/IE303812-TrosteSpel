@@ -23,18 +23,21 @@ public class PlayerState extends ObjectState{
     private transient Queue<MovableState> spawnedObjects = new LinkedList<>();
     private transient final short invincibilityFrames = 3;
     private transient long lastTimeDamageTaken = 0;
+    private Action action;
 
     public PlayerState(long pid) {
         super(72, 90, new Vector2(55, 55));
         this.pid = pid;
-        this.health = 0;
+        this.health = 100;
         this.attackTimer = 0;
+        this.action = Action.ALIVE;
     }
 
     public PlayerState(long pid, Vector2 position, int health) {
         super(72, 90, position);
         this.pid = pid;
         this.health = health;
+        this.action = Action.ALIVE;
     }
 
     public void setHealth(int health) {
@@ -86,5 +89,17 @@ public class PlayerState extends ObjectState{
 
     public void resetSpawnedObjects() {
         this.spawnedObjects.clear();
+    }
+
+    public void setDead() {
+        action = Action.DEAD;
+    }
+
+    public Action getAction() {
+        return action;
+    }
+
+    public boolean isDead() {
+        return action == Action.DEAD;
     }
 }

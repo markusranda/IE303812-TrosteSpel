@@ -49,4 +49,7 @@ public class GameState<P, M> {
         this.ack = ack;
     }
 
+    public HashMap<Long, P> getPlayers() {
+        return players;
+    }
 }
