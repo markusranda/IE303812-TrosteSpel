@@ -42,6 +42,8 @@ public class UserInputManager {
 
     private Vector2 playerCenter = new Vector2();
     private Vector2 recCenter = new Vector2();
+    private Vector2 unitVector = new Vector2();
+    private Vector2 resultVector = new Vector2();
 
 
     public UserInputManager(DatagramSocket socket, GameState<Player, Movable> gameState) {
@@ -186,19 +188,32 @@ public class UserInputManager {
         switch (dir) {
             case up:
                 player.y += vel;
+                unitVector.set(0, 1);
                 break;
             case down:
                 player.y -= vel;
+                unitVector.set(0, -1);
                 break;
             case right:
                 player.x += vel;
+                unitVector.set(1, 0);
                 break;
             case left:
                 player.x -= vel;
+                unitVector.set(-1, 0);
                 break;
         }
         for (Rectangle rec : collideables) {
             if (Intersector.overlaps(player, rec)) {
+                rec.getCenter(recCenter);
+                player.getCenter(playerCenter);
+                recCenter.sub(playerCenter).nor();
+                float dot = unitVector.dot(recCenter);
+                System.out.println(dot);
+
+                if (dot <= 0) {
+                    return true;
+                }
                 return false;
             }
         }
