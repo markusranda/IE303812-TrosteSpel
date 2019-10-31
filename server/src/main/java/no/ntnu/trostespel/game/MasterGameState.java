@@ -104,16 +104,18 @@ public class MasterGameState {
                         Vector2 newPos = position.add(heading);
                         v.setPosition(newPos);
                         detectCollision(v, currentTick);
-                        changeActionStatePlayers();
                         v.incrementTimeAlive();
                     }
                 });
+                changeActionStatePlayers();
             }
 
             private void changeActionStatePlayers() {
                 for (Map.Entry mapEntry : gameState.getPlayers().entrySet()) {
                     PlayerState playerState = (PlayerState) mapEntry.getValue();
+                    if (playerState.getAction() == Action.ALIVE)
                     if (playerState.getHealth() <= 0) {
+                        System.out.println(playerState.getPid() + ": Is dead");
                         playerState.setDead();
                     }
                 }
@@ -151,7 +153,7 @@ public class MasterGameState {
                         continue;
                     }
                     if (playerState.getHitbox().contains(obj.getPosition())) {
-                        System.out.println("Bullet @" + obj.getPosition() + " HIT " + "Player #" + playerState.getPid() + " @" + playerState.getPosition());
+                        System.out.println("Bullet @" + obj.getPosition() + " HIT " + "Player #" + playerState.getPid() + " @" + playerState.getPosition() + "Current health: " + playerState.getHealth());
                         long id = obj.getId();
                         playerState.hurt(obj.damage, currentTick);
                         removeProjectile(id);

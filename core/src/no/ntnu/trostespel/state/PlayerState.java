@@ -28,14 +28,16 @@ public class PlayerState extends ObjectState{
     public PlayerState(long pid) {
         super(72, 90, new Vector2(55, 55));
         this.pid = pid;
-        this.health = 0;
+        this.health = 100;
         this.attackTimer = 0;
+        this.action = Action.ALIVE;
     }
 
     public PlayerState(long pid, Vector2 position, int health) {
         super(72, 90, position);
         this.pid = pid;
         this.health = health;
+        this.action = Action.ALIVE;
     }
 
     public void setHealth(int health) {
@@ -91,5 +93,9 @@ public class PlayerState extends ObjectState{
 
     public void setDead() {
         action = Action.DEAD;
+    }
+
+    public Action getAction() {
+        return action;
     }
 }
