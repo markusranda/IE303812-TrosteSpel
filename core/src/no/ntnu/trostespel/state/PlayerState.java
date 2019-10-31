@@ -21,6 +21,8 @@ public class PlayerState extends ObjectState{
     public transient int accelrationTimer = 90 / CommunicationConfig.TICKRATE;
     private transient double attackTimer = 0; //
     private transient Queue<MovableState> spawnedObjects = new LinkedList<>();
+    private transient final short invincibilityFrames = 3;
+    private transient long lastTimeDamageTaken = 0;
 
     public PlayerState(long pid) {
         super(72, 90, Vector2.Zero);
@@ -49,6 +51,13 @@ public class PlayerState extends ObjectState{
 
     public double getAttackTimer() {
         return attackTimer;
+    }
+
+    public void hurt(int damage, long currentTick) {
+        if (lastTimeDamageTaken < currentTick - invincibilityFrames) {
+            this.health -= damage;
+            lastTimeDamageTaken = currentTick;
+        }
     }
 
     public long getPid() {

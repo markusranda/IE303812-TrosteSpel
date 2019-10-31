@@ -2,6 +2,7 @@ package no.ntnu.trostespel.model;
 
 import java.net.DatagramSocket;
 import java.net.InetAddress;
+import java.net.SocketException;
 import java.util.concurrent.atomic.AtomicLong;
 
 public class Connection {
@@ -21,6 +22,16 @@ public class Connection {
         this.pid = createID();
         this.username = username;
         this.port = port;
+        try {
+            this.clientSocket = new DatagramSocket();
+            this.clientSocket.connect(address, port);
+        } catch (SocketException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public DatagramSocket getClientSocket() {
+        return clientSocket;
     }
 
     public InetAddress getAddress() {
@@ -50,5 +61,10 @@ public class Connection {
 
     public static long createID() {
         return idCounter.getAndIncrement();
+    }
+
+    @Override
+    public String toString() {
+        return super.toString() + "[" + this.clientSocket + ", " + this.username + ", " + this.pid +  "]";
     }
 }

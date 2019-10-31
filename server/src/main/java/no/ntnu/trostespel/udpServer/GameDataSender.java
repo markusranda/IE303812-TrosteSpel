@@ -42,6 +42,7 @@ public class GameDataSender extends ThreadPoolExecutor{
     public void broadcast(List<Connection> connections) throws InterruptedException {
         if (completedCount.get() != 0) {
             throw new InterruptedException("Game data broadcast was interrupted");
+            // TODO: Change approach; this can potentially deadlock if one connection hangs
         }
         // Send GameState to all clients
         nextGameState = masterGameState.getGameState();
@@ -69,9 +70,8 @@ public class GameDataSender extends ThreadPoolExecutor{
 
             packet.setData(json.getBytes());
             try {
-                DatagramSocket socket = new DatagramSocket();
+                DatagramSocket socket = connection.getClientSocket();
                 socket.send(packet);
-                socket.close();
             } catch (IOException e) {
                 e.printStackTrace();
             }

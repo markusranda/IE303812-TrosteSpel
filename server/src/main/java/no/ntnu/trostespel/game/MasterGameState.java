@@ -9,13 +9,12 @@ import no.ntnu.trostespel.state.Action;
 import no.ntnu.trostespel.state.GameState;
 import no.ntnu.trostespel.state.MovableState;
 import no.ntnu.trostespel.state.PlayerState;
+import no.ntnu.trostespel.udpServer.GameServer;
 
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Queue;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.*;
 import java.util.function.BiConsumer;
 
 //TODO: make MasterGameState threadsafe
@@ -36,35 +35,40 @@ public class MasterGameState {
 
     private MasterGameState(GameState<PlayerState, MovableState> gameState) {
         this.gameState = gameState;
-        this.executor = Executors.newSingleThreadExecutor(
+        this.executor = new ThreadPoolExecutor(1,
+                1,
+                0L,
+                TimeUnit.MILLISECONDS,
+                new LinkedBlockingQueue(),
                 new ThreadFactoryBuilder().setNameFormat("MasterGameState-Updater").build());
     }
 
     /**
      * @param pid the id of the player to update
      */
-    public void update(long pid) {
-        executor.submit(getUpdateRunnable(pid));
+    public void update(long pid, long currentTick) {
+        executor.submit(getUpdateRunnable(pid, currentTick));
     }
-
 
 
     /**
      * Check if given gameObject collides with any player
      */
-    private void detectCollision(MovableState obj, long pid) {
+    private void detectCollision(MovableState obj, long currentTick) {
         // TODO: can be optimized using a quadtree
         for (PlayerState playerState : gameState.players.values()) {
-            if (obj.getHitbox().overlaps(playerState.getHitbox())) {
-                if (obj.getPid() != pid) {
+            if (playerState.getPid() == obj.getPid()) {
+                continue;
+            }
+            if (playerState.getHitbox().contains(obj.getPosition())) {
+                System.out.println("hit?");
+                    System.out.println(obj.getPosition() + " HIT " + playerState.getPid());
                     long id = obj.getId();
-                    int currentHP = playerState.getHealth();
-                    playerState.setHealth(currentHP - obj.damage);
+                    playerState.hurt(obj.damage, currentTick);
                     gameState.getProjectiles().remove(id);
-
                     obj.setAction(Action.KILL);
                     gameState.getProjectilesStateUpdates().add(obj);
-                }
+                    break;
             }
         }
     }
@@ -78,10 +82,11 @@ public class MasterGameState {
         return this.gameState;
     }
 
-    private Runnable getUpdateRunnable(long pid) {
+    private Runnable getUpdateRunnable(long pid, long currentTick) {
         class updater implements Runnable {
             @Override
             public void run() {
+
                 PlayerState player = gameState.players.get(pid);
                 // TODO: update the state of the game here, checking collisions with projectiles, updating health etc
                 // TODO: make this function not run on the main thread
@@ -100,6 +105,8 @@ public class MasterGameState {
                             //
                         case CREATE:
                             MovableState projectile = new MovableState(pid, GameState.projectileSpeed);
+                            projectile.setPosition(player.getPosition());
+                            projectile.setAngle(update.getAngle());
                             projectile.setId(key);
                             this.putProjectile(key, projectile);
                     }
@@ -114,9 +121,10 @@ public class MasterGameState {
                     Vector2 position = v.getPosition().cpy();
                     Vector2 newPos = position.add(heading);
                     v.setPosition(newPos);
-                    detectCollision(v, pid);
+                    detectCollision(v, currentTick);
                 });
             }
+
             private void putProjectile(long k, MovableState v) {
                 gameState.getProjectiles().put(k, v);
             }
