@@ -23,6 +23,7 @@ public class PlayerState extends ObjectState{
     private transient Queue<MovableState> spawnedObjects = new LinkedList<>();
     private transient final short invincibilityFrames = 3;
     private transient long lastTimeDamageTaken = 0;
+    private Action action;
 
     public PlayerState(long pid) {
         super(72, 90, new Vector2(55, 55));
@@ -86,5 +87,9 @@ public class PlayerState extends ObjectState{
 
     public void resetSpawnedObjects() {
         this.spawnedObjects.clear();
+    }
+
+    public void setDead() {
+        action = Action.DEAD;
     }
 }

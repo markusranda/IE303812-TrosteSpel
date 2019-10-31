@@ -9,6 +9,7 @@ import no.ntnu.trostespel.state.GameState;
 import no.ntnu.trostespel.state.MovableState;
 import no.ntnu.trostespel.state.PlayerState;
 
+import java.util.Map;
 import java.util.Queue;
 import java.util.concurrent.*;
 import java.util.function.BiConsumer;
@@ -102,9 +103,19 @@ public class MasterGameState {
                         Vector2 newPos = position.add(heading);
                         v.setPosition(newPos);
                         detectCollision(v, currentTick);
+                        changeActionStatePlayers();
                         v.incrementTimeAlive();
                     }
                 });
+            }
+
+            private void changeActionStatePlayers() {
+                for (Map.Entry mapEntry : gameState.getPlayers().entrySet()) {
+                    PlayerState playerState = (PlayerState) mapEntry.getValue();
+                    if (playerState.getHealth() <= 0) {
+                        playerState.setDead();
+                    }
+                }
             }
 
             private void putProjectile(long k, MovableState v) {
@@ -147,6 +158,8 @@ public class MasterGameState {
                     }
                 }
             }
+
+
         }
         return new updater();
     }
