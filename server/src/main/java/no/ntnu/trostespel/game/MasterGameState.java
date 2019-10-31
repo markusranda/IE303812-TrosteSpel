@@ -23,6 +23,7 @@ public class MasterGameState {
 
     private ExecutorService executor;
     private final int MAX_TIME_ALIVE = 5 * CommunicationConfig.TICKRATE; // n seconds
+    private static final long RESPAWN_TIME = 3000; // millis
 
     public synchronized static MasterGameState getInstance() {
         if (single_instance == null) {
@@ -50,8 +51,6 @@ public class MasterGameState {
     }
 
 
-
-
     public void read() {
 
     }
@@ -74,9 +73,9 @@ public class MasterGameState {
 
                 // add new projectilestateupdates to the gamestate
                 putProjectileStateUpdates(player.getSpawnedObjects());
-                if (!player.getSpawnedObjects().isEmpty()) {
-                    System.out.println("debugger");
-                }
+//                if (!player.getSpawnedObjects().isEmpty()) {
+//                    System.out.println("debugger");
+//                }
 
                 // apply new projectilestateupdates to the gamestate
                 for (MovableState update : player.getSpawnedObjects()) {
@@ -118,10 +117,16 @@ public class MasterGameState {
             private void changeActionStatePlayers() {
                 for (Map.Entry mapEntry : gameState.getPlayers().entrySet()) {
                     PlayerState playerState = (PlayerState) mapEntry.getValue();
-                    if (playerState.getAction() == Action.ALIVE)
-                    if (playerState.getHealth() <= 0) {
-                        System.out.println(playerState.getPid() + ": Is dead");
-                        playerState.setDead();
+                    if (playerState.getAction() == Action.ALIVE) {
+                        if (playerState.getHealth() <= 0) {
+                            playerState.setDead();
+                            System.out.println(playerState.getPid() + ": Is dead!");
+                        }
+                    } else if (playerState.getAction() == Action.DEAD) {
+                        if (System.currentTimeMillis() >= playerState.getTimeOfDeath() + RESPAWN_TIME) {
+                            playerState.setAlive();
+                            System.out.println(playerState.getPid() + " has respawned!");
+                        }
                     }
                 }
             }
