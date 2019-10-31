@@ -124,7 +124,6 @@ public class Player extends Movable {
         super.shape.width = HITBOX_WIDTH;
         super.shape.x = pos.x + WIDTH_OFFSET;
         super.shape.y = pos.y + HEIGHT_OFFSET;
-        System.out.println(super.shape);
         return super.shape;
     }
 
