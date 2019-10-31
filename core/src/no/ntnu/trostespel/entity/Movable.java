@@ -6,30 +6,36 @@ import com.badlogic.gdx.math.Vector2;
 
 public abstract class Movable extends GameObject {
 
-    public Vector2 displacement;
+    protected Vector2 displacement;
     boolean moving = false;
     int direction = 1;
     Vector2 previousPos;
+
+    private long previousTick;
 
     public Movable(Vector2 pos, float width, float height, Rectangle rect, Texture texture) {
         super(pos, width, height, rect, texture);
         previousPos = new Vector2().setZero();
     }
 
-    public void update(float delta) {
+    public void update(float delta, long tick) {
         //Update position
         Vector2 position = getPos();
         if (position == null) {
-            System.out.println("Error: Movable position is null");
             return;
         }
-        if (!position.epsilonEquals(previousPos)) {
-            displacement = previousPos.sub(position).scl(-1);
-            moving = true;
-        } else {
-            moving = false;
+
+        if (tick > previousTick) {
+            if (!position.epsilonEquals(previousPos)) {
+                displacement = previousPos.cpy().sub(position).scl(-1);
+                moving = true;
+            } else {
+                moving = false;
+            }
+            previousPos = position;
+            previousTick = tick;
         }
-        previousPos = position;
     }
+
 }
 

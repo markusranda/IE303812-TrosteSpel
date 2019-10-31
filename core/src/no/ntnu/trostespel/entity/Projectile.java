@@ -23,8 +23,8 @@ public class Projectile extends Movable {
     }
 
     @Override
-    public void update(float delta) {
-        super.update(delta);
+    public void update(float delta, long tick) {
+        super.update(delta, tick);
 
         // update the heading vector
         heading.setAngle(angle);

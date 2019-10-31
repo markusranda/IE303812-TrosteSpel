@@ -27,7 +27,7 @@ public class GameState<P, M> {
     public HashMap<Long, P> players;
     private Queue<M> projectilesStateUpdates;
     private boolean ack = false;
-
+    private long tick;
 
     public GameState() {
         projectilesStateUpdates = new ConcurrentLinkedQueue<>();
@@ -61,5 +61,13 @@ public class GameState<P, M> {
 
     public void setCollidables(TiledMapTileLayer collidables) {
         this.collidables = collidables;
+    }
+
+    public long getTick() {
+        return tick;
+    }
+
+    public void setTick(long tick) {
+        this.tick = tick;
     }
 }
