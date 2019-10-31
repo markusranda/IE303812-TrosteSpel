@@ -50,6 +50,7 @@ public class GameplayScreen extends ScreenAdapter {
     private BitmapFont font;
 
     private GameState<PlayerState, MovableState> receivedState;
+    private long tick;
 
     public GameplayScreen(TrosteSpel game) {
         this.game = game;
@@ -144,7 +145,7 @@ public class GameplayScreen extends ScreenAdapter {
 
                 player.setHealth(change.getHealth());
                 player.setPid(change.getPid());
-                player.update(0);
+                player.update(Gdx.graphics.getDeltaTime());
 
                 if (player.getPid() == Session.getInstance().getPid()) {
                     camera.position.x = player.getPos().x;
@@ -211,7 +212,9 @@ public class GameplayScreen extends ScreenAdapter {
     @Override
     public void render(float delta) {
         this.receivedState = Session.getInstance().getReceivedGameState();
+
         if (this.receivedState != null) {
+            this.tick = receivedState.getTick();
             tiledObjectMapRenderer.getBatch().begin();
             Gdx.gl.glClearColor(1, 0, 0, 1);
             Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);

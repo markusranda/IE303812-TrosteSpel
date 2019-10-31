@@ -26,7 +26,7 @@ public class GameState<P, M> {
 
     public HashMap<Long, P> players;
     private Queue<M> projectilesStateUpdates;
-    private boolean ack = false;
+    private long tick;
 
 
     public GameState() {
@@ -43,14 +43,6 @@ public class GameState<P, M> {
         return projectilesStateUpdates;
     }
 
-    public boolean isAck() {
-        return ack;
-    }
-
-    public void setAck(boolean ack) {
-        this.ack = ack;
-    }
-
     public HashMap<Long, P> getPlayers() {
         return players;
     }
@@ -61,5 +53,13 @@ public class GameState<P, M> {
 
     public void setCollidables(TiledMapTileLayer collidables) {
         this.collidables = collidables;
+    }
+
+    public long getTick() {
+        return tick;
+    }
+
+    public void setTick(long tick) {
+        this.tick = tick;
     }
 }

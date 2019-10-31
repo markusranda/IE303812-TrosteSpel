@@ -23,11 +23,12 @@ public abstract class Movable extends GameObject {
             System.out.println("Error: Movable position is null");
             return;
         }
+
         if (!position.epsilonEquals(previousPos)) {
             displacement = previousPos.sub(position).scl(-1);
-            moving = true;
+            //moving = true;
         } else {
-            moving = false;
+            //moving = false;
         }
         previousPos = position;
     }
