@@ -2,17 +2,11 @@ package no.ntnu.trostespel.game;
 
 import com.badlogic.gdx.math.Vector2;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
-import no.ntnu.trostespel.entity.GameObject;
-import no.ntnu.trostespel.entity.Movable;
-import no.ntnu.trostespel.entity.Projectile;
 import no.ntnu.trostespel.state.Action;
 import no.ntnu.trostespel.state.GameState;
 import no.ntnu.trostespel.state.MovableState;
 import no.ntnu.trostespel.state.PlayerState;
-import no.ntnu.trostespel.udpServer.GameServer;
 
-import java.util.Collection;
-import java.util.HashMap;
 import java.util.Queue;
 import java.util.concurrent.*;
 import java.util.function.BiConsumer;
@@ -46,8 +40,8 @@ public class MasterGameState {
     /**
      * @param pid the id of the player to update
      */
-    public void update(long pid, long currentTick) {
-        executor.submit(getUpdateRunnable(pid, currentTick));
+    public synchronized void update(long pid, long currentTick) {
+        executor.submit(updateMaster(pid, currentTick));
     }
 
 
@@ -82,7 +76,7 @@ public class MasterGameState {
         return this.gameState;
     }
 
-    private Runnable getUpdateRunnable(long pid, long currentTick) {
+    private Runnable updateMaster(long pid, long currentTick) {
         class updater implements Runnable {
             @Override
             public void run() {

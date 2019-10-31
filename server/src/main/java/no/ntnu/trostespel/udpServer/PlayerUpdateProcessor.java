@@ -22,12 +22,14 @@ public class PlayerUpdateProcessor {
 
     private int count = 0;
 
+    private short shouldflipCounter = 0;
+
 
     private enum Direction {
         // Angle is relative to x-axis, counterclockwise
         UP(90),
         RIGHT(0),
-        DOWN(-90),
+        DOWN(270),
         LEFT(180);
         private int dir;
 
@@ -75,17 +77,31 @@ public class PlayerUpdateProcessor {
             if (action.isattackRight) {
                 attackDir.add(Direction.RIGHT);
             }
+
+            // calculate angle of the bullet
             float direction = 0;
             if (attackDir.size() <= 2) {
                 for (Direction dir : attackDir) {
                     direction += dir.value();
+                    if (dir == Direction.RIGHT || dir == Direction.DOWN) {
+                        // fix edge case
+                        shouldflipCounter++;
+                    }
                 }
                 direction = direction / attackDir.size();
+                if(shouldflipCounter == 2) {
+                    direction += 180;
+                    System.out.println("Edge case, new dir " + direction);
+
+                }
                 projectile.setAngle(direction);
             } else {
                 projectile.setAngle(playerAngle);
             }
-            if (Math.abs(displacement.angle() - direction) <= 90) {
+            // check if player and bullet is moving in the same direction
+            double playerbulletangle = Math.abs(displacement.angle() - direction);
+            if (playerbulletangle <= 90 || playerbulletangle >= 270) {
+                // apply players velocity to bullet
                 Vector2 heading = projectile.getHeading();
                 heading.add(displacement);
                 projectile.setAngle(heading.angle());
@@ -132,7 +148,6 @@ public class PlayerUpdateProcessor {
             pos.y += displacement.y;
             playerState.setPosition(pos);
         }
-
         playerAngle = displacement.angle();
     }
 
