@@ -9,10 +9,13 @@ import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import no.ntnu.trostespel.config.Assets;
 import no.ntnu.trostespel.config.KeyConfig;
 import no.ntnu.trostespel.config.CommunicationConfig;
+import no.ntnu.trostespel.entity.Movable;
+import no.ntnu.trostespel.entity.Player;
 import no.ntnu.trostespel.entity.Session;
 import no.ntnu.trostespel.networking.GameDataReceiver;
 import no.ntnu.trostespel.networking.GameDataTransmitter;
 import no.ntnu.trostespel.screen.MainMenuScreen;
+import no.ntnu.trostespel.state.GameState;
 
 import java.net.DatagramSocket;
 
@@ -44,14 +47,14 @@ public class TrosteSpel extends Game {
         setScreen(new MainMenuScreen(this));
     }
 
-    public void startUdpConnection(TiledMap tiledMap) {
+    public void startUdpConnection(GameState<Player, Movable> gameState) {
         long pid = Session.getInstance().getPid();
         Session session = Session.getInstance();
         DatagramSocket socket = session.getUdpSocket();
         boolean result = session.setPid(pid);
 
         // Start transmitting updates to server
-        new GameDataTransmitter(socket, pid, tiledMap);
+        new GameDataTransmitter(socket, pid, gameState);
 
         // Listen for updates from server
         GameDataReceiver gameDataReceiver = new GameDataReceiver(socket);

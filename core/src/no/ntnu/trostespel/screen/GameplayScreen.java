@@ -11,6 +11,7 @@ import com.badlogic.gdx.maps.MapObject;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.math.Vector3;
 import no.ntnu.trostespel.TrosteSpel;
 import no.ntnu.trostespel.config.Assets;
 import no.ntnu.trostespel.config.KeyConfig;
@@ -76,7 +77,7 @@ public class GameplayScreen extends ScreenAdapter {
     }
 
     private void communicate() {
-        game.startUdpConnection(tiledMap);
+        game.startUdpConnection(gameState);
     }
 
     private void drawUI() {
@@ -110,8 +111,16 @@ public class GameplayScreen extends ScreenAdapter {
             }
             // apply changed values
             Player player = gameState.players.get(key);
+
+            // setting projected pos
             Vector2 pos = change.getPosition();
             player.setPos(pos);
+
+            // setting unprojected pos
+            Vector3 unprojectedPos = new Vector3(pos, 0);
+            camera.unproject(unprojectedPos);
+            player.setUnprojectedPos(unprojectedPos);
+
             player.setHealth(change.getHealth());
             player.setPid(change.getPid());
             player.update(0);

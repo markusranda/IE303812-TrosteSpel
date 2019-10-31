@@ -1,11 +1,12 @@
 package no.ntnu.trostespel.networking;
 
-import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import no.ntnu.trostespel.config.CommunicationConfig;
+import no.ntnu.trostespel.entity.Movable;
+import no.ntnu.trostespel.entity.Player;
+import no.ntnu.trostespel.state.GameState;
 
 import java.net.DatagramSocket;
-import java.net.SocketException;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -16,12 +17,12 @@ public class GameDataTransmitter {
     private UserInputManager manager;
     private Runnable emitter;
 
-    public GameDataTransmitter(DatagramSocket socket, long pid, TiledMap tiledMap) {
+    public GameDataTransmitter(DatagramSocket socket, long pid, GameState<Player, Movable> gameState) {
         ticker = Executors.newSingleThreadScheduledExecutor(
                 new ThreadFactoryBuilder().setNameFormat("GameDataTransmitter-%d").build());
 
         this.emitter = emitter();
-        manager = new UserInputManager(socket, tiledMap);
+        manager = new UserInputManager(socket, gameState);
         manager.setPid(pid);
         run();
     }
