@@ -115,6 +115,7 @@ public class GameServer{
         } catch (InterruptedException e) {
             // Server is running too slow
             e.printStackTrace();
+            sender.purge();
         }
     }
 

@@ -50,6 +50,7 @@ public class GameDataReceiver implements Runnable {
             try {
                 // blocks until a packet is received
                 udpSocket.receive(packet);
+
                 calculateRtt(System.currentTimeMillis());
             } catch (Exception e) {
                 e.printStackTrace();

@@ -2,6 +2,8 @@ package no.ntnu.trostespel.game;
 
 import com.badlogic.gdx.math.Vector2;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
+import no.ntnu.trostespel.config.CommunicationConfig;
+import no.ntnu.trostespel.entity.Movable;
 import no.ntnu.trostespel.state.Action;
 import no.ntnu.trostespel.state.GameState;
 import no.ntnu.trostespel.state.MovableState;
@@ -19,6 +21,7 @@ public class MasterGameState {
     private static volatile MasterGameState single_instance = null;
 
     private ExecutorService executor;
+    private final int MAX_TIME_ALIVE = 5 * CommunicationConfig.TICKRATE; // 10 seconds
 
     public synchronized static MasterGameState getInstance() {
         if (single_instance == null) {
@@ -45,27 +48,7 @@ public class MasterGameState {
     }
 
 
-    /**
-     * Check if given gameObject collides with any player
-     */
-    private void detectCollision(MovableState obj, long currentTick) {
-        // TODO: can be optimized using a quadtree
-        for (PlayerState playerState : gameState.players.values()) {
-            if (playerState.getPid() == obj.getPid()) {
-                continue;
-            }
-            if (playerState.getHitbox().contains(obj.getPosition())) {
-                System.out.println("hit?");
-                    System.out.println(obj.getPosition() + " HIT " + playerState.getPid());
-                    long id = obj.getId();
-                    playerState.hurt(obj.damage, currentTick);
-                    gameState.getProjectiles().remove(id);
-                    obj.setAction(Action.KILL);
-                    gameState.getProjectilesStateUpdates().add(obj);
-                    break;
-            }
-        }
-    }
+
 
     public void read() {
 
@@ -87,10 +70,10 @@ public class MasterGameState {
                 // add new objects spawned by the players
                 // to the gamestate
 
-                // add new movable updates to the gamestate, which will be sent to the players
+                // add new projectilestateupdates to the gamestate
                 putProjectileStateUpdates(player.getSpawnedObjects());
 
-                // process all new movable updates on the serverside
+                // apply new projectilestateupdates to the gamestate
                 for (MovableState update : player.getSpawnedObjects()) {
                     Action action = update.getAction();
                     long key = update.getId();
@@ -110,12 +93,17 @@ public class MasterGameState {
                 // update projectiles positions and check collisions
                 this.projectileForEach((k, v) -> {
                     // update the heading vector
-                    Vector2 heading = v.getHeading();
-                    // apply the heading vector
-                    Vector2 position = v.getPosition().cpy();
-                    Vector2 newPos = position.add(heading);
-                    v.setPosition(newPos);
-                    detectCollision(v, currentTick);
+                    if (v.getTimeAlive() > MAX_TIME_ALIVE) {
+                        removeProjectile(k);
+                    } else {
+                        Vector2 heading = v.getHeading();
+                        // apply the heading vector
+                        Vector2 position = v.getPosition();
+                        Vector2 newPos = position.add(heading);
+                        v.setPosition(newPos);
+                        detectCollision(v, currentTick);
+                        v.incrementTimeAlive();
+                    }
                 });
             }
 
@@ -124,7 +112,9 @@ public class MasterGameState {
             }
 
             private void removeProjectile(long key) {
-                gameState.getProjectiles().remove(key);
+                MovableState removed = gameState.getProjectiles().remove(key);
+                removed.setAction(Action.KILL);
+                putProjectileStateUpdate(removed);
             }
 
             private void putProjectileStateUpdates(Queue<MovableState> updates) {
@@ -137,6 +127,25 @@ public class MasterGameState {
 
             private void projectileForEach(BiConsumer<Long, MovableState> action) {
                 gameState.getProjectiles().forEach(action);
+            }
+
+            /**
+             * Check if given gameObject collides with any player
+             */
+            private void detectCollision(MovableState obj, long currentTick) {
+                // TODO: can be optimized using a quadtree
+                for (PlayerState playerState : gameState.players.values()) {
+                    if (playerState.getPid() == obj.getPid()) {
+                        continue;
+                    }
+                    if (playerState.getHitbox().contains(obj.getPosition())) {
+                        System.out.println("Bullet @" + obj.getPosition() + " HIT " + "Player #" + playerState.getPid() + " @" + playerState.getPosition());
+                        long id = obj.getId();
+                        playerState.hurt(obj.damage, currentTick);
+                        removeProjectile(id);
+                        break;
+                    }
+                }
             }
         }
         return new updater();

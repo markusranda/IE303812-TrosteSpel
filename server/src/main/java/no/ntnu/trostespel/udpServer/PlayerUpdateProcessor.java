@@ -90,23 +90,23 @@ public class PlayerUpdateProcessor {
                 }
                 direction = direction / attackDir.size();
                 if(shouldflipCounter == 2) {
+                    // fix edge case
                     direction += 180;
-                    System.out.println("Edge case, new dir " + direction);
-
                 }
                 projectile.setAngle(direction);
             } else {
                 projectile.setAngle(playerAngle);
             }
             // check if player and bullet is moving in the same direction
-            double playerbulletangle = Math.abs(displacement.angle() - direction);
+            double playerbulletangle = Math.abs(playerAngle - direction);
             if (playerbulletangle <= 90 || playerbulletangle >= 270) {
                 // apply players velocity to bullet
                 Vector2 heading = projectile.getHeading();
                 heading.add(displacement);
-                projectile.setAngle(heading.angle());
-                projectile.setVelocity(heading.len());
+                projectile.setHeading(heading);
             }
+
+            // add resulting projectile to spawned objects list
             if (!attackDir.isEmpty()) {
                 playerState.getSpawnedObjects().add(projectile);
                 // allow attacks every 0.3 seconds

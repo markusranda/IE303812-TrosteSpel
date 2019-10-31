@@ -15,6 +15,7 @@ public class MovableState extends ObjectState {
     private Action action;
 
     private transient Vector2 heading;
+    private transient int timeAlive;
     public final transient int damage = 5;
 
     public MovableState(long pid, double velocity) {
@@ -100,10 +101,20 @@ public class MovableState extends ObjectState {
     public Vector2 getHeading() {
         heading.setAngle(angle);
         heading.setLength((float) velocity);
-        return heading;
+        return heading.cpy();
     }
 
     public void setHeading(Vector2 heading) {
         this.heading = heading;
+        this.velocity = heading.len();
+        this.angle = heading.angle();
+    }
+
+    public int getTimeAlive() {
+        return timeAlive;
+    }
+
+    public void incrementTimeAlive() {
+        this.timeAlive++;
     }
 }
