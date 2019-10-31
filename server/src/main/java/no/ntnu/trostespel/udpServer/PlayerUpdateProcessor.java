@@ -98,14 +98,15 @@ public class PlayerUpdateProcessor {
                 projectile.setAngle(playerAngle);
             }
             // check if player and bullet is moving in the same direction
-            double playerbulletangle = Math.abs(playerAngle - direction);
-            if (playerbulletangle <= 90 || playerbulletangle >= 270) {
-                // apply players velocity to bullet
-                Vector2 heading = projectile.getHeading();
-                heading.add(displacement);
-                projectile.setHeading(heading);
+            if (!attackDir.isEmpty()) {
+                double playerbulletangle = Math.abs(playerAngle - direction);
+                if (playerbulletangle <= 90 || playerbulletangle >= 270) {
+                    // apply players velocity to bullet
+                    Vector2 heading = projectile.getHeading();
+                    heading.add(displacement);
+                    projectile.setHeading(heading);
+                }
             }
-
             // add resulting projectile to spawned objects list
             if (!attackDir.isEmpty()) {
                 playerState.getSpawnedObjects().add(projectile);

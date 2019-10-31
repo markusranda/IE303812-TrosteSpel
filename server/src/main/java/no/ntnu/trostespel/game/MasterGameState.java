@@ -73,6 +73,9 @@ public class MasterGameState {
 
                 // add new projectilestateupdates to the gamestate
                 putProjectileStateUpdates(player.getSpawnedObjects());
+                if (!player.getSpawnedObjects().isEmpty()) {
+                    System.out.println("debugger");
+                }
 
                 // apply new projectilestateupdates to the gamestate
                 for (MovableState update : player.getSpawnedObjects()) {
@@ -82,11 +85,12 @@ public class MasterGameState {
                         case KILL:
                             //
                         case CREATE:
-                            MovableState projectile = new MovableState(pid, GameState.projectileSpeed);
-                            projectile.setPosition(player.getPosition());
-                            projectile.setAngle(update.getAngle());
-                            projectile.setId(key);
-                            this.putProjectile(key, projectile);
+                            //MovableState projectile = new MovableState(pid, GameState.projectileSpeed);
+                            //projectile.setPosition(player.getPosition());
+                            //projectile.setAngle(update.getAngle());
+                            //projectile.setId(key);
+                            update.setPosition(player.getPosition());
+                            this.putProjectile(key, update);
                     }
                 }
                 player.resetSpawnedObjects();
@@ -98,10 +102,12 @@ public class MasterGameState {
                         removeProjectile(k);
                     } else {
                         Vector2 heading = v.getHeading();
+                        System.out.println(heading);
                         // apply the heading vector
                         Vector2 position = v.getPosition();
                         Vector2 newPos = position.add(heading);
                         v.setPosition(newPos);
+
                         detectCollision(v, currentTick);
                         v.incrementTimeAlive();
                     }

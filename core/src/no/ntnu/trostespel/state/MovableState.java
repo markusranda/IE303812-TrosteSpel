@@ -10,11 +10,9 @@ public class MovableState extends ObjectState {
 
     private long id;
     private long pid;
-    private double velocity;
-    private float angle;
     private Action action;
+    private Vector2 heading;
 
-    private transient Vector2 heading;
     private transient int timeAlive;
     public final transient int damage = 5;
 
@@ -22,32 +20,11 @@ public class MovableState extends ObjectState {
         super(24f, 24f, Vector2.Zero);
         this.heading = new Vector2(1, 0); // Unit vector
         this.id = createID();
-        this.angle = 0;
-        this.velocity = velocity;
         this.pid = pid;
         this.action = Action.CREATE;
+        this.heading = new Vector2(1, 0);
+        this.heading.setLength((float) velocity);
     }
-
-    private MovableState(long id, long pid) {
-        super(24f, 24f, Vector2.Zero);
-        this.heading = new Vector2(0, 0); // Unit vector
-        this.angle = 0;
-        this.velocity = 0;
-        this.pid = pid;
-        this.action = Action.CREATE;
-        this.id = id;
-    }
-
-    /**
-     * @param pid
-     * @return a new movablestate with the kill action
-     */
-    public static MovableState kill(long id, long pid) {
-        MovableState returnVal = new MovableState(id, pid);
-        returnVal.setAction(Action.KILL);
-        return returnVal;
-    }
-
 
     public void setAction(Action action) {
         this.action = action;
@@ -62,11 +39,11 @@ public class MovableState extends ObjectState {
     }
 
     public void setVelocity(float velocity) {
-        this.velocity = velocity;
+        this.heading.setLength(velocity);
     }
 
     public void setAngle(float angle) {
-        this.angle = angle;
+        this.heading.setAngle(angle);
     }
 
     public long getId() {
@@ -78,11 +55,11 @@ public class MovableState extends ObjectState {
     }
 
     public double getVelocity() {
-        return velocity;
+        return this.heading.len();
     }
 
     public float getAngle() {
-        return angle;
+        return this.heading.angle();
     }
 
     public long getPid() {
@@ -99,15 +76,11 @@ public class MovableState extends ObjectState {
     }
 
     public Vector2 getHeading() {
-        heading.setAngle(angle);
-        heading.setLength((float) velocity);
         return heading.cpy();
     }
 
     public void setHeading(Vector2 heading) {
         this.heading = heading;
-        this.velocity = heading.len();
-        this.angle = heading.angle();
     }
 
     public int getTimeAlive() {
