@@ -1,5 +1,6 @@
 package no.ntnu.trostespel.state;
 
+import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.math.Vector2;
 import no.ntnu.trostespel.config.CommunicationConfig;
 import no.ntnu.trostespel.entity.GameObject;
@@ -18,13 +19,14 @@ public class GameState<P, M> {
     private transient static double BASE_PROJECTILE_SPEED = 300d;
     public transient static double projectileSpeed = BASE_PROJECTILE_SPEED / CommunicationConfig.TICKRATE;
 
+    private transient TiledMapTileLayer collidables;
+
 
     private transient HashMap<Long, M> projectiles;
 
     public HashMap<Long, P> players;
     private Queue<M> projectilesStateUpdates;
     private boolean ack = false;
-
 
 
     public GameState() {
@@ -51,5 +53,13 @@ public class GameState<P, M> {
 
     public HashMap<Long, P> getPlayers() {
         return players;
+    }
+
+    public TiledMapTileLayer getCollidables() {
+        return collidables;
+    }
+
+    public void setCollidables(TiledMapTileLayer collidables) {
+        this.collidables = collidables;
     }
 }

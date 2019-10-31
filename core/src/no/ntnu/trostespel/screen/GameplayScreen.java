@@ -9,6 +9,7 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.maps.MapLayer;
 import com.badlogic.gdx.maps.MapObject;
 import com.badlogic.gdx.maps.tiled.TiledMap;
+import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.DelayedRemovalArray;
@@ -40,6 +41,7 @@ public class GameplayScreen extends ScreenAdapter {
     private final ObjectMapRenderer tiledObjectMapRenderer;
     private final MapLayer objectLayer;
     private final MapLayer collisionLayer;
+    private final TiledMapTileLayer treesAndRocksLayer;
     private GameState<Player, Movable> gameState;
 
     private TrosteSpel game;
@@ -74,6 +76,9 @@ public class GameplayScreen extends ScreenAdapter {
         objectLayer = tiledMap.getLayers().get("objects");
 
         collisionLayer = tiledMap.getLayers().get("collisions");
+        treesAndRocksLayer = (TiledMapTileLayer) tiledMap.getLayers().get("trees_and_rocks");
+        gameState.setCollidables(treesAndRocksLayer);
+
         collisionLayer.setVisible(false);
 
         // start sending and listening for data
