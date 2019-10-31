@@ -34,6 +34,7 @@ public class GameplayScreen extends ScreenAdapter {
     private final TiledMap tiledMap;
     private final ObjectMapRenderer tiledObjectMapRenderer;
     private final MapLayer objectLayer;
+    private final MapLayer collisionLayer;
     private GameState<Player, Movable> gameState;
 
     private TrosteSpel game;
@@ -67,12 +68,15 @@ public class GameplayScreen extends ScreenAdapter {
 
         objectLayer = tiledMap.getLayers().get("objects");
 
+        collisionLayer = tiledMap.getLayers().get("collisions");
+        collisionLayer.setVisible(false);
+
         // start sending and listening for data
         communicate();
     }
 
     private void communicate() {
-        game.startUdpConnection();
+        game.startUdpConnection(tiledMap);
     }
 
     private void drawUI() {
