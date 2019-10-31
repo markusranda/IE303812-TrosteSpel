@@ -22,7 +22,7 @@ public class MasterGameState {
     private static volatile MasterGameState single_instance = null;
 
     private ExecutorService executor;
-    private final int MAX_TIME_ALIVE = 5 * CommunicationConfig.TICKRATE; // 10 seconds
+    private final int MAX_TIME_ALIVE = 5 * CommunicationConfig.TICKRATE; // n seconds
 
     public synchronized static MasterGameState getInstance() {
         if (single_instance == null) {
@@ -33,6 +33,7 @@ public class MasterGameState {
 
     private MasterGameState(GameState<PlayerState, MovableState> gameState) {
         this.gameState = gameState;
+        this.gameState.players.put(9L, new PlayerState(9, new Vector2(0, 400), 300)); // put dummy lemur on the the map
         this.executor = new ThreadPoolExecutor(1,
                 1,
                 0L,
