@@ -31,6 +31,7 @@ public abstract class GameObject {
         this.shape = shape;
 
         stateTime = 0;
+
     }
 
     public abstract void draw(SpriteBatch batch);
@@ -47,6 +48,11 @@ public abstract class GameObject {
     public void displace(float x, float y) {
         pos.x += x;
         pos.y += y;
+    }
+
+    public Rectangle getHitbox() {
+        this.shape.set(pos.x, pos.y, width, height);
+        return this.shape;
     }
 
     public void setPos(Vector2 pos) {

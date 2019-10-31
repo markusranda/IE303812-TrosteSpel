@@ -21,6 +21,13 @@ public class Player extends Movable {
     private long pid;
     private boolean addedToLayer = false;
 
+    private final int TEXTURE_HEIGHT = 90;
+    private final int TEXTURE_WIDTH = 72;
+    private final int HITBOX_HEIGHT = TEXTURE_HEIGHT / 3;
+    private final int HITBOX_WIDTH = (TEXTURE_WIDTH / 4) * 2;
+    private final int HEIGHT_OFFSET = (TEXTURE_HEIGHT - HITBOX_HEIGHT) / 2;
+    private final int WIDTH_OFFSET = (TEXTURE_WIDTH - HITBOX_WIDTH) / 2;
+
     public long getPid() {
         return pid;
     }
@@ -108,6 +115,17 @@ public class Player extends Movable {
         stateTime += Gdx.graphics.getDeltaTime();
         currentFrame = run.getKeyFrame(stateTime, true);
         flip = (getDirection() == Direction.left);
+    }
+
+    @Override
+    public Rectangle getHitbox() {
+        Vector2 pos = getPos();
+        super.shape.height = HITBOX_HEIGHT;
+        super.shape.width = HITBOX_WIDTH;
+        super.shape.x = pos.x + WIDTH_OFFSET;
+        super.shape.y = pos.y + HEIGHT_OFFSET;
+        System.out.println(super.shape);
+        return super.shape;
     }
 
     public boolean getFlip() {
