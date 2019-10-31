@@ -26,6 +26,9 @@ import no.ntnu.trostespel.state.GameState;
 import no.ntnu.trostespel.state.MovableState;
 import no.ntnu.trostespel.state.PlayerState;
 
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Queue;
 
 public class GameplayScreen extends ScreenAdapter {
@@ -105,35 +108,51 @@ public class GameplayScreen extends ScreenAdapter {
         // iterate over received player changes
         for (PlayerState change : receivedState.players.values()) {
             long key = change.getPid();
-            if (!gameState.players.containsKey(key)) {
-                // add player to the game
-                Player newPlayer = new Player(change.getPosition(), Assets.lemurImage);
-                gameState.players.put(key, newPlayer);
+            if (change.getAction() == Action.DEAD) {
+                for (MapObject mapObject : objectLayer.getObjects()) {
+                    Iterator innerIterator = mapObject.getProperties().getValues();
+                    while (innerIterator.hasNext()) {
+                        Object obj = innerIterator.next();
+                        if (obj instanceof Player) {
+                            Player player = (Player) obj;
+                            if (player.getPid() == change.getPid()) {
+                                innerIterator.remove();
+                            }
+                        }
+                    }
+                }
             }
-            // apply changed values
-            Player player = gameState.players.get(key);
+            else if (change.getAction() == Action.ALIVE) {
+                if (!gameState.players.containsKey(key)) {
+                    // add player to the game
+                    Player newPlayer = new Player(change.getPosition(), Assets.lemurImage);
+                    gameState.players.put(key, newPlayer);
+                }
+                // apply changed values
+                Player player = gameState.players.get(key);
 
-            // setting projected pos
-            Vector2 pos = change.getPosition();
-            player.setPos(pos);
+                // setting projected pos
+                Vector2 pos = change.getPosition();
+                player.setPos(pos);
 
-            player.setHealth(change.getHealth());
-            player.setPid(change.getPid());
-            player.update(0);
+                player.setHealth(change.getHealth());
+                player.setPid(change.getPid());
+                player.update(0);
 
-            if (player.getPid() == Session.getInstance().getPid()) {
-                camera.position.x = player.getPos().x;
-                camera.position.y = player.getPos().y;
-            }
+                if (player.getPid() == Session.getInstance().getPid()) {
+                    camera.position.x = player.getPos().x;
+                    camera.position.y = player.getPos().y;
+                }
 
-            player.draw((SpriteBatch) tiledObjectMapRenderer.getBatch());
+                player.draw((SpriteBatch) tiledObjectMapRenderer.getBatch());
 
-            // add player to object layer
-            if (!player.addedToLayer()) {
-                MapObject mapObject = new MapObject();
-                mapObject.getProperties().put(MAP_OBJECT_ID_PLAYER, player);
-                objectLayer.getObjects().add(mapObject);
-                player.setAddedToLayer(true);
+                // add player to object layer
+                if (!player.addedToLayer()) {
+                    MapObject mapObject = new MapObject();
+                    mapObject.getProperties().put(MAP_OBJECT_ID_PLAYER, player);
+                    objectLayer.getObjects().add(mapObject);
+                    player.setAddedToLayer(true);
+                }
             }
         }
     }
