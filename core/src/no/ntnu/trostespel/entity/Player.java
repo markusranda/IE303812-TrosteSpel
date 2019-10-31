@@ -14,12 +14,15 @@ public class Player extends Movable {
     private static final int FRAME_COLS = 1, FRAME_ROWS = 6;
 
     private Animation<TextureRegion> run;
+    private Animation<Texture> attack;
     private TextureRegion currentFrame;
     private boolean flip = false;
     private Weapon weapon;
     private int health;
     private long pid;
     private boolean addedToLayer = false;
+    private boolean attacking = false;
+    private float attackStateTime;
 
     private final int TEXTURE_HEIGHT = 90;
     private final int TEXTURE_WIDTH = 72;
@@ -90,6 +93,7 @@ public class Player extends Movable {
             }
         }
         run = new Animation<>(0.1f, frames);
+        attack = new Animation<Texture>(0.3f, Assets.attack);
     }
 
     @Override
@@ -122,6 +126,15 @@ public class Player extends Movable {
         flip = (getDirection() == Direction.left);
     }
 
+    public float getAttackStateTime() {
+        attackStateTime += Gdx.graphics.getDeltaTime();
+        return attackStateTime;
+    }
+
+    public void resetAttackStateTime() {
+        attackStateTime = 0;
+    }
+
     @Override
     public Rectangle getHitbox() {
         Vector2 pos = getPos();
@@ -134,5 +147,13 @@ public class Player extends Movable {
 
     public boolean getFlip() {
         return this.flip;
+    }
+
+    public boolean isAttacking() {
+        return attacking;
+    }
+
+    public void setAttacking(boolean attacking) {
+        this.attacking = attacking;
     }
 }

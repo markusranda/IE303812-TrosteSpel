@@ -173,6 +173,7 @@ public class GameplayScreen extends ScreenAdapter {
             if (action == Action.CREATE) {
                 if (!gameState.getProjectiles().containsKey(eid)) {
                     Player player = gameState.players.get(owner);
+                    player.setAttacking(true);
                     if (player != null) {
                         Vector2 spawnPos = player.getPos();
                         Projectile newProjectile = new Projectile(spawnPos, Assets.bullet, state.getVelocity(), state.getAngle(), eid);

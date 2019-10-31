@@ -3,6 +3,7 @@ package no.ntnu.trostespel.screen;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.maps.MapObject;
 import com.badlogic.gdx.maps.tiled.TiledMap;
+import no.ntnu.trostespel.config.Assets;
 import no.ntnu.trostespel.entity.Player;
 import no.ntnu.trostespel.entity.Projectile;
 
@@ -40,6 +41,18 @@ public class ObjectMapRenderer extends com.badlogic.gdx.maps.tiled.renderers.Ort
                             player.getPos().y,
                             player.getFlip() ? -player.getWidth() : player.getWidth(),
                             player.getHeight());
+                }
+                if (player.isAttacking()) {
+                    if (player.getAttackStateTime() > 0.15f) {
+                        player.setAttacking(false);
+                        player.resetAttackStateTime();
+                    } else {
+                        batch.draw(Assets.attack,
+                                player.getFlip() ? player.getPos().x + player.getWidth() : player.getPos().x,
+                                player.getPos().y,
+                                player.getFlip() ? -player.getWidth() : player.getWidth(),
+                                player.getHeight());
+                    }
                 }
             }
         } else if (object.getProperties().containsKey(MAP_OBJECT_ID_PROJECTILE)) {
