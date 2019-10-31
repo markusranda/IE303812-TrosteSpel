@@ -8,7 +8,6 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import no.ntnu.trostespel.config.Assets;
-import no.ntnu.trostespel.config.KeyConfig;
 
 public class Player extends Movable {
 
@@ -21,7 +20,6 @@ public class Player extends Movable {
     private int health;
     private long pid;
     private boolean addedToLayer = false;
-    private long previousTick = 0;
 
     private final int TEXTURE_HEIGHT = 90;
     private final int TEXTURE_WIDTH = 72;
@@ -29,11 +27,6 @@ public class Player extends Movable {
     private final int HITBOX_WIDTH = (TEXTURE_WIDTH / 4) * 2;
     private final int HEIGHT_OFFSET = (TEXTURE_HEIGHT - HITBOX_HEIGHT) / 2;
     private final int WIDTH_OFFSET = (TEXTURE_WIDTH - HITBOX_WIDTH) / 2;
-
-    private boolean isup;
-    private boolean isdown;
-    private boolean isleft;
-    private boolean isright;
 
     public long getPid() {
         return pid;
@@ -102,22 +95,10 @@ public class Player extends Movable {
     @Override
     public void update(float delta) {
         super.update(delta);
-        isup = Gdx.input.isKeyPressed(KeyConfig.up);
-        isdown = Gdx.input.isKeyPressed(KeyConfig.down);
-        isleft = Gdx.input.isKeyPressed(KeyConfig.left);
-        isright = Gdx.input.isKeyPressed(KeyConfig.right);
-
-        if (isleft || isup || isright || isdown) {
-            moving = true;
-        } else {
-            moving = false;
-        }
     }
-
 
     @Override
-    public void draw(SpriteBatch batch) {
-    }
+    public void draw(SpriteBatch batch) { }
 
     public Texture getTexture() {
         return this.texture;

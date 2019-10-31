@@ -112,7 +112,7 @@ public class GameServer{
 
     private void broadcastUpdate() {
         try {
-            sender.broadcast(Connections.getInstance().getConnections(), tickCounter.get());
+            sender.broadcast(Connections.getInstance().getConnections());
         } catch (InterruptedException e) {
             // Server is running too slow
             e.printStackTrace();
