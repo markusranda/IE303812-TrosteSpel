@@ -98,4 +98,8 @@ public class PlayerState extends ObjectState{
     public Action getAction() {
         return action;
     }
+
+    public boolean isDead() {
+        return action == Action.DEAD;
+    }
 }
