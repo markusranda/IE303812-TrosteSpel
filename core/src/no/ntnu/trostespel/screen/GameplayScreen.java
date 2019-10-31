@@ -165,33 +165,33 @@ public class GameplayScreen extends ScreenAdapter {
         }
     }
 
-        private void updateProjectiles () {
-            for (Movable projectile : gameState.getProjectiles().values()) {
-                projectile.update(Gdx.graphics.getDeltaTime());
-                projectile.draw(game.batch);
-            }
-        }
-
-        @Override
-        public void render ( float delta){
-            this.receivedState = Session.getInstance().getReceivedGameState();
-            if (this.receivedState != null) {
-                tiledObjectMapRenderer.getBatch().begin();
-                Gdx.gl.glClearColor(1, 0, 0, 1);
-                Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-
-                // Update all entities
-                spawnNewProjectiles();
-
-                updatePlayers();
-                updateProjectiles();
-                drawUI();
-
-                tiledObjectMapRenderer.getBatch().end();
-            }
-            camera.update();
-            tiledObjectMapRenderer.setView(camera);
-            tiledObjectMapRenderer.render();
-
+    private void updateProjectiles() {
+        for (Movable projectile : gameState.getProjectiles().values()) {
+            projectile.update(Gdx.graphics.getDeltaTime());
+            projectile.draw(game.batch);
         }
     }
+
+    @Override
+    public void render(float delta) {
+        this.receivedState = Session.getInstance().getReceivedGameState();
+        if (this.receivedState != null) {
+            tiledObjectMapRenderer.getBatch().begin();
+            Gdx.gl.glClearColor(1, 0, 0, 1);
+            Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+
+            // Update all entities
+            spawnNewProjectiles();
+
+            updatePlayers();
+            updateProjectiles();
+            drawUI();
+
+            tiledObjectMapRenderer.getBatch().end();
+        }
+        camera.update();
+        tiledObjectMapRenderer.setView(camera);
+        tiledObjectMapRenderer.render();
+
+    }
+}
