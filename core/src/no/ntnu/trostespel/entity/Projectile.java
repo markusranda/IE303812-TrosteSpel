@@ -11,13 +11,15 @@ public class Projectile extends Movable {
     private double velocity;
     private float angle;
     private Vector2 heading;
+    private long id;
 
 
-    public Projectile(Vector2 pos, Texture texture, double velocity, float angle) {
+    public Projectile(Vector2 pos, Texture texture, double velocity, float angle, long id) {
         super(pos, 24, 24, new Rectangle(), texture);
         this.velocity = velocity;
         this.angle = angle;
         heading = new Vector2(1, 0);
+        this.id = id;
     }
 
     @Override
@@ -47,5 +49,9 @@ public class Projectile extends Movable {
 
     public float getHeight() {
         return height;
+    }
+
+    public long getId() {
+        return id;
     }
 }

@@ -121,8 +121,7 @@ public class GameplayScreen extends ScreenAdapter {
                         }
                     }
                 }
-            }
-            else if (change.getAction() == Action.ALIVE) {
+            } else if (change.getAction() == Action.ALIVE) {
                 if (!gameState.players.containsKey(key)) {
                     // add player to the game
                     Player newPlayer = new Player(change.getPosition(), Assets.lemurImage);
@@ -169,7 +168,7 @@ public class GameplayScreen extends ScreenAdapter {
                     Player player = gameState.players.get(owner);
                     if (player != null) {
                         Vector2 spawnPos = player.getPos();
-                        Projectile newProjectile = new Projectile(spawnPos, Assets.bullet, state.getVelocity(), state.getAngle());
+                        Projectile newProjectile = new Projectile(spawnPos, Assets.bullet, state.getVelocity(), state.getAngle(), eid);
                         gameState.getProjectiles().put(eid, newProjectile);
 
                         // Add projectile to object layer
@@ -180,6 +179,17 @@ public class GameplayScreen extends ScreenAdapter {
                 }
             } else if (action == Action.KILL) {
                 Movable remove = gameState.getProjectiles().remove(eid);
+                for (MapObject mapObject : objectLayer.getObjects()) {
+                    if (mapObject.getProperties().containsKey(MAP_OBJECT_ID_PROJECTILE)) {
+                        Iterator innerIterator = mapObject.getProperties().getValues();
+                        while (innerIterator.hasNext()) {
+                            Projectile projectile = (Projectile) innerIterator.next();
+                            if (projectile.getId() == eid) {
+                                innerIterator.remove();
+                            }
+                        }
+                    }
+                }
             }
         }
     }
@@ -187,7 +197,6 @@ public class GameplayScreen extends ScreenAdapter {
     private void updateProjectiles() {
         for (Movable projectile : gameState.getProjectiles().values()) {
             projectile.update(Gdx.graphics.getDeltaTime());
-            projectile.draw(game.batch);
         }
     }
 
