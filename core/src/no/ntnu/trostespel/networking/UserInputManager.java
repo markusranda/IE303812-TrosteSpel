@@ -141,7 +141,7 @@ public class UserInputManager {
 
     private boolean canRight() {
         if (myPlayer != null) {
-            if ((int) myPlayer.getPos().x + 2 > gameState.getCollidables().getWidth() - 64) {
+            if ((int) myPlayer.getPos().x + 2 > gameState.getCollidables().getWidth() * gameState.getCollidables().getTileWidth() - 64) {
                 return false;
             }
         }
@@ -168,7 +168,7 @@ public class UserInputManager {
 
     private boolean canUp() {
         if (myPlayer != null) {
-            if ((int) myPlayer.getPos().y + 2 > gameState.getCollidables().getWidth() - 64) {
+            if ((int) myPlayer.getPos().y + 2 > gameState.getCollidables().getHeight() * gameState.getCollidables().getTileHeight() - 64) {
                 return false;
             }
         }
