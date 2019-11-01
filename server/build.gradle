@@ -62,7 +62,9 @@ task remoteDeploy(dependsOn: dist) {
             session(remotes.gameServer) {
                 //def a = executeSudo('kill -9 `jps -v | grep server-1.0.jar | awk {\'print $1\'}`')
                 execute('pkill -f "java.*server-1.0.jar"', ignoreError: true)
-                put from: file('build/libs/server-1.0.jar'), into: '/home/lars'
+                put from: file('../client.properties'), into: '/home/trosteadmin'
+                put from: file('../server.properties'), into: '/home/trosteadmin'
+                put from: file('/build/libs/server-1.0.jar'), into: '/home/trosteadmin'
                 execute('java -jar server-1.0.jar')
             }
         }
