@@ -2,20 +2,15 @@ package no.ntnu.trostespel.udpServer;
 
 
 import com.badlogic.gdx.utils.Pool;
-import com.badlogic.gdx.utils.PooledLinkedList;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
-import com.google.gson.Gson;
-import com.google.gson.stream.JsonReader;
+import no.ntnu.trostespel.Channel;
 import no.ntnu.trostespel.PlayerActions;
 import no.ntnu.trostespel.config.CommunicationConfig;
-import no.ntnu.trostespel.game.MasterGameState;
+import no.ntnu.trostespel.game.GameStateMaster;
 import no.ntnu.trostespel.state.PlayerState;
 
-import java.io.IOException;
-import java.io.StringReader;
 import java.net.DatagramPacket;
 import java.net.SocketAddress;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.*;
 
@@ -23,16 +18,17 @@ import java.util.concurrent.*;
  * This class is responsible for queuing and demultiplexing incoming
  * updates, and dispathching them for processing.
  */
-public class PlayerUpdateDispatcher extends ThreadPoolExecutor {
+public class PlayerUpdateDispatcher extends ThreadPoolExecutor implements Channel {
 
-    private MasterGameState masterGameState;
+    private GameStateMaster gameStateMaster;
     private Pool<PacketDeserializer> deserializerPool;
     private Map<SocketAddress, Long> workers;
+    private long currentTick = 0;
 
     public PlayerUpdateDispatcher() {
         super(1, CommunicationConfig.MAX_PLAYERS, CommunicationConfig.RETRY_CONNECTION_TIMEOUT, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<>(8),
                 new ThreadFactoryBuilder().setNameFormat("Dispathcher-thread-%d").build());
-        masterGameState = MasterGameState.getInstance();
+        gameStateMaster = GameStateMaster.getInstance();
         this.workers = new ConcurrentHashMap<>(8);
         deserializerPool = new Pool<PacketDeserializer>() {
             @Override
@@ -40,6 +36,7 @@ public class PlayerUpdateDispatcher extends ThreadPoolExecutor {
                 return new PacketDeserializer();
             }
         };
+        GameServer.observePostUpdate(this);
     }
 
     /**
@@ -49,7 +46,6 @@ public class PlayerUpdateDispatcher extends ThreadPoolExecutor {
      * @param packet the packet to queue
      */
     public void dispatch(DatagramPacket packet) {
-        long currentTick = GameServer.getTickcounter();
         SocketAddress socketAddr = packet.getSocketAddress();
         if (!workers.containsKey(socketAddr)) {
             workers.put(socketAddr, 0L);
@@ -75,7 +71,7 @@ public class PlayerUpdateDispatcher extends ThreadPoolExecutor {
     }
 
     private void updateMaster(long pid, long currentTick) {
-        masterGameState.update(pid, currentTick);
+        gameStateMaster.submitPlayerUpdate(pid, currentTick);
     }
 
     class Updater implements Runnable {
@@ -94,10 +90,10 @@ public class PlayerUpdateDispatcher extends ThreadPoolExecutor {
             PlayerActions actions = deserializer.deserialize(packet);
             deserializerPool.free(deserializer);
             this.pid = actions.pid;
-            PlayerState playerState = (PlayerState) masterGameState.getGameState().players.get(actions.pid);
+            PlayerState playerState = (PlayerState) gameStateMaster.getGameState().players.get(actions.pid);
             if (playerState == null) {
                 playerState = new PlayerState(actions.pid);
-                masterGameState.getGameState().players.put(actions.pid, playerState);
+                gameStateMaster.getGameState().players.put(actions.pid, playerState);
             }
             new PlayerUpdateProcessor(playerState, actions).run();
         }
@@ -109,5 +105,10 @@ public class PlayerUpdateDispatcher extends ThreadPoolExecutor {
         public long getTick() {
             return tick;
         }
+    }
+
+    @Override
+    public void update(long tick) {
+        this.currentTick = tick;
     }
 }

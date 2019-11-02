@@ -1,5 +1,6 @@
 package no.ntnu.trostespel.desktop;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.backends.lwjgl.LwjglApplication;
 import com.badlogic.gdx.backends.lwjgl.LwjglApplicationConfiguration;
 import no.ntnu.trostespel.TrosteSpel;
