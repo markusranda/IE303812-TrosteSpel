@@ -29,7 +29,7 @@ public class Player extends Movable {
     private final int TEXTURE_WIDTH = 72;
     private final int HITBOX_HEIGHT = TEXTURE_HEIGHT / 3;
     private final int HITBOX_WIDTH = (TEXTURE_WIDTH / 4) * 2;
-    private final int HEIGHT_OFFSET = (TEXTURE_HEIGHT - HITBOX_HEIGHT) / 2;
+    private final int HEIGHT_OFFSET = (TEXTURE_HEIGHT - HITBOX_HEIGHT) / 4;
     private final int WIDTH_OFFSET = (TEXTURE_WIDTH - HITBOX_WIDTH) / 2;
 
     public long getPid() {

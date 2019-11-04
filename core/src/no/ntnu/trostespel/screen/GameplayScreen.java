@@ -1,6 +1,7 @@
 package no.ntnu.trostespel.screen;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
 import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
@@ -14,6 +15,7 @@ import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.utils.DelayedRemovalArray;
 import no.ntnu.trostespel.TrosteSpel;
 import no.ntnu.trostespel.config.Assets;
@@ -24,6 +26,7 @@ import no.ntnu.trostespel.entity.Movable;
 import no.ntnu.trostespel.entity.Player;
 import no.ntnu.trostespel.entity.Projectile;
 import no.ntnu.trostespel.entity.Session;
+import no.ntnu.trostespel.networking.UserInputManager;
 import no.ntnu.trostespel.state.Action;
 import no.ntnu.trostespel.state.GameState;
 import no.ntnu.trostespel.state.MovableState;
@@ -81,7 +84,7 @@ public class GameplayScreen extends ScreenAdapter {
         collisionLayer = tiledMap.getLayers().get("collisions");
         gameState.setCollidables((TiledMapTileLayer) collisionLayer);
 
-        collisionLayer.setVisible(false);
+        collisionLayer.setVisible(true);
 
         // start sending and listening for data
         communicate();
@@ -115,6 +118,13 @@ public class GameplayScreen extends ScreenAdapter {
                 shapeRenderer.setColor(1, 1, 0, 1);
                 shapeRenderer.rect(hitbox.x, hitbox.y, hitbox.width, hitbox.height);
             });
+
+            ArrayList<Rectangle> collide = UserInputManager.getCollideables();
+            if (collide != null) {
+                for (Rectangle rectangle : collide) {
+                    shapeRenderer.rect(rectangle.x, rectangle.y, rectangle.width, rectangle.height);
+                }
+            }
             shapeRenderer.end();
         }
     }

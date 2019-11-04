@@ -26,7 +26,6 @@ public class GlobalUpdater extends Updater {
     }
 
     private void doUpdate() {
-        System.out.println("doUpdate " + tick);
         // update projectiles positions and check collisions
         gameState.getProjectiles().forEach((k, v) -> {
             // update the heading vector
