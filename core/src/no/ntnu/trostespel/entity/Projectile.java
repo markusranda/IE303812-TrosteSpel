@@ -1,6 +1,7 @@
 package no.ntnu.trostespel.entity;
 
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
@@ -37,7 +38,14 @@ public class Projectile extends Movable {
     }
 
     @Override
-    public void draw(SpriteBatch batch) {}
+    public void draw(Batch batch) {
+        batch.draw(
+                getTextureRegion(),
+                getPos().x,
+                getPos().y,
+                getWidth(),
+                getHeight());
+    }
 
     public Texture getTextureRegion() {
         return texture;

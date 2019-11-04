@@ -25,8 +25,6 @@ class PlayerUpdater extends Updater {
 
     private void doUpdate() {
         PlayerState player = gameState.players.get(pid);
-        // add new objects spawned by the players
-        // to the gamestate
 
         // apply new projectilestateupdates to the gamestate
         Queue<MovableState> newObjects = player.getSpawnedObjects();

@@ -6,11 +6,13 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.maps.MapLayer;
 import com.badlogic.gdx.maps.MapObject;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader;
+import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.DelayedRemovalArray;
 import no.ntnu.trostespel.TrosteSpel;
@@ -43,6 +45,7 @@ public class GameplayScreen extends ScreenAdapter {
     private final MapLayer collisionLayer;
     private GameState<Player, Movable> gameState;
 
+    private ShapeRenderer shapeRenderer = new ShapeRenderer();
     private TrosteSpel game;
     private OrthographicCamera camera;
     private boolean debug = false;
@@ -105,6 +108,14 @@ public class GameplayScreen extends ScreenAdapter {
             font.draw(game.batch, "Connected players " + receivedState.players.size(), 10, height - 80);
             font.draw(game.batch, "Player: " + pid + "  " + state.getPosition(), 10, height - 100);
             game.batch.end();
+            shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
+            shapeRenderer.setProjectionMatrix(camera.combined);
+            gameState.getPlayers().forEach((k, v) -> {
+                Rectangle hitbox = v.getHitbox();
+                shapeRenderer.setColor(1, 1, 0, 1);
+                shapeRenderer.rect(hitbox.x, hitbox.y, hitbox.width, hitbox.height);
+            });
+            shapeRenderer.end();
         }
     }
 
@@ -222,13 +233,12 @@ public class GameplayScreen extends ScreenAdapter {
 
             updatePlayers();
             updateProjectiles();
-            drawUI();
-
             tiledObjectMapRenderer.getBatch().end();
         }
         camera.update();
         tiledObjectMapRenderer.setView(camera);
         tiledObjectMapRenderer.render();
+        drawUI();
 
     }
 }
