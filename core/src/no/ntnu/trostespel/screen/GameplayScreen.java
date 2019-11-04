@@ -84,7 +84,7 @@ public class GameplayScreen extends ScreenAdapter {
         collisionLayer = tiledMap.getLayers().get("collisions");
         gameState.setCollidables((TiledMapTileLayer) collisionLayer);
 
-        collisionLayer.setVisible(true);
+        collisionLayer.setVisible(false);
 
         // start sending and listening for data
         communicate();
@@ -235,7 +235,7 @@ public class GameplayScreen extends ScreenAdapter {
         if (this.receivedState != null) {
             this.tick = receivedState.getTick();
             tiledObjectMapRenderer.getBatch().begin();
-            Gdx.gl.glClearColor(1, 0, 0, 1);
+            Gdx.gl.glClearColor(0.1f, 0, 0, 1);
             Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
             // Update all entities
