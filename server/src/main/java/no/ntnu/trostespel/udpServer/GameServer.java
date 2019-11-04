@@ -28,8 +28,7 @@ public class GameServer {
     private long timerCounter = 0;
 
     private List<Connection> connectionsToDrop = new ArrayList<>();
-    private static List<Channel> preUpdateObservers = new ArrayList<>();
-    private static List<Channel> postUpdateObservers = new ArrayList<>();
+    private static List<Channel> observers = new ArrayList<>();
 
     GameDataReceiver receiver;
     GameDataSender sender;
@@ -93,8 +92,8 @@ public class GameServer {
             System.out.println("Waiting for at least one connection..");
             timerCounter = currentTick + 1000;
         }
-        notifyPreUpdateObservers(currentTick);
-        notifyPostUpdateObservers(tickCounter.incrementAndGet());
+        updateClients();
+        notifyObservers(tickCounter.incrementAndGet());
     }
 
 
@@ -133,31 +132,17 @@ public class GameServer {
         }
     }
 
-    public static synchronized void observePreUpdate(Channel channel) {
-        preUpdateObservers.add(channel);
+    public static synchronized void observe(Channel channel) {
+        observers.add(channel);
     }
 
-    public static synchronized void observePostUpdate(Channel channel) {
-        postUpdateObservers.add(channel);
+    public static synchronized void removeObserver(Channel channel) {
+        observers.remove(channel);
     }
 
-    public static synchronized void removePreUpdateObserver(Channel channel) {
-        preUpdateObservers.remove(channel);
-    }
-
-    public static synchronized void removePostUpdateObserver(Channel channel) {
-        postUpdateObservers.remove(channel);
-    }
-
-    private void notifyPreUpdateObservers(long tick) {
-        for (Channel channel : preUpdateObservers) {
-            channel.update(tick);
-        }
-    }
-
-    private void notifyPostUpdateObservers(long tick) {
-        for (Channel channel : postUpdateObservers) {
-            channel.update(tick);
+    private void notifyObservers(long tick) {
+        for (Channel channel : observers) {
+            channel.onTick(tick);
         }
     }
 

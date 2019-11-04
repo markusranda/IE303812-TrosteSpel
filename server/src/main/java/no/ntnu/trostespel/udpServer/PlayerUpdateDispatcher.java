@@ -36,7 +36,7 @@ public class PlayerUpdateDispatcher extends ThreadPoolExecutor implements Channe
                 return new PacketDeserializer();
             }
         };
-        GameServer.observePostUpdate(this);
+        GameServer.observe(this);
     }
 
     /**
@@ -60,26 +60,26 @@ public class PlayerUpdateDispatcher extends ThreadPoolExecutor implements Channe
     @Override
     protected void afterExecute(Runnable r, Throwable t) {
         super.afterExecute(r, t);
-        if (r instanceof Updater) {
-            long pid = ((Updater) r).getPid();
-            updateMaster(pid, ((Updater) r).getTick());
+        if (r instanceof Processor) {
+            long pid = ((Processor) r).getPid();
+            updateMaster(pid, ((Processor) r).getTick());
         }
     }
 
     private Runnable doDispatch(DatagramPacket packet, long currentTick) {
-        return new Updater(packet, currentTick);
+        return new Processor(packet, currentTick);
     }
 
     private void updateMaster(long pid, long currentTick) {
         gameStateMaster.submitPlayerUpdate(pid, currentTick);
     }
 
-    class Updater implements Runnable {
+    class Processor implements Runnable {
         private long pid = -1;
         private DatagramPacket packet;
         long tick;
 
-        public Updater(DatagramPacket packet, long currentTick) {
+        public Processor(DatagramPacket packet, long currentTick) {
             this.packet = packet;
             this.tick = currentTick;
         }
@@ -90,12 +90,12 @@ public class PlayerUpdateDispatcher extends ThreadPoolExecutor implements Channe
             PlayerActions actions = deserializer.deserialize(packet);
             deserializerPool.free(deserializer);
             this.pid = actions.pid;
-            PlayerState playerState = (PlayerState) gameStateMaster.getGameState().players.get(actions.pid);
+            PlayerState playerState = gameStateMaster.getGameState().players.get(actions.pid);
             if (playerState == null) {
                 playerState = new PlayerState(actions.pid);
                 gameStateMaster.getGameState().players.put(actions.pid, playerState);
             }
-            new PlayerUpdateProcessor(playerState, actions).run();
+            new PlayerCmdProcessor(playerState, actions).run();
         }
 
         public long getPid() {
@@ -108,7 +108,7 @@ public class PlayerUpdateDispatcher extends ThreadPoolExecutor implements Channe
     }
 
     @Override
-    public void update(long tick) {
+    public void onTick(long tick) {
         this.currentTick = tick;
     }
 }

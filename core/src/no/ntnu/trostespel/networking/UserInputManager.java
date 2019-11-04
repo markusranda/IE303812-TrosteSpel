@@ -9,6 +9,7 @@ import com.badlogic.gdx.math.Vector2;
 import com.google.gson.Gson;
 import no.ntnu.trostespel.Direction;
 import no.ntnu.trostespel.PlayerActions;
+import no.ntnu.trostespel.config.GameRules;
 import no.ntnu.trostespel.config.KeyConfig;
 import no.ntnu.trostespel.config.CommunicationConfig;
 import no.ntnu.trostespel.entity.Movable;
@@ -179,7 +180,7 @@ public class UserInputManager {
     private boolean willCollide(Direction dir) {
         Rectangle player = new Rectangle(myPlayer.getHitbox());
 
-        double vel = GameState.playerSpeed;
+        double vel = GameRules.Player.SPEED;
         switch (dir) {
             case up:
                 player.y += vel;
