@@ -3,9 +3,8 @@ package no.ntnu.trostespel.udpServer;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.google.gson.Gson;
 import no.ntnu.trostespel.config.CommunicationConfig;
-import no.ntnu.trostespel.game.MasterGameState;
+import no.ntnu.trostespel.game.GameStateMaster;
 import no.ntnu.trostespel.model.Connection;
-import no.ntnu.trostespel.model.Connections;
 import no.ntnu.trostespel.state.GameState;
 
 import java.io.IOException;
@@ -21,7 +20,7 @@ import static no.ntnu.trostespel.config.CommunicationConfig.MAX_PLAYERS;
 public class GameDataSender extends ThreadPoolExecutor{
 
     private GameServer master;
-    private MasterGameState masterGameState;
+    private GameStateMaster gameStateMaster;
     private Gson gson = new Gson();
     GameState nextGameState;
 
@@ -31,7 +30,7 @@ public class GameDataSender extends ThreadPoolExecutor{
     public GameDataSender() {
         super(1, MAX_PLAYERS, CommunicationConfig.RETRY_CONNECTION_TIMEOUT, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<>(16),
                 new ThreadFactoryBuilder().setNameFormat("GameDataSender-%d").build());
-        this.masterGameState = MasterGameState.getInstance();
+        this.gameStateMaster = GameStateMaster.getInstance();
         completedCount = new AtomicInteger();
     }
 
@@ -45,7 +44,7 @@ public class GameDataSender extends ThreadPoolExecutor{
             // TODO: Change approach; this can potentially deadlock if one connection hangs
         }*/
         // Send GameState to all clients
-        nextGameState = masterGameState.getGameState();
+        nextGameState = gameStateMaster.getGameState();
         nextGameState.setTick(tick);
         // TODO: 15.10.2019 Add concurrency protection, since we will be modifying connecitons on the fly.
         String json = gson.toJson(nextGameState, RECEIVED_DATA_TYPE);

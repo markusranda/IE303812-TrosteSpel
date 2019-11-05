@@ -2,7 +2,7 @@ package no.ntnu.trostespel.udpServer;
 
 import com.badlogic.gdx.math.Vector2;
 import no.ntnu.trostespel.config.CommunicationConfig;
-import no.ntnu.trostespel.game.MasterGameState;
+import no.ntnu.trostespel.config.GameRules;
 import no.ntnu.trostespel.state.GameState;
 import no.ntnu.trostespel.PlayerActions;
 import no.ntnu.trostespel.state.PlayerState;
@@ -10,7 +10,7 @@ import no.ntnu.trostespel.state.MovableState;
 
 import java.util.EnumSet;
 
-public class PlayerUpdateProcessor {
+public class PlayerCmdProcessor {
 
     private PlayerActions actions;
     private long startTime;
@@ -46,7 +46,7 @@ public class PlayerUpdateProcessor {
      * @param playerState the playerstate object that will be updated
      * @param actions     the actions to process
      */
-    public PlayerUpdateProcessor(PlayerState playerState, PlayerActions actions) {
+    public PlayerCmdProcessor(PlayerState playerState, PlayerActions actions) {
         this.actions = actions;
         this.playerState = playerState;
         this.displacement = new Vector2(0, 0);
@@ -64,7 +64,7 @@ public class PlayerUpdateProcessor {
 
     private void processAttack(PlayerActions action) {
         if (playerState.getAttackTimer() <= 0) {
-            MovableState projectile = new MovableState(action.pid, GameState.projectileSpeed);
+            MovableState projectile = new MovableState(action.pid, GameRules.Projectile.SPEED);
             EnumSet<Direction> attackDir = EnumSet.noneOf(Direction.class);
 
             if (action.isattackDown) {
@@ -133,17 +133,17 @@ public class PlayerUpdateProcessor {
 
     private void processMovement(PlayerActions action) {
         if (action.isleft) {
-            displacement.x += -GameState.playerSpeed;
+            displacement.x += -GameRules.Player.SPEED;
         }
         if (action.isright) {
-            displacement.x += GameState.playerSpeed;
+            displacement.x += GameRules.Player.SPEED;
         }
 
         if (action.isup) {
-            displacement.y += GameState.playerSpeed;
+            displacement.y += GameRules.Player.SPEED;
         }
         if (action.isdown) {
-            displacement.y += -GameState.playerSpeed;
+            displacement.y += -GameRules.Player.SPEED;
         }
         if (!displacement.isZero()) {
             Vector2 pos = playerState.getPosition();

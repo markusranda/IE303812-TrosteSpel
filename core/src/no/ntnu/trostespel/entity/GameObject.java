@@ -2,6 +2,7 @@ package no.ntnu.trostespel.entity;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Rectangle;
@@ -34,7 +35,7 @@ public abstract class GameObject {
 
     }
 
-    public abstract void draw(SpriteBatch batch);
+    public abstract void draw(Batch batch);
 
     public void setPos(int x, int y) {
         pos.x = x;

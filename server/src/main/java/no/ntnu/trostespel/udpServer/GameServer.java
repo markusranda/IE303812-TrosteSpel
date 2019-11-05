@@ -1,16 +1,9 @@
 package no.ntnu.trostespel.udpServer;
 
-import com.badlogic.gdx.files.FileHandle;
-import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.maps.ImageResolver;
-import com.badlogic.gdx.maps.tiled.TiledMap;
-import com.badlogic.gdx.maps.tiled.TmxMapLoader;
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.utils.Array;
-import com.badlogic.gdx.utils.ObjectMap;
+import no.ntnu.trostespel.Channel;
 import no.ntnu.trostespel.ConnectionManager;
 import no.ntnu.trostespel.config.CommunicationConfig;
-import no.ntnu.trostespel.game.MasterGameState;
+import no.ntnu.trostespel.game.GameStateMaster;
 import no.ntnu.trostespel.model.Connection;
 import no.ntnu.trostespel.model.Connections;
 
@@ -20,28 +13,28 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;
 
 import static no.ntnu.trostespel.config.MapConfig.PVP_JUNGLE_ISLAND_FILENAME;
-import static no.ntnu.trostespel.config.MapConfig.PVP_VILLAGE_FILENAME;
 
 
 /**
  * This class will do every task the server need to do each tick.
  */
-public class GameServer{
+public class GameServer {
 
 
     private List<Connection> connections = Connections.getInstance().getConnections();
-    private MasterGameState masterGameState;
+    private GameStateMaster gameStateMaster;
 
     private static AtomicLong tickCounter = new AtomicLong(0);
     private long timerCounter = 0;
 
     private List<Connection> connectionsToDrop = new ArrayList<>();
+    private static List<Channel> observers = new ArrayList<>();
 
     GameDataReceiver receiver;
     GameDataSender sender;
 
     public GameServer() {
-        masterGameState = MasterGameState.getInstance();
+        gameStateMaster = GameStateMaster.getInstance();
 
         // Load map to be played
         String mapFileName = PVP_JUNGLE_ISLAND_FILENAME;
@@ -73,6 +66,7 @@ public class GameServer{
         System.out.println("Server is ready to handle incoming connections!");
         heartbeat();
     }
+
     private void heartbeat() {
         double ns = 1000000000.0 / CommunicationConfig.TICKRATE;
         double delta = 0;
@@ -92,20 +86,18 @@ public class GameServer{
     }
 
 
-    public void tick() {
-        if (!connections.isEmpty()) {
-            update();
-        } else {
-            long currentTick;
-            if ((currentTick = tickCounter.get()) >= timerCounter) {
-                System.out.println("Waiting for at least one connection..");
-                timerCounter = currentTick + 1000;
-            }
+    private void tick() {
+        long currentTick;
+        if ((currentTick = tickCounter.get()) >= timerCounter) {
+            System.out.println("Waiting for at least one connection..");
+            timerCounter = currentTick + 1000;
         }
-        tickCounter.incrementAndGet();
+        updateClients();
+        notifyObservers(tickCounter.incrementAndGet());
     }
 
-    private void update() {
+
+    private void updateClients() {
         dropIdleConnections();
         broadcastUpdate();
     }
@@ -132,7 +124,7 @@ public class GameServer{
         }
         if (connectionsToDrop.size() > 0) {
             for (Connection connection : connectionsToDrop) {
-                masterGameState.getGameState().players.remove(connection.getPid());
+                gameStateMaster.getGameState().players.remove(connection.getPid());
                 Connections.getInstance().getConnections().remove(connection);
                 System.out.println(connection.getUsername() + " - Got dropped from the game!");
             }
@@ -140,9 +132,21 @@ public class GameServer{
         }
     }
 
+    public static synchronized void observe(Channel channel) {
+        observers.add(channel);
+    }
 
+    public static synchronized void removeObserver(Channel channel) {
+        observers.remove(channel);
+    }
 
-    public static long getTickcounter() {
+    private void notifyObservers(long tick) {
+        for (Channel channel : observers) {
+            channel.onTick(tick);
+        }
+    }
+
+    private static long getTickcounter() {
         return tickCounter.get();
     }
 }

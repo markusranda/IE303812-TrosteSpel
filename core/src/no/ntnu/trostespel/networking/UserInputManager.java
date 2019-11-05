@@ -1,6 +1,7 @@
 package no.ntnu.trostespel.networking;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.math.Intersector;
 import com.badlogic.gdx.math.Rectangle;
@@ -9,6 +10,7 @@ import com.badlogic.gdx.math.Vector2;
 import com.google.gson.Gson;
 import no.ntnu.trostespel.Direction;
 import no.ntnu.trostespel.PlayerActions;
+import no.ntnu.trostespel.config.GameRules;
 import no.ntnu.trostespel.config.KeyConfig;
 import no.ntnu.trostespel.config.CommunicationConfig;
 import no.ntnu.trostespel.entity.Movable;
@@ -38,7 +40,7 @@ public class UserInputManager {
     private boolean canUp = false;
     private boolean canDown = false;
 
-    private ArrayList<Rectangle> collideables;
+    private static ArrayList<Rectangle> collideables;
 
     private Vector2 playerCenter = new Vector2();
     private Vector2 recCenter = new Vector2();
@@ -70,14 +72,18 @@ public class UserInputManager {
         int w = layer.getWidth();
         float tileW = layer.getTileWidth();
         float tileH = layer.getTileHeight();
-        for (int i = 0; i < w; i++) {
-            for (int j = 0; j < h; j++) {
+        for (int i = 1; i < w; i++) {
+            for (int j = 1; j < h; j++) {
                 TiledMapTileLayer.Cell cell = layer.getCell(i, j);
                 if (cell != null) {
-                    float x = i * tileW;
-                    float y = j * tileH;
-                    Rectangle rec = new Rectangle(x, y, w, h);
-                    collideables.add(rec);
+                    if (cell.getTile() != null) {
+                        TextureRegion region = cell.getTile().getTextureRegion();
+                        float x = i * tileW;
+                        float y = j * tileH;
+
+                        Rectangle rec = new Rectangle(x, y, region.getRegionWidth(), region.getRegionHeight());
+                        collideables.add(rec);
+                    }
                 }
             }
 
@@ -179,7 +185,7 @@ public class UserInputManager {
     private boolean willCollide(Direction dir) {
         Rectangle player = new Rectangle(myPlayer.getHitbox());
 
-        double vel = GameState.playerSpeed;
+        double vel = GameRules.Player.SPEED;
         switch (dir) {
             case up:
                 player.y += vel;
@@ -212,5 +218,9 @@ public class UserInputManager {
             }
         }
         return true;
+    }
+
+    public static ArrayList<Rectangle> getCollideables() {
+        return collideables;
     }
 }

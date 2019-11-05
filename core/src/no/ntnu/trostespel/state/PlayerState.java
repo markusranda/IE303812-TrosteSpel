@@ -88,10 +88,6 @@ public class PlayerState extends ObjectState{
         return spawnedObjects;
     }
 
-    public void resetSpawnedObjects() {
-        this.spawnedObjects.clear();
-    }
-
     public void setDead() {
         action = Action.DEAD;
         timeOfDeath = System.currentTimeMillis();

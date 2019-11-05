@@ -1,17 +1,21 @@
 package no.ntnu.trostespel.screen;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
 import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.maps.MapLayer;
 import com.badlogic.gdx.maps.MapObject;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader;
+import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.utils.DelayedRemovalArray;
 import no.ntnu.trostespel.TrosteSpel;
 import no.ntnu.trostespel.config.Assets;
@@ -22,6 +26,7 @@ import no.ntnu.trostespel.entity.Movable;
 import no.ntnu.trostespel.entity.Player;
 import no.ntnu.trostespel.entity.Projectile;
 import no.ntnu.trostespel.entity.Session;
+import no.ntnu.trostespel.networking.UserInputManager;
 import no.ntnu.trostespel.state.Action;
 import no.ntnu.trostespel.state.GameState;
 import no.ntnu.trostespel.state.MovableState;
@@ -43,6 +48,7 @@ public class GameplayScreen extends ScreenAdapter {
     private final MapLayer collisionLayer;
     private GameState<Player, Movable> gameState;
 
+    private ShapeRenderer shapeRenderer = new ShapeRenderer();
     private TrosteSpel game;
     private OrthographicCamera camera;
     private boolean debug = false;
@@ -105,6 +111,21 @@ public class GameplayScreen extends ScreenAdapter {
             font.draw(game.batch, "Connected players " + receivedState.players.size(), 10, height - 80);
             font.draw(game.batch, "Player: " + pid + "  " + state.getPosition(), 10, height - 100);
             game.batch.end();
+            shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
+            shapeRenderer.setProjectionMatrix(camera.combined);
+            gameState.getPlayers().forEach((k, v) -> {
+                Rectangle hitbox = v.getHitbox();
+                shapeRenderer.setColor(1, 1, 0, 1);
+                shapeRenderer.rect(hitbox.x, hitbox.y, hitbox.width, hitbox.height);
+            });
+
+            ArrayList<Rectangle> collide = UserInputManager.getCollideables();
+            if (collide != null) {
+                for (Rectangle rectangle : collide) {
+                    shapeRenderer.rect(rectangle.x, rectangle.y, rectangle.width, rectangle.height);
+                }
+            }
+            shapeRenderer.end();
         }
     }
 
@@ -214,7 +235,7 @@ public class GameplayScreen extends ScreenAdapter {
         if (this.receivedState != null) {
             this.tick = receivedState.getTick();
             tiledObjectMapRenderer.getBatch().begin();
-            Gdx.gl.glClearColor(1, 0, 0, 1);
+            Gdx.gl.glClearColor(0.1f, 0, 0, 1);
             Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
             // Update all entities
@@ -222,13 +243,12 @@ public class GameplayScreen extends ScreenAdapter {
 
             updatePlayers();
             updateProjectiles();
-            drawUI();
-
             tiledObjectMapRenderer.getBatch().end();
         }
         camera.update();
         tiledObjectMapRenderer.setView(camera);
         tiledObjectMapRenderer.render();
+        drawUI();
 
     }
 }
