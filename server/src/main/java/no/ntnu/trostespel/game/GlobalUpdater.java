@@ -60,11 +60,10 @@ public class GlobalUpdater extends Updater {
                 continue;
             }
             if (playerState.getHitbox().contains(obj.getPosition())) {
-                System.out.println("Bullet @" + obj.getPosition() + " HIT " + "Player #" + playerState.getPid() + " @" + playerState.getPosition() + "Current health: " + playerState.getHealth());
                 long id = obj.getId();
                 playerState.hurt(obj.damage, currentTick);
+                System.out.println("Bullet @" + obj.getPosition() + " HIT " + "Player #" + playerState.getPid() + " @" + playerState.getPosition() + "Current health: " + playerState.getHealth() + ", Damage: " +obj.damage);
                 removeList.add(id);
-                break;
             }
         }
     }

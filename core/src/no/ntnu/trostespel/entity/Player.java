@@ -14,7 +14,6 @@ import no.ntnu.trostespel.config.Assets;
 public class Player extends Movable {
 
     private static final int FRAME_COLS = 1, FRAME_ROWS = 6;
-    ShapeRenderer shapeRenderer = new ShapeRenderer();
     private Animation<TextureRegion> run;
     private Animation<Texture> attack;
     private TextureRegion currentFrame;
@@ -24,6 +23,7 @@ public class Player extends Movable {
     private boolean addedToLayer = false;
     private boolean attacking = false;
     private float attackStateTime;
+    private HealthBar healthBar;
 
     private final int TEXTURE_HEIGHT = 90;
     private final int TEXTURE_WIDTH = 72;
@@ -88,6 +88,7 @@ public class Player extends Movable {
         initAnimation();
         this.health = 100;
         this.username = "";
+        this.healthBar = new HealthBar(this.health, super.getHitbox());
     }
 
     private void initAnimation() {
@@ -141,6 +142,11 @@ public class Player extends Movable {
         }
     }
 
+    public void drawShape(ShapeRenderer batch) {
+        healthBar.update(getPos(), this.health);
+        healthBar.draw(batch);
+    }
+
     public Texture getTexture() {
         return this.texture;
     }
@@ -188,5 +194,9 @@ public class Player extends Movable {
 
     public void setAttacking(boolean attacking) {
         this.attacking = attacking;
+    }
+
+    public int getHealth() {
+        return health;
     }
 }

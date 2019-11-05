@@ -3,6 +3,7 @@ package no.ntnu.trostespel.screen;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.ScreenAdapter;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
@@ -32,7 +33,10 @@ import no.ntnu.trostespel.state.GameState;
 import no.ntnu.trostespel.state.MovableState;
 import no.ntnu.trostespel.state.PlayerState;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Queue;
 
 public class GameplayScreen extends ScreenAdapter {
 
@@ -92,16 +96,19 @@ public class GameplayScreen extends ScreenAdapter {
     }
 
     private void drawUI() {
-        if (!debug) {
-            if (Gdx.input.isKeyPressed(KeyConfig.toggleDebug)) {
-                debug = true;
-            }
-        } else {
-            if (Gdx.input.isKeyPressed(KeyConfig.toggleDebug)) {
-                debug = false;
-            }
-        }
 
+        shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
+        shapeRenderer.setProjectionMatrix(camera.combined);
+        shapeRenderer.setColor(Color.DARK_GRAY);
+        gameState.getPlayers().forEach((k, v) -> {
+            v.drawShape(shapeRenderer);
+        });
+        shapeRenderer.end();
+
+
+        if (Gdx.input.isKeyPressed(KeyConfig.toggleDebug)) {
+            debug = true;
+        }
         if (debug) {
             long pid = Session.getInstance().getPid();
             PlayerState state = receivedState.players.get(pid);
@@ -115,6 +122,8 @@ public class GameplayScreen extends ScreenAdapter {
             font.draw(game.batch, "Connected players " + receivedState.players.size(), 10, height - 80);
             font.draw(game.batch, "Player: " + pid + "  " + state.getPosition(), 10, height - 100);
             game.batch.end();
+
+
             shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
             shapeRenderer.setProjectionMatrix(camera.combined);
             gameState.getPlayers().forEach((k, v) -> {
@@ -147,7 +156,8 @@ public class GameplayScreen extends ScreenAdapter {
                             if (player.getPid() == change.getPid()) {
                                 innerIterator.remove();
                                 if (gameState.players.containsKey(key)) {
-                                gameState.players.get(key).removedFromLayer();
+                                    player.removedFromLayer();
+                                    player.setHealth(0);
                                 }
                             }
                         }
@@ -169,7 +179,6 @@ public class GameplayScreen extends ScreenAdapter {
                 player.setHealth(change.getHealth());
                 player.setPid(change.getPid());
                 player.update(Gdx.graphics.getDeltaTime(), tick);
-                player.setUsername(change.getUsername());
 
                 if (player.getPid() == Session.getInstance().getPid()) {
                     camera.position.x = player.getPos().x;

@@ -10,7 +10,7 @@ import com.badlogic.gdx.math.Shape2D;
 import com.badlogic.gdx.math.Vector2;
 
 public abstract class GameObject {
-    protected   Texture texture;
+    protected Texture texture;
     protected Rectangle shape;
     protected float width;
     protected float height;
@@ -19,7 +19,7 @@ public abstract class GameObject {
 
     private Vector2 pos;
 
-    public GameObject (Vector2 pos, float width, float height, Rectangle shape, Texture texture) {
+    public GameObject(Vector2 pos, float width, float height, Rectangle shape, Texture texture) {
         super();
         this.pos = pos;
         this.width = width;
@@ -44,11 +44,6 @@ public abstract class GameObject {
 
     public Vector2 getPos() {
         return pos.cpy();
-    }
-
-    public void displace(float x, float y) {
-        pos.x += x;
-        pos.y += y;
     }
 
     public Rectangle getHitbox() {
