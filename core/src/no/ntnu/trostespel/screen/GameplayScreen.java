@@ -1,7 +1,6 @@
 package no.ntnu.trostespel.screen;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Input;
 import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
@@ -16,8 +15,6 @@ import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.scenes.scene2d.InputListener;
-import com.badlogic.gdx.utils.DelayedRemovalArray;
 import no.ntnu.trostespel.TrosteSpel;
 import no.ntnu.trostespel.config.Assets;
 import no.ntnu.trostespel.config.KeyConfig;
@@ -35,7 +32,6 @@ import no.ntnu.trostespel.state.PlayerState;
 
 import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Queue;
 
 public class GameplayScreen extends ScreenAdapter {
@@ -96,16 +92,6 @@ public class GameplayScreen extends ScreenAdapter {
     }
 
     private void drawUI() {
-
-        shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
-        shapeRenderer.setProjectionMatrix(camera.combined);
-        shapeRenderer.setColor(Color.DARK_GRAY);
-        gameState.getPlayers().forEach((k, v) -> {
-            v.drawShape(shapeRenderer);
-        });
-        shapeRenderer.end();
-
-
         if (Gdx.input.isKeyPressed(KeyConfig.toggleDebug)) {
             debug = true;
         }
@@ -114,18 +100,17 @@ public class GameplayScreen extends ScreenAdapter {
             PlayerState state = receivedState.players.get(pid);
 
             int height = ScreenConfig.SCREEN_HEIGHT;
-            game.batch.begin();
             font.draw(game.batch, "Host: " + CommunicationConfig.host + ":" + CommunicationConfig.SERVER_UDP_GAMEDATA_RECEIVE_PORT, 10, height);
             font.draw(game.batch, "Local Port: " + Session.getInstance().getUdpSocket().getLocalPort(), 10, height - 20);
             font.draw(game.batch, "Framterate: " + Gdx.graphics.getFramesPerSecond(), 10, height - 40);
             font.draw(game.batch, "Tickrate: " + CommunicationConfig.TICKRATE, 10, height - 60);
             font.draw(game.batch, "Connected players " + receivedState.players.size(), 10, height - 80);
             font.draw(game.batch, "Player: " + pid + "  " + state.getPosition(), 10, height - 100);
-            game.batch.end();
+        }
 
-
+        shapeRenderer.setProjectionMatrix(camera.combined);
+        if (debug) {
             shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
-            shapeRenderer.setProjectionMatrix(camera.combined);
             gameState.getPlayers().forEach((k, v) -> {
                 Rectangle hitbox = v.getHitbox();
                 shapeRenderer.setColor(1, 1, 0, 1);
@@ -140,6 +125,17 @@ public class GameplayScreen extends ScreenAdapter {
             }
             shapeRenderer.end();
         }
+        game.batch.setProjectionMatrix(camera.combined);
+        shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
+        shapeRenderer.setColor(Color.DARK_GRAY);
+        gameState.getPlayers().forEach((k, v) -> {
+            v.drawOverhead(shapeRenderer, game.batch);
+        });
+        shapeRenderer.end();
+    }
+
+    private void drawShapes() {
+
     }
 
     private void updatePlayers() {
@@ -247,6 +243,8 @@ public class GameplayScreen extends ScreenAdapter {
     public void render(float delta) {
         this.receivedState = Session.getInstance().getReceivedGameState();
         if (this.receivedState != null) {
+
+
             this.tick = receivedState.getTick();
             tiledObjectMapRenderer.getBatch().begin();
             Gdx.gl.glClearColor(0.1f, 0, 0, 1);
@@ -258,11 +256,15 @@ public class GameplayScreen extends ScreenAdapter {
             updatePlayers();
             updateProjectiles();
             tiledObjectMapRenderer.getBatch().end();
+            camera.update();
+            tiledObjectMapRenderer.setView(camera);
+            tiledObjectMapRenderer.render();
+            game.batch.begin();
+
+            drawUI();
+            drawShapes();
+            game.batch.end();
         }
-        camera.update();
-        tiledObjectMapRenderer.setView(camera);
-        tiledObjectMapRenderer.render();
-        drawUI();
 
     }
 }

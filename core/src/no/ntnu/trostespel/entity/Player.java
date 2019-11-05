@@ -23,7 +23,7 @@ public class Player extends Movable {
     private boolean addedToLayer = false;
     private boolean attacking = false;
     private float attackStateTime;
-    private HealthBar healthBar;
+    private OverheadUI overhead;
 
     private final int TEXTURE_HEIGHT = 90;
     private final int TEXTURE_WIDTH = 72;
@@ -87,8 +87,8 @@ public class Player extends Movable {
         super(pos, 72, 90, new Rectangle(), texture);
         initAnimation();
         this.health = 100;
-        this.username = "";
-        this.healthBar = new HealthBar(this.health, super.getHitbox());
+        this.username = "Mr.JakartaEE";
+        this.overhead = new OverheadUI(health, new Rectangle(pos.x, pos.y, 72, 90), username);
     }
 
     private void initAnimation() {
@@ -142,9 +142,9 @@ public class Player extends Movable {
         }
     }
 
-    public void drawShape(ShapeRenderer batch) {
-        healthBar.update(getPos(), this.health);
-        healthBar.draw(batch);
+    public void drawOverhead(ShapeRenderer batch, SpriteBatch spriteBatch) {
+        this.overhead.update(getPos(), health);
+        this.overhead.draw(batch, spriteBatch);
     }
 
     public Texture getTexture() {

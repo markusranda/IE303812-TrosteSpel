@@ -61,9 +61,13 @@ public class HealthBar {
                 Color.GOLDENROD,
                 Color.YELLOW,
                 Color.YELLOW);
-
-
     }
 
+    protected Vector2 getPosition() {
+        return this.position.cpy();
+    }
 
+    public float getTOTAL_BAR_HEIGHT() {
+        return TOTAL_BAR_HEIGHT;
+    }
 }
