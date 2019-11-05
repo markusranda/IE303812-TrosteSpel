@@ -31,6 +31,7 @@ public class Player extends Movable {
     private final int HITBOX_WIDTH = (TEXTURE_WIDTH / 4) * 2;
     private final int HEIGHT_OFFSET = (TEXTURE_HEIGHT - HITBOX_HEIGHT) / 4;
     private final int WIDTH_OFFSET = (TEXTURE_WIDTH - HITBOX_WIDTH) / 2;
+    private String username;
 
     public long getPid() {
         return pid;
@@ -68,6 +69,14 @@ public class Player extends Movable {
         addedToLayer = false;
     }
 
+    public String getUsername() {
+        return this.username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
     private enum Direction {
         right,
         left
@@ -78,6 +87,7 @@ public class Player extends Movable {
         super(pos, 72, 90, new Rectangle(), texture);
         initAnimation();
         this.health = 100;
+        this.username = "";
     }
 
     private void initAnimation() {

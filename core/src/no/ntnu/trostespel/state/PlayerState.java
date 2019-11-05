@@ -25,6 +25,7 @@ public class PlayerState extends ObjectState{
     private transient long lastTimeDamageTaken = 0;
     private Action action;
     private long timeOfDeath;
+    private String username;
 
     public PlayerState(long pid) {
         super(72, 90, new Vector2(55, 55));
@@ -109,5 +110,13 @@ public class PlayerState extends ObjectState{
         action = Action.ALIVE;
         health = 100;
         timeOfDeath = 0;
+    }
+
+    public String getUsername() {
+        return this.username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
     }
 }

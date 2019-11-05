@@ -3,6 +3,8 @@ package no.ntnu.trostespel.udpServer;
 import com.badlogic.gdx.math.Vector2;
 import no.ntnu.trostespel.config.CommunicationConfig;
 import no.ntnu.trostespel.config.GameRules;
+import no.ntnu.trostespel.model.Connection;
+import no.ntnu.trostespel.model.Connections;
 import no.ntnu.trostespel.state.GameState;
 import no.ntnu.trostespel.PlayerActions;
 import no.ntnu.trostespel.state.PlayerState;
@@ -56,10 +58,22 @@ public class PlayerCmdProcessor {
     public void run() {
         pid = actions.pid;
         if (!playerState.isDead()) {
+            addUsername(actions);
             processActionButtons(actions);
             processMovement(actions);
             processAttack(actions);
         }
+    }
+
+    private void addUsername(PlayerActions actions) {
+        String username = "";
+        for (Connection connection : Connections.getInstance().getConnections()) {
+            if (connection.getPid() == actions.pid) {
+                username = connection.getUsername();
+                break;
+            }
+        }
+        playerState.setUsername(username);
     }
 
     private void processAttack(PlayerActions action) {

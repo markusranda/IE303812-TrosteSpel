@@ -32,10 +32,7 @@ import no.ntnu.trostespel.state.GameState;
 import no.ntnu.trostespel.state.MovableState;
 import no.ntnu.trostespel.state.PlayerState;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Queue;
+import java.util.*;
 
 public class GameplayScreen extends ScreenAdapter {
 
@@ -172,6 +169,7 @@ public class GameplayScreen extends ScreenAdapter {
                 player.setHealth(change.getHealth());
                 player.setPid(change.getPid());
                 player.update(Gdx.graphics.getDeltaTime(), tick);
+                player.setUsername(change.getUsername());
 
                 if (player.getPid() == Session.getInstance().getPid()) {
                     camera.position.x = player.getPos().x;
