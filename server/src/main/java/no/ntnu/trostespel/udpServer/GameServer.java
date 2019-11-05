@@ -1,6 +1,6 @@
 package no.ntnu.trostespel.udpServer;
 
-import no.ntnu.trostespel.Channel;
+import no.ntnu.trostespel.Tickable;
 import no.ntnu.trostespel.ConnectionManager;
 import no.ntnu.trostespel.config.CommunicationConfig;
 import no.ntnu.trostespel.game.GameStateMaster;
@@ -28,7 +28,7 @@ public class GameServer {
     private long timerCounter = 0;
 
     private List<Connection> connectionsToDrop = new ArrayList<>();
-    private static List<Channel> observers = new ArrayList<>();
+    private static List<Tickable> observers = new ArrayList<>();
 
     GameDataReceiver receiver;
     GameDataSender sender;
@@ -132,17 +132,17 @@ public class GameServer {
         }
     }
 
-    public static synchronized void observe(Channel channel) {
-        observers.add(channel);
+    public static synchronized void observe(Tickable tickable) {
+        observers.add(tickable);
     }
 
-    public static synchronized void removeObserver(Channel channel) {
-        observers.remove(channel);
+    public static synchronized void removeObserver(Tickable tickable) {
+        observers.remove(tickable);
     }
 
     private void notifyObservers(long tick) {
-        for (Channel channel : observers) {
-            channel.onTick(tick);
+        for (Tickable tickable : observers) {
+            tickable.onTick(tick);
         }
     }
 

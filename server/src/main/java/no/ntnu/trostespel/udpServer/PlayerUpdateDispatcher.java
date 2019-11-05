@@ -3,7 +3,7 @@ package no.ntnu.trostespel.udpServer;
 
 import com.badlogic.gdx.utils.Pool;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
-import no.ntnu.trostespel.Channel;
+import no.ntnu.trostespel.Tickable;
 import no.ntnu.trostespel.PlayerActions;
 import no.ntnu.trostespel.config.CommunicationConfig;
 import no.ntnu.trostespel.game.GameStateMaster;
@@ -18,7 +18,7 @@ import java.util.concurrent.*;
  * This class is responsible for queuing and demultiplexing incoming
  * updates, and dispathching them for processing.
  */
-public class PlayerUpdateDispatcher extends ThreadPoolExecutor implements Channel {
+public class PlayerUpdateDispatcher extends ThreadPoolExecutor implements Tickable {
 
     private GameStateMaster gameStateMaster;
     private Pool<PacketDeserializer> deserializerPool;

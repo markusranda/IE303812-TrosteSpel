@@ -2,7 +2,7 @@ package no.ntnu.trostespel.game;
 
 import com.badlogic.gdx.math.Vector2;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
-import no.ntnu.trostespel.Channel;
+import no.ntnu.trostespel.Tickable;
 import no.ntnu.trostespel.state.GameState;
 import no.ntnu.trostespel.state.MovableState;
 import no.ntnu.trostespel.state.PlayerState;
@@ -11,7 +11,7 @@ import no.ntnu.trostespel.udpServer.GameServer;
 import java.util.Comparator;
 import java.util.concurrent.*;
 
-public class GameStateMaster implements Channel {
+public class GameStateMaster implements Tickable {
 
     private GameState<PlayerState, MovableState> gameState;
     private static GameStateMaster instance = null;

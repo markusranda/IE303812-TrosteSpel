@@ -1,5 +1,5 @@
 package no.ntnu.trostespel;
 
-public interface Channel {
+public interface Tickable {
     public void onTick(long tick);
 }
