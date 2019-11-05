@@ -95,9 +95,16 @@ public class GameplayScreen extends ScreenAdapter {
     }
 
     private void drawUI() {
-        if (Gdx.input.isKeyPressed(KeyConfig.toggleDebug)) {
-            debug = true;
+        if (!debug) {
+            if (Gdx.input.isKeyPressed(KeyConfig.toggleDebug)) {
+                debug = true;
+            }
+        } else {
+            if (Gdx.input.isKeyPressed(KeyConfig.toggleDebug)) {
+                debug = false;
+            }
         }
+
         if (debug) {
             long pid = Session.getInstance().getPid();
             PlayerState state = receivedState.players.get(pid);
