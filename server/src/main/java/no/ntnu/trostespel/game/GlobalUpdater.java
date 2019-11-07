@@ -1,9 +1,7 @@
 package no.ntnu.trostespel.game;
 
 import com.badlogic.gdx.math.Vector2;
-import no.ntnu.trostespel.config.CommunicationConfig;
 import no.ntnu.trostespel.config.GameRules;
-import no.ntnu.trostespel.entity.Movable;
 import no.ntnu.trostespel.state.Action;
 import no.ntnu.trostespel.state.GameState;
 import no.ntnu.trostespel.state.MovableState;

@@ -1,13 +1,8 @@
 package no.ntnu.trostespel.state;
 
-import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
-import com.google.gson.annotations.Expose;
 import no.ntnu.trostespel.config.CommunicationConfig;
-import org.w3c.dom.css.Rect;
 
-import java.beans.Transient;
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Queue;
 

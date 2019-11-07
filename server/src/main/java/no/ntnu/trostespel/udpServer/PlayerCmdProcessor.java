@@ -1,14 +1,13 @@
 package no.ntnu.trostespel.udpServer;
 
 import com.badlogic.gdx.math.Vector2;
+import no.ntnu.trostespel.PlayerActions;
 import no.ntnu.trostespel.config.CommunicationConfig;
 import no.ntnu.trostespel.config.GameRules;
 import no.ntnu.trostespel.model.Connection;
 import no.ntnu.trostespel.model.Connections;
-import no.ntnu.trostespel.state.GameState;
-import no.ntnu.trostespel.PlayerActions;
-import no.ntnu.trostespel.state.PlayerState;
 import no.ntnu.trostespel.state.MovableState;
+import no.ntnu.trostespel.state.PlayerState;
 
 import java.util.EnumSet;
 

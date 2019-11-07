@@ -1,15 +1,10 @@
 package no.ntnu.trostespel.state;
 
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
-import com.badlogic.gdx.math.Vector2;
-import no.ntnu.trostespel.config.CommunicationConfig;
-import no.ntnu.trostespel.entity.GameObject;
-import no.ntnu.trostespel.entity.Movable;
 
 import java.util.HashMap;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.function.BiConsumer;
 
 public class GameState<P, M> {
 

@@ -11,11 +11,13 @@ import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.util.List;
-import java.util.concurrent.*;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static no.ntnu.trostespel.config.CommunicationConfig.RECEIVED_DATA_TYPE;
 import static no.ntnu.trostespel.config.CommunicationConfig.MAX_PLAYERS;
+import static no.ntnu.trostespel.config.CommunicationConfig.RECEIVED_DATA_TYPE;
 
 public class GameDataSender extends ThreadPoolExecutor{
 

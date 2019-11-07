@@ -1,7 +1,7 @@
 package no.ntnu.trostespel.udpServer;
 
-import no.ntnu.trostespel.Tickable;
 import no.ntnu.trostespel.ConnectionManager;
+import no.ntnu.trostespel.Tickable;
 import no.ntnu.trostespel.config.CommunicationConfig;
 import no.ntnu.trostespel.game.GameStateMaster;
 import no.ntnu.trostespel.model.Connection;
