@@ -56,7 +56,7 @@ public class GlobalUpdater extends Updater {
         // TODO: can be optimized using a quadtree
         ConcurrentMap<Long, PlayerState> players = gameState.getPlayers();
         players.forEach((key, playerState) -> {
-            if (playerState.getPid() == obj.getPid() || playerState.getAction() == Action.DEAD) {
+            if (playerState.getPid() != obj.getPid() || playerState.getAction() == Action.DEAD) {
                 if (players.containsKey(key)) {
                     if (playerState.getHitbox().contains(obj.getPosition())) {
                         long id = obj.getId();
