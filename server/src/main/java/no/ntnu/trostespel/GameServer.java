@@ -1,8 +1,5 @@
 package no.ntnu.trostespel;
 
-import no.ntnu.trostespel.ConnectionManager;
-import no.ntnu.trostespel.Tickable;
-import no.ntnu.trostespel.Tickable;
 import no.ntnu.trostespel.tcpServer.ConnectionManager;
 import no.ntnu.trostespel.config.CommunicationConfig;
 import no.ntnu.trostespel.game.GameStateMaster;
@@ -34,9 +31,9 @@ public class GameServer {
     private List<Connection> connectionsToDrop = new ArrayList<>();
     private static List<Tickable> observers = new ArrayList<>();
 
-    GameDataReceiver receiver;
-    GameDataSender sender;
-    ConnectionManager connectionManager;
+    private GameDataReceiver receiver;
+    private GameDataSender sender;
+    private ConnectionManager connectionManager;
 
     public GameServer() {
         gameStateMaster = GameStateMaster.getInstance();
@@ -128,7 +125,7 @@ public class GameServer {
         }
         if (connectionsToDrop.size() > 0) {
             for (Connection connection : connectionsToDrop) {
-                gameStateMaster.getGameState().players.remove(connection.getPid());
+                gameStateMaster.getGameState().getPlayers().remove(connection.getPid());
                 Connections.getInstance().getConnections().remove(connection);
                 System.out.println(connection.getUsername() + " - Got dropped from the game!");
             }

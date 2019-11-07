@@ -91,8 +91,8 @@ public class UserInputManager {
 
     public void sendInput() {
 
-        if (!gameState.players.isEmpty()) {
-            myPlayer = gameState.players.get(Session.getInstance().getPid());
+        if (!gameState.getPlayers().isEmpty()) {
+            myPlayer = gameState.getPlayers().get(Session.getInstance().getPid());
         }
 
         if (canUp()) {

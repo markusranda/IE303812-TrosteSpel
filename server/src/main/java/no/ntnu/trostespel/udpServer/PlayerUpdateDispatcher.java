@@ -9,6 +9,8 @@ import no.ntnu.trostespel.PlayerActions;
 import no.ntnu.trostespel.Tickable;
 import no.ntnu.trostespel.config.CommunicationConfig;
 import no.ntnu.trostespel.game.GameStateMaster;
+import no.ntnu.trostespel.state.GameState;
+import no.ntnu.trostespel.state.MovableState;
 import no.ntnu.trostespel.state.PlayerState;
 
 import java.net.DatagramPacket;
@@ -62,21 +64,8 @@ public class PlayerUpdateDispatcher extends ThreadPoolExecutor implements Tickab
         }
     }
 
-    @Override
-    protected void afterExecute(Runnable r, Throwable t) {
-        super.afterExecute(r, t);
-        if (r instanceof Processor) {
-            long pid = ((Processor) r).getPid();
-            updateMaster(pid, ((Processor) r).getTick());
-        }
-    }
-
     private Runnable doDispatch(DatagramPacket packet, long currentTick) {
         return new Processor(packet, currentTick);
-    }
-
-    private void updateMaster(long pid, long currentTick) {
-        gameStateMaster.submitPlayerUpdate(pid, currentTick);
     }
 
     class Processor implements Runnable {
@@ -95,12 +84,13 @@ public class PlayerUpdateDispatcher extends ThreadPoolExecutor implements Tickab
             PlayerActions actions = deserializer.deserialize(packet);
             deserializerPool.free(deserializer);
             this.pid = actions.pid;
-            PlayerState playerState = gameStateMaster.getGameState().players.get(actions.pid);
+            GameState<PlayerState, MovableState> gameState = gameStateMaster.getGameState();
+            PlayerState playerState = gameState.getPlayers().get(actions.pid); // TODO: Should check if player is connected
             if (playerState == null) {
                 playerState = new PlayerState(actions.pid);
-                gameStateMaster.getGameState().players.put(actions.pid, playerState);
+                gameState.getPlayers().put(actions.pid, playerState);
             }
-            new PlayerCmdProcessor(playerState, actions).run();
+            new PlayerCmdProcessor(gameState, playerState, actions).run();
         }
 
         public long getPid() {
