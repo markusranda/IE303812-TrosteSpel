@@ -18,7 +18,6 @@ public class GameStateMaster implements Tickable {
     private long tick;
     private ExecutorService executor;
     private GlobalUpdater globalUpdater;
-    private PlayerUpdater playerUpdater;
 
     public static synchronized GameStateMaster getInstance() {
         if (instance == null) {
