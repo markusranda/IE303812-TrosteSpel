@@ -13,6 +13,7 @@ import com.badlogic.gdx.maps.MapObject;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader;
+import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import no.ntnu.trostespel.TrosteSpel;
@@ -54,6 +55,7 @@ public class GameplayScreen extends ScreenAdapter {
 
     private GameState<PlayerState, MovableState> receivedState;
 
+
     public GameplayScreen(TrosteSpel game) {
         this.game = game;
         this.gameState = new GameState<>();
@@ -82,7 +84,6 @@ public class GameplayScreen extends ScreenAdapter {
         gameState.setCollidables((TiledMapTileLayer) collisionLayer);
 
         collisionLayer.setVisible(false);
-
         // start sending and listening for data
         communicate();
     }
@@ -92,11 +93,19 @@ public class GameplayScreen extends ScreenAdapter {
     }
 
     private void drawUI() {
+        System.out.println(game.batch.getProjectionMatrix());
+        game.batch.setProjectionMatrix(camera.combined);
+        gameState.getPlayers().forEach((k, v) -> {
+            v.drawOverhead(game.batch);
+        });
+    }
+
+    private void drawDebug() {
         if (Gdx.input.isKeyPressed(KeyConfig.toggleDebug)) {
             debug = true;
         }
         if (debug) {
-            game.batch.setProjectionMatrix(camera.projection);
+            game.batch.begin();
             long pid = Session.getInstance().getPid();
             PlayerState state = receivedState.players.get(pid);
 
@@ -107,12 +116,13 @@ public class GameplayScreen extends ScreenAdapter {
             font.draw(game.batch, "Tickrate: " + CommunicationConfig.TICKRATE, 10, height - 60);
             font.draw(game.batch, "Connected players " + receivedState.players.size(), 10, height - 80);
             font.draw(game.batch, "Player: " + pid + "  " + state.getPosition(), 10, height - 100);
+            game.batch.end();
         }
 
 
         if (debug) {
+            lineRenderer.setProjectionMatrix(camera.combined);
             lineRenderer.begin(ShapeRenderer.ShapeType.Line);
-
             gameState.getPlayers().forEach((k, v) -> {
                 Rectangle hitbox = v.getHitbox();
                 lineRenderer.setColor(1, 1, 0, 1);
@@ -127,10 +137,6 @@ public class GameplayScreen extends ScreenAdapter {
             }
             lineRenderer.end();
         }
-        game.batch.setProjectionMatrix(camera.combined);
-        gameState.getPlayers().forEach((k, v) -> {
-            v.drawOverhead(game.batch);
-        });
     }
 
 
@@ -266,6 +272,8 @@ public class GameplayScreen extends ScreenAdapter {
             game.batch.begin();
             drawUI();
             game.batch.end();
+
+            drawDebug();
 
         }
 
