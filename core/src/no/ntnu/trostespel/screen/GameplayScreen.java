@@ -2,7 +2,6 @@ package no.ntnu.trostespel.screen;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.ScreenAdapter;
-import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
@@ -13,9 +12,12 @@ import com.badlogic.gdx.maps.MapObject;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader;
-import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.ui.Label;
+import com.badlogic.gdx.scenes.scene2d.ui.Skin;
+import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import no.ntnu.trostespel.TrosteSpel;
 import no.ntnu.trostespel.config.Assets;
 import no.ntnu.trostespel.config.KeyConfig;
@@ -33,6 +35,7 @@ import no.ntnu.trostespel.state.PlayerState;
 
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.Queue;
 
 public class GameplayScreen extends ScreenAdapter {
@@ -44,6 +47,9 @@ public class GameplayScreen extends ScreenAdapter {
     private final ObjectMapRenderer tiledObjectMapRenderer;
     private final MapLayer objectLayer;
     private final MapLayer collisionLayer;
+    private final Stage stage;
+    private final Table playerListTable;
+    private final Table debuggerUiTable;
     private GameState<Player, Movable> gameState;
 
     private ShapeRenderer lineRenderer = new ShapeRenderer();
@@ -53,6 +59,8 @@ public class GameplayScreen extends ScreenAdapter {
     private BitmapFont font;
     private long tick;
 
+    Skin skin = TrosteSpel.skin;
+
     private GameState<PlayerState, MovableState> receivedState;
 
 
@@ -61,6 +69,21 @@ public class GameplayScreen extends ScreenAdapter {
         this.gameState = new GameState<>();
 
         this.font = new BitmapFont();
+
+        // init stage
+        stage = new Stage();
+
+        // init playerListTable
+        playerListTable = new Table();
+        stage.addActor(playerListTable);
+        playerListTable.setSkin(skin);
+        playerListTable.setPosition(Gdx.graphics.getWidth() - 200, Gdx.graphics.getHeight() - 200);
+
+        // init debuggerUI
+        debuggerUiTable = new Table();
+        stage.addActor(debuggerUiTable);
+        debuggerUiTable.setSkin(skin);
+        debuggerUiTable.setPosition(200, Gdx.graphics.getHeight() - 200);
 
         // init camera
         float w = Gdx.graphics.getWidth();
@@ -93,7 +116,8 @@ public class GameplayScreen extends ScreenAdapter {
     }
 
     private void drawUI() {
-        System.out.println(game.batch.getProjectionMatrix());
+        drawDebugger();
+        drawPlayerList();
         game.batch.setProjectionMatrix(camera.combined);
         gameState.getPlayers().forEach((k, v) -> {
             v.drawOverhead(game.batch);
@@ -268,14 +292,55 @@ public class GameplayScreen extends ScreenAdapter {
             tiledObjectMapRenderer.getBatch().end();
             tiledObjectMapRenderer.render();
 
-
             game.batch.begin();
             drawUI();
+            stage.act(delta);
+            stage.draw();
             game.batch.end();
 
             drawDebug();
-
         }
+    }
 
+    /**
+     * draws a list which displays useful information when debugging
+     */
+    private void drawDebugger() {
+        debuggerUiTable.clearChildren();
+        if (debug) {
+            long pid = Session.getInstance().getPid();
+            PlayerState state = receivedState.players.get(pid);
+            debuggerUiTable.add(new Label("Host: " + CommunicationConfig.host + ":" + CommunicationConfig.SERVER_UDP_GAMEDATA_RECEIVE_PORT, skin));
+            debuggerUiTable.row();
+            debuggerUiTable.add(new Label("Local Port: " + Session.getInstance().getUdpSocket().getLocalPort(), skin));
+            debuggerUiTable.row();
+            debuggerUiTable.add(new Label("Framterate: " + Gdx.graphics.getFramesPerSecond(), skin));
+            debuggerUiTable.row();
+            debuggerUiTable.add(new Label("Tickrate: " + CommunicationConfig.TICKRATE, skin));
+            debuggerUiTable.row();
+            debuggerUiTable.add(new Label("Connected players " + receivedState.players.size(), skin));
+            debuggerUiTable.row();
+            debuggerUiTable.add(new Label("Player: " + pid + "  " + state.getPosition(), skin));
+            debuggerUiTable.row();
+        }
+    }
+
+    /**
+     * Clear all the children of table and adds all
+     * username's from the Game State
+     */
+    private void drawPlayerList() {
+        playerListTable.clearChildren();
+        for (Map.Entry entry : gameState.getPlayers().entrySet()) {
+            if (entry.getValue() instanceof Player) {
+                Player currentPlayer = (Player) entry.getValue();
+                if (!(currentPlayer.getUsername() == null)) {
+                    Label usernameLabel = new Label(currentPlayer.getUsername(), skin);
+                    usernameLabel.setName(currentPlayer.getUsername());
+                    playerListTable.add(usernameLabel);
+                    playerListTable.row();
+                }
+            }
+        }
     }
 }
