@@ -116,8 +116,6 @@ public class GameplayScreen extends ScreenAdapter {
     }
 
     private void drawUI() {
-        drawDebugger();
-        drawPlayerList();
         game.batch.setProjectionMatrix(camera.combined);
         gameState.getPlayers().forEach((k, v) -> {
             v.drawOverhead(game.batch);
@@ -162,7 +160,6 @@ public class GameplayScreen extends ScreenAdapter {
             lineRenderer.end();
         }
     }
-
 
     private void updatePlayers() {
         // iterate over received player changes
@@ -292,6 +289,11 @@ public class GameplayScreen extends ScreenAdapter {
             tiledObjectMapRenderer.getBatch().end();
             tiledObjectMapRenderer.render();
 
+            // Update UI
+            updateDebuggerUI();
+            updatePlayerListUI();
+
+            // Draw
             game.batch.begin();
             drawUI();
             stage.act(delta);
@@ -305,7 +307,7 @@ public class GameplayScreen extends ScreenAdapter {
     /**
      * draws a list which displays useful information when debugging
      */
-    private void drawDebugger() {
+    private void updateDebuggerUI() {
         debuggerUiTable.clearChildren();
         if (debug) {
             long pid = Session.getInstance().getPid();
@@ -329,7 +331,7 @@ public class GameplayScreen extends ScreenAdapter {
      * Clear all the children of table and adds all
      * username's from the Game State
      */
-    private void drawPlayerList() {
+    private void updatePlayerListUI() {
         playerListTable.clearChildren();
         for (Map.Entry entry : gameState.getPlayers().entrySet()) {
             if (entry.getValue() instanceof Player) {
