@@ -18,7 +18,7 @@ class PlayerUpdater extends Updater {
         this.pid = pid;
     }
 
-    private void putProjectile ( long k, MovableState v){
+    private void putProjectile(long k, MovableState v) {
         gameState.getProjectilesStateUpdates().add(v);
         gameState.getProjectiles().put(k, v);
     }

@@ -106,7 +106,7 @@ public class GameServer {
 
     private void broadcastUpdate() {
         try {
-            sender.broadcast(Connections.getInstance().getConnections(), getTickcounter());
+            sender.broadcast(Connections.getInstance().getConnections(), tickCounter.get());
         } catch (InterruptedException e) {
             // Server is running too slow
             e.printStackTrace();
@@ -146,9 +146,5 @@ public class GameServer {
         for (Tickable tickable : observers) {
             tickable.onTick(tick);
         }
-    }
-
-    private static long getTickcounter() {
-        return tickCounter.get();
     }
 }
