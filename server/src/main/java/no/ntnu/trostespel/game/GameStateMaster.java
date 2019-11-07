@@ -6,7 +6,7 @@ import no.ntnu.trostespel.Tickable;
 import no.ntnu.trostespel.state.GameState;
 import no.ntnu.trostespel.state.MovableState;
 import no.ntnu.trostespel.state.PlayerState;
-import no.ntnu.trostespel.udpServer.GameServer;
+import no.ntnu.trostespel.GameServer;
 
 import java.util.Comparator;
 import java.util.concurrent.*;

@@ -32,6 +32,7 @@ public class GameDataReceiver implements Runnable {
     private StringReader sr;
     private JsonReader reader;
     private DatagramSocket udpSocket;
+    private long lastReceived;
 
     private long packetReceiveTime = 0;
 
@@ -47,11 +48,11 @@ public class GameDataReceiver implements Runnable {
 
         while (true) {
             packet = new DatagramPacket(buf, buf.length);
+            lastReceived = System.currentTimeMillis();
             try {
                 // blocks until a packet is received
                 udpSocket.receive(packet);
 
-                calculateRtt(System.currentTimeMillis());
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -73,12 +74,7 @@ public class GameDataReceiver implements Runnable {
     }
 
 
-
-
-    /**
-     * Calculate round trip time of packet
-     */
-    private void calculateRtt(long packetReceiveTime) {
-        long rtt = packetReceiveTime - Session.getInstance().getPacketSendTime();
+    public long getLastReceived() {
+        return lastReceived;
     }
 }

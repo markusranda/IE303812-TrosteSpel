@@ -1,7 +1,10 @@
-package no.ntnu.trostespel;
+package no.ntnu.trostespel.tcpServer;
 
+import com.google.gson.Gson;
 import no.ntnu.trostespel.model.Connection;
 import no.ntnu.trostespel.model.Connections;
+import no.ntnu.trostespel.networking.tcp.TCPMessage;
+import no.ntnu.trostespel.networking.tcp.Response;
 
 import java.io.*;
 import java.net.InetAddress;
@@ -17,10 +20,12 @@ public class ConnectionManager implements Runnable {
     private ServerSocket server;
     long pid = 100;
     private boolean firstTimeRunning = true;
+    Gson gson = new Gson();
 
     public ConnectionManager(int port, String mapFileName) throws IOException {
         this.server = new ServerSocket(port, 1, null);
         this.mapFileName = mapFileName;
+        //gson = new GsonBuilder().registerTypeAdapter(TCPMessage.class, new InterfaceA)
     }
 
     @Override
@@ -34,23 +39,11 @@ public class ConnectionManager implements Runnable {
             // Receive message from client
             BufferedReader in = new BufferedReader(new InputStreamReader(client.getInputStream()));
             data = in.readLine();
-            String[] msg = data.split(" ");
-            String uName = msg[0];
-            String udpPortStr = msg[1];
-            int udpPort = Integer.parseInt(udpPortStr);
 
-            // Send the response back to the client.
-            Connection connection = new Connection(client.getInetAddress(), udpPort, uName);
-            OutputStream os = client.getOutputStream();
-            OutputStreamWriter osw = new OutputStreamWriter(os);
-            BufferedWriter bw = new BufferedWriter(osw);
+            TCPMessage msg = deserialize(data);
+            handlePackage(msg, client);
 
-            String response = connection.getPid() + " " + mapFileName;
-            bw.write(response);
-            System.out.println("Message sent to the client is " + response);
-            bw.flush();
 
-            Connections.getInstance().setConnection(connection);
             client.close();
             System.out.println();
             System.out.println("Now serving " + Connections.getInstance().getConnections().size() + " player(s)");
@@ -60,6 +53,37 @@ public class ConnectionManager implements Runnable {
             run();
         }
         run();
+    }
+
+    private void handlePackage(TCPMessage msg, Socket client) throws IOException {
+        switch (msg.getEvent()) {
+            case CONNECT:
+                String[] args = msg.getArgs();
+                String uName = args[0];
+                int udpPort = Integer.parseInt(args[1]);
+                // Send the response back to the client.
+                Connection connection = new Connection(client.getInetAddress(), udpPort, uName);
+                OutputStream os = client.getOutputStream();
+                OutputStreamWriter osw = new OutputStreamWriter(os);
+                BufferedWriter bw = new BufferedWriter(osw);
+                String response = serialize(new Response(uName, connection.getPid(), mapFileName));
+                bw.write(response);
+                System.out.println("Message sent to the client is " + response);
+                bw.flush();
+                Connections.getInstance().setConnection(connection);
+        }
+    }
+
+    private TCPMessage deserialize(String data) {
+        return gson.fromJson(data, TCPMessage.class);
+    }
+
+    private String serialize(Response msg) {
+        return gson.toJson(msg);
+    }
+
+    public void send() {
+
     }
 
     public InetAddress getSocketAddress() {

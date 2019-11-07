@@ -1,5 +1,6 @@
-package no.ntnu.trostespel.networking;
+package no.ntnu.trostespel.networking.tcp;
 
+import com.google.gson.Gson;
 import no.ntnu.trostespel.config.CommunicationConfig;
 import no.ntnu.trostespel.entity.Session;
 
@@ -18,6 +19,7 @@ import static no.ntnu.trostespel.config.CommunicationConfig.CLIENT_UDP_GAMEDATA_
 
 public class ConnectionClient {
 
+    private static Gson gson = new Gson();
 
     public static Callable connect(InetAddress serverAddress, int serverPort) {
         return () -> doConnect(serverAddress, serverPort);
@@ -32,7 +34,9 @@ public class ConnectionClient {
 
         try {
             Socket socket = new Socket(serverAddress, serverPort);
-            String msg = Session.getInstance().getUsername() + " " + udpSocket.getLocalPort();
+            String username = Session.getInstance().getUsername();
+            int sockPort = udpSocket.getLocalPort();
+            String msg = gson.toJson(new TCPMessage(TCPEvent.CONNECT, new String[] {username, String.valueOf(sockPort)}));
 
             System.out.println("\r\nConnected to Server: " + socket.getInetAddress());
 
@@ -43,12 +47,9 @@ public class ConnectionClient {
             // Get answer from server
             BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             String responseString = in.readLine();
-            String[] responseStringArray = responseString.split(" ");
-            long pid = Long.parseLong(responseStringArray[0]);
-            String mapFileName = responseStringArray[1];
-
-            data = new Response(udpSocket, Session.getInstance().getUsername(), pid, mapFileName);
-
+            Response response = gson.fromJson(responseString, Response.class);
+            response.setSocket(udpSocket);
+            data = response;
             socket.close();
         } catch (Exception e) {
             e.printStackTrace();
@@ -64,6 +65,7 @@ public class ConnectionClient {
         }
         return data;
     }
+
 
     private static DatagramSocket doCreateUDPSocket(int port) {
         DatagramSocket udpSocket = null;
