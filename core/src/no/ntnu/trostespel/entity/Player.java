@@ -75,6 +75,7 @@ public class Player extends Movable {
 
     public void setUsername(String username) {
         this.username = username;
+        overhead.setUsername(username);
     }
 
     private enum Direction {
@@ -83,12 +84,16 @@ public class Player extends Movable {
     }
 
 
-    public Player(Vector2 pos, Texture texture) {
+    public Player(Vector2 pos, Texture texture, float health, String username) {
         super(pos, 72, 90, new Rectangle(), texture);
         initAnimation();
         this.health = 100;
-        this.username = "Mr.JakartaEE";
-        this.overhead = new OverheadUI(health, new Rectangle(pos.x, pos.y, 72, 90), username);
+        if (username != null) {
+            this.username = username;
+        } else {
+            this.username = "";
+        }
+        this.overhead = new OverheadUI(health, new Rectangle(pos.x, pos.y, 72, 90), this.username);
     }
 
     private void initAnimation() {
@@ -142,9 +147,9 @@ public class Player extends Movable {
         }
     }
 
-    public void drawOverhead(ShapeRenderer batch, SpriteBatch spriteBatch) {
+    public void drawOverhead(SpriteBatch spriteBatch) {
         this.overhead.update(getPos(), health);
-        this.overhead.draw(batch, spriteBatch);
+        this.overhead.draw(spriteBatch);
     }
 
     public Texture getTexture() {

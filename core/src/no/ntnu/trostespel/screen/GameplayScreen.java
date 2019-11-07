@@ -45,7 +45,7 @@ public class GameplayScreen extends ScreenAdapter {
     private final MapLayer collisionLayer;
     private GameState<Player, Movable> gameState;
 
-    private ShapeRenderer shapeRenderer = new ShapeRenderer();
+    private ShapeRenderer lineRenderer = new ShapeRenderer();
     private TrosteSpel game;
     private OrthographicCamera camera;
     private boolean debug = false;
@@ -96,6 +96,7 @@ public class GameplayScreen extends ScreenAdapter {
             debug = true;
         }
         if (debug) {
+            game.batch.setProjectionMatrix(camera.projection);
             long pid = Session.getInstance().getPid();
             PlayerState state = receivedState.players.get(pid);
 
@@ -108,35 +109,30 @@ public class GameplayScreen extends ScreenAdapter {
             font.draw(game.batch, "Player: " + pid + "  " + state.getPosition(), 10, height - 100);
         }
 
-        shapeRenderer.setProjectionMatrix(camera.combined);
+
         if (debug) {
-            shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
+            lineRenderer.begin(ShapeRenderer.ShapeType.Line);
+
             gameState.getPlayers().forEach((k, v) -> {
                 Rectangle hitbox = v.getHitbox();
-                shapeRenderer.setColor(1, 1, 0, 1);
-                shapeRenderer.rect(hitbox.x, hitbox.y, hitbox.width, hitbox.height);
-            });
+                lineRenderer.setColor(1, 1, 0, 1);
+                lineRenderer.rect(hitbox.x, hitbox.y, hitbox.width, hitbox.height);
 
+            });
             ArrayList<Rectangle> collide = UserInputManager.getCollideables();
             if (collide != null) {
                 for (Rectangle rectangle : collide) {
-                    shapeRenderer.rect(rectangle.x, rectangle.y, rectangle.width, rectangle.height);
+                    lineRenderer.rect(rectangle.x, rectangle.y, rectangle.width, rectangle.height);
                 }
             }
-            shapeRenderer.end();
+            lineRenderer.end();
         }
         game.batch.setProjectionMatrix(camera.combined);
-        shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
-        shapeRenderer.setColor(Color.DARK_GRAY);
         gameState.getPlayers().forEach((k, v) -> {
-            v.drawOverhead(shapeRenderer, game.batch);
+            v.drawOverhead(game.batch);
         });
-        shapeRenderer.end();
     }
 
-    private void drawShapes() {
-
-    }
 
     private void updatePlayers() {
         // iterate over received player changes
@@ -162,12 +158,18 @@ public class GameplayScreen extends ScreenAdapter {
             } else if (change.getAction() == Action.ALIVE) {
                 if (!gameState.players.containsKey(key)) {
                     // add player to the game
-                    Player newPlayer = new Player(change.getPosition(), Assets.lemurImage);
+                    Player newPlayer = new Player(change.getPosition(), Assets.lemurImage, change.getHealth(), change.getUsername());
                     gameState.players.put(key, newPlayer);
                 }
+
                 // apply changed values
                 Player player = gameState.players.get(key);
 
+                if (player.getUsername().equals("")) {
+                    if (change.getUsername() != null) {
+                        player.setUsername(change.getUsername());
+                    }
+                }
                 // setting projected pos
                 Vector2 pos = change.getPosition();
                 player.setPos(pos);
@@ -255,15 +257,16 @@ public class GameplayScreen extends ScreenAdapter {
 
             updatePlayers();
             updateProjectiles();
-            tiledObjectMapRenderer.getBatch().end();
             camera.update();
             tiledObjectMapRenderer.setView(camera);
+            tiledObjectMapRenderer.getBatch().end();
             tiledObjectMapRenderer.render();
-            game.batch.begin();
 
+
+            game.batch.begin();
             drawUI();
-            drawShapes();
             game.batch.end();
+
         }
 
     }

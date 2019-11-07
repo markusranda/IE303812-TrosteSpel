@@ -8,6 +8,7 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
+import no.ntnu.trostespel.config.Assets;
 
 public class HealthBar {
 
@@ -19,6 +20,9 @@ public class HealthBar {
     private float healthScaledWidth;
 
     private float totalHealth;
+
+    private Texture front = Assets.healthbarFront;
+    private Texture back = Assets.healthbarBack;
 
     private Vector2 position = new Vector2(0, 0);
 
@@ -42,25 +46,23 @@ public class HealthBar {
         if (health <= 0) healthScaledWidth = 0;
     }
 
-    public void draw(ShapeRenderer batch) {
+    public void draw(SpriteBatch batch) {
 
         // draw outline
-        batch.rect(
+        batch.draw(
+                back,
                 position.x,
                 position.y,
                 TOTAL_BAR_WIDHT,
                 TOTAL_BAR_HEIGHT);
 
         // draw healthbar
-        batch.rect(
+        batch.draw(
+                front,
                 position.x,
                 position.y,
                 healthScaledWidth,
-                TOTAL_BAR_HEIGHT,
-                Color.GOLDENROD,
-                Color.GOLDENROD,
-                Color.YELLOW,
-                Color.YELLOW);
+                TOTAL_BAR_HEIGHT);
     }
 
     protected Vector2 getPosition() {

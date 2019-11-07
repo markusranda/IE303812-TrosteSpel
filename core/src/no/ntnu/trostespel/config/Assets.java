@@ -11,6 +11,8 @@ public class Assets {
     public static Texture lemurRunSheet;
     public static Texture bullet;
     public static Texture attack;
+    public static Texture healthbarBack;
+    public static Texture healthbarFront;
 
     public static void load() {
         img = new Texture("badlogic.jpg");
@@ -18,5 +20,7 @@ public class Assets {
         lemurRunSheet = new Texture(Gdx.files.internal("lemurRunSheet.png"));
         attack = new Texture(Gdx.files.internal("lemur-openmouth.png"));
         bullet = new Texture(Gdx.files.internal("bullet_texture.png"));
+        healthbarBack = new Texture(Gdx.files.internal("healthbar_back.png"));
+        healthbarFront = new Texture(Gdx.files.internal("healthbar_front.png"));
     }
 }

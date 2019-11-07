@@ -32,12 +32,13 @@ public class GameStateMaster implements Tickable {
                 1,
                 0L,
                 TimeUnit.MILLISECONDS,
-                new LinkedBlockingQueue<>(),
+                new LinkedBlockingQueue<Runnable>(),
                 new ThreadFactoryBuilder().setNameFormat("GameStateMasterUpdater").build());
         GameServer.observe(this);;
         this.gameState = gameState;
         this.gameState.players.put(9L, new PlayerState(9, new Vector2(0, 400), 300)); // put dummy lemur on the the map
         this.globalUpdater = new GlobalUpdater(gameState, 0);
+        Executors.newSingleThreadExecutor();
     }
 
     public GameState<PlayerState, MovableState> getGameState() {
