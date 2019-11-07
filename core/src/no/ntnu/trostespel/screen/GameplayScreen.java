@@ -93,7 +93,6 @@ public class GameplayScreen extends ScreenAdapter {
     }
 
     private void drawUI() {
-        System.out.println(game.batch.getProjectionMatrix());
         game.batch.setProjectionMatrix(camera.combined);
         gameState.getPlayers().forEach((k, v) -> {
             v.drawOverhead(game.batch);
@@ -249,9 +248,10 @@ public class GameplayScreen extends ScreenAdapter {
 
     @Override
     public void render(float delta) {
+        if (game.isTimedOut()) disconnect();
+
         this.receivedState = Session.getInstance().getReceivedGameState();
         if (this.receivedState != null) {
-
 
             this.tick = receivedState.getTick();
             tiledObjectMapRenderer.getBatch().begin();
@@ -277,5 +277,11 @@ public class GameplayScreen extends ScreenAdapter {
 
         }
 
+    }
+
+    private void disconnect() {
+        dispose();
+        game.stopUdpConnection();
+        game.setScreen(new MainMenuScreen(game));
     }
 }

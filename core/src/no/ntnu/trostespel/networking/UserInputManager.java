@@ -138,7 +138,6 @@ public class UserInputManager {
         String json = new Gson().toJson(model);
         packet.setData(json.getBytes());
         try {
-            Session.getInstance().setPacketSendTime(System.currentTimeMillis());
             socket.send(packet);
         } catch (IOException e) {
             e.printStackTrace();

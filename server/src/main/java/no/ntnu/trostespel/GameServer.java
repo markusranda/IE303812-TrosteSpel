@@ -1,11 +1,13 @@
-package no.ntnu.trostespel.udpServer;
+package no.ntnu.trostespel;
 
 import no.ntnu.trostespel.Tickable;
-import no.ntnu.trostespel.ConnectionManager;
+import no.ntnu.trostespel.tcpServer.ConnectionManager;
 import no.ntnu.trostespel.config.CommunicationConfig;
 import no.ntnu.trostespel.game.GameStateMaster;
 import no.ntnu.trostespel.model.Connection;
 import no.ntnu.trostespel.model.Connections;
+import no.ntnu.trostespel.udpServer.GameDataReceiver;
+import no.ntnu.trostespel.udpServer.GameDataSender;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -32,6 +34,7 @@ public class GameServer {
 
     GameDataReceiver receiver;
     GameDataSender sender;
+    ConnectionManager connectionManager;
 
     public GameServer() {
         gameStateMaster = GameStateMaster.getInstance();
@@ -50,17 +53,16 @@ public class GameServer {
         receiverThread.start();
         System.out.println("Started GameDataReceiver " + this.receiver.toString());
 
-        ConnectionManager TCPClient = null;
         try {
-            TCPClient = new ConnectionManager(CommunicationConfig.SERVER_TCP_CONNECTION_RECEIVE_PORT, mapFileName);
+            this.connectionManager = new ConnectionManager(CommunicationConfig.SERVER_TCP_CONNECTION_RECEIVE_PORT, mapFileName);
         } catch (IOException e) {
             e.printStackTrace();
         }
 
-        Thread TcpThread = new Thread(TCPClient);
+        Thread TcpThread = new Thread(connectionManager);
         TcpThread.setName("ConnectionClient");
         TcpThread.start();
-        System.out.println("Started TCPClient with address " + TCPClient.getSocketAddress());
+        System.out.println("Started TCPClient with address " + connectionManager.getSocketAddress());
 
 
         System.out.println("Server is ready to handle incoming connections!");

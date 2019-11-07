@@ -3,6 +3,7 @@ package no.ntnu.trostespel.udpServer;
 
 import com.badlogic.gdx.utils.Pool;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
+import no.ntnu.trostespel.GameServer;
 import no.ntnu.trostespel.Tickable;
 import no.ntnu.trostespel.PlayerActions;
 import no.ntnu.trostespel.config.CommunicationConfig;

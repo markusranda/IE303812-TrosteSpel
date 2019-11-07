@@ -17,8 +17,8 @@ import no.ntnu.trostespel.TrosteSpel;
 import no.ntnu.trostespel.config.CommunicationConfig;
 import no.ntnu.trostespel.config.ScreenConfig;
 import no.ntnu.trostespel.entity.Session;
-import no.ntnu.trostespel.networking.ConnectionClient;
-import no.ntnu.trostespel.networking.Response;
+import no.ntnu.trostespel.networking.tcp.ConnectionClient;
+import no.ntnu.trostespel.networking.tcp.Response;
 
 import java.util.concurrent.*;
 

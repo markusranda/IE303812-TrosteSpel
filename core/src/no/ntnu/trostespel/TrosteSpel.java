@@ -4,7 +4,6 @@ import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
-import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import no.ntnu.trostespel.config.Assets;
 import no.ntnu.trostespel.config.KeyConfig;
@@ -29,6 +28,7 @@ public class TrosteSpel extends Game {
     public KeyConfig keys;
     private GameDataReceiver gameDataReceiver;
     public static Skin skin;
+    private GameDataTransmitter transmitter;
 
     @Override
     public void create() {
@@ -51,16 +51,29 @@ public class TrosteSpel extends Game {
         long pid = Session.getInstance().getPid();
         Session session = Session.getInstance();
         DatagramSocket socket = session.getUdpSocket();
-        boolean result = session.setPid(pid);
+        session.setPid(pid);
 
         // Start transmitting updates to server
-        new GameDataTransmitter(socket, pid, gameState);
+        transmitter = new GameDataTransmitter(socket, pid, gameState);
 
         // Listen for updates from server
-        GameDataReceiver gameDataReceiver = new GameDataReceiver(socket);
+        gameDataReceiver = new GameDataReceiver(socket);
         Thread gameDataReceiverThread = new Thread(gameDataReceiver);
         gameDataReceiverThread.setName("GameDataReceiver");
         gameDataReceiverThread.start();
+    }
+
+    public void stopUdpConnection() {
+        transmitter.stop();
+        Session session = Session.getInstance();
+        session.killConnection();
+    }
+
+    public boolean isTimedOut() {
+        if (gameDataReceiver.getLastReceived() != 0 && (System.currentTimeMillis() - gameDataReceiver.getLastReceived()) > CommunicationConfig.RETRY_CONNECTION_TIMEOUT) {
+            return true;
+        }
+        return false;
     }
 
     @Override
