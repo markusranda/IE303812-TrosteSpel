@@ -63,7 +63,6 @@ project(":server") {
         implementation group: 'com.google.code.gson', name: 'gson', version: '2.7'
         implementation "com.badlogicgames.gdx:gdx:$gdxVersion"
         implementation "com.badlogicgames.gdx:gdx-box2d:$gdxVersion"
-        compile group: 'cn.danielw', name: 'fast-object-pool', version: '2.1.0'
         testImplementation 'junit:junit:4.12'
         testCompile "junit:junit:4.12"
     }
