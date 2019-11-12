@@ -29,14 +29,10 @@ public class GameDataSender extends ThreadPoolExecutor{
     private Gson gson = new Gson();
     GameState nextGameState;
 
-    private int connectionsSize = 0;
-    private AtomicInteger completedCount;
-
     public GameDataSender() {
         super(1, MAX_PLAYERS, CommunicationConfig.RETRY_CONNECTION_TIMEOUT, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<>(16),
                 new ThreadFactoryBuilder().setNameFormat("GameDataSender-%d").build());
         this.gameStateMaster = GameStateMaster.getInstance();
-        completedCount = new AtomicInteger();
     }
 
 
@@ -48,10 +44,11 @@ public class GameDataSender extends ThreadPoolExecutor{
         nextGameState = gameStateMaster.getGameState();
         nextGameState.setTick(tick);
         String json = gson.toJson(nextGameState, RECEIVED_DATA_TYPE);
-        connectionsSize = connections.size();
+        nextGameState.getProjectilesStateUpdates().clear();
+
         for (Connection con : connections) {
             if (con.getConnectionStatus() == CONNECTED)
-            execute(send(con, json));
+                execute(send(con, json));
         }
     }
 
@@ -82,11 +79,5 @@ public class GameDataSender extends ThreadPoolExecutor{
     @Override
     protected void afterExecute(Runnable r, Throwable t) {
         super.afterExecute(r, t);
-        completedCount.incrementAndGet();
-        if (completedCount.get() >= connectionsSize) {
-            nextGameState.getProjectilesStateUpdates().clear();
-            completedCount.set(0);
-            connectionsSize = 0;
-        }
     }
 }
