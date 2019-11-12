@@ -18,14 +18,11 @@ public class ConnectionManager implements Runnable {
 
     private final String mapFileName;
     private ServerSocket server;
-    long pid = 100;
-    private boolean firstTimeRunning = true;
-    Gson gson = new Gson();
+    private Gson gson = new Gson();
 
     public ConnectionManager(int port, String mapFileName) throws IOException {
         this.server = new ServerSocket(port, 1, null);
         this.mapFileName = mapFileName;
-        //gson = new GsonBuilder().registerTypeAdapter(TCPMessage.class, new InterfaceA)
     }
 
     @Override
