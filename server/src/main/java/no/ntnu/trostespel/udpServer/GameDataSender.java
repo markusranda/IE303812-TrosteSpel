@@ -1,5 +1,7 @@
 package no.ntnu.trostespel.udpServer;
 
+import com.esotericsoftware.kryo.Kryo;
+import com.esotericsoftware.kryo.io.Output;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.google.gson.Gson;
 import no.ntnu.trostespel.GameServer;
@@ -7,12 +9,16 @@ import no.ntnu.trostespel.config.CommunicationConfig;
 import no.ntnu.trostespel.game.GameStateMaster;
 import no.ntnu.trostespel.model.Connection;
 import no.ntnu.trostespel.model.ConnectionStatus;
+import no.ntnu.trostespel.networking.Serializer;
 import no.ntnu.trostespel.state.GameState;
+import no.ntnu.trostespel.state.MovableState;
+import no.ntnu.trostespel.state.PlayerState;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -24,14 +30,14 @@ import static no.ntnu.trostespel.model.ConnectionStatus.CONNECTED;
 
 public class GameDataSender extends ThreadPoolExecutor{
 
-    private GameServer master;
     private GameStateMaster gameStateMaster;
-    private Gson gson = new Gson();
+    private Serializer<GameState> serializer;
     GameState nextGameState;
 
     public GameDataSender() {
         super(1, MAX_PLAYERS, CommunicationConfig.RETRY_CONNECTION_TIMEOUT, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<>(16),
                 new ThreadFactoryBuilder().setNameFormat("GameDataSender-%d").build());
+        serializer = new Serializer<>(GameState.class);
         this.gameStateMaster = GameStateMaster.getInstance();
     }
 
@@ -43,12 +49,12 @@ public class GameDataSender extends ThreadPoolExecutor{
         // Send GameState to all clients
         nextGameState = gameStateMaster.getGameState();
         nextGameState.setTick(tick);
-        String json = gson.toJson(nextGameState, RECEIVED_DATA_TYPE);
+        byte[] bytes = serializer.writeAndCopyBuffer(nextGameState);
         nextGameState.getProjectilesStateUpdates().clear();
-
+        serializer.flush();
         for (Connection con : connections) {
             if (con.getConnectionStatus() == CONNECTED)
-                execute(send(con, json));
+                execute(send(con, bytes));
         }
     }
 
@@ -58,15 +64,13 @@ public class GameDataSender extends ThreadPoolExecutor{
      * @param connection The Connection
      * @return Returns a runnable
      */
-    private Runnable send(Connection connection, String json) {
+    private Runnable send(Connection connection, byte[] bytes) {
         return () -> {
             DatagramPacket packet = new DatagramPacket(
-                    json.getBytes(),
-                    json.getBytes().length,
+                    bytes,
+                    bytes.length,
                     connection.getAddress(),
                     connection.getPort());
-
-            packet.setData(json.getBytes());
             try {
                 DatagramSocket socket = connection.getClientSocket();
                 socket.send(packet);

@@ -21,6 +21,10 @@ public class PlayerState extends ObjectState{
     private long timeOfDeath;
     private String username;
 
+    public PlayerState() {
+        super(72, 90, new Vector2(55, 55));
+    }
+
     public PlayerState(long pid) {
         super(72, 90, new Vector2(55, 55));
         this.pid = pid;

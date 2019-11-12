@@ -16,7 +16,9 @@ import no.ntnu.trostespel.networking.GameDataTransmitter;
 import no.ntnu.trostespel.screen.MainMenuScreen;
 import no.ntnu.trostespel.state.GameState;
 
+import java.lang.reflect.Field;
 import java.net.DatagramSocket;
+import java.util.Arrays;
 
 import static no.ntnu.trostespel.config.Assets.img;
 
@@ -35,6 +37,10 @@ public class TrosteSpel extends Game {
         // load textures
         Assets.load();
         batch = new SpriteBatch();
+        System.out.println(Arrays.toString(GameState.class.getDeclaredFields()));
+
+        System.out.println(Arrays.toString(GameState.class.getDeclaredClasses()));
+        System.out.println(Arrays.toString(GameState.class.getClasses()));
 
         // Load skin
         TextureAtlas atlas = new TextureAtlas("skin/star-soldier/skin/star-soldier-ui.atlas");

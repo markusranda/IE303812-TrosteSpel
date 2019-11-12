@@ -29,9 +29,6 @@ public class UserInputManager {
 
     private final GameState<Player, Movable> gameState;
     private PlayerActions model;
-    private int length;
-    private DatagramPacket packet;
-    private DatagramSocket socket;
     private Player myPlayer;
 
     private boolean canLeft = false;
@@ -47,16 +44,9 @@ public class UserInputManager {
     private Vector2 resultVector = new Vector2();
 
 
-    public UserInputManager(DatagramSocket socket, GameState<Player, Movable> gameState) {
+    public UserInputManager(GameState<Player, Movable> gameState) {
         model = new PlayerActions();
-        Gson gson = new Gson();
-        String jsonStr = gson.toJson(model);
-        this.socket = socket;
-        packet = new DatagramPacket(
-                jsonStr.getBytes(),
-                jsonStr.getBytes().length,
-                CommunicationConfig.host,
-                CommunicationConfig.SERVER_UDP_GAMEDATA_RECEIVE_PORT);
+
         this.gameState = gameState;
         getStaticCollideables(gameState.getCollidables());
     }
@@ -89,7 +79,7 @@ public class UserInputManager {
         }
     }
 
-    public void sendInput() {
+    public PlayerActions getCmd() {
 
         if (!gameState.getPlayers().isEmpty()) {
             myPlayer = gameState.getPlayers().get(Session.getInstance().getPid());
@@ -134,13 +124,7 @@ public class UserInputManager {
         model.isaction1 = Gdx.input.isKeyPressed(KeyConfig.action1);
         model.isaction2 = Gdx.input.isKeyPressed(KeyConfig.action2);
         model.isaction3 = Gdx.input.isKeyPressed(KeyConfig.action3);
-        String json = new Gson().toJson(model);
-        packet.setData(json.getBytes());
-        try {
-            socket.send(packet);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        return model;
     }
 
     private boolean canRight() {

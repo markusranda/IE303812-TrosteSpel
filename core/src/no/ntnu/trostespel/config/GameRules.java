@@ -7,7 +7,7 @@ public class GameRules {
 
         private transient static final double BASE_PLAYER_SPEED = 300d;
         public transient static final double SPEED = BASE_PLAYER_SPEED / CommunicationConfig.TICKRATE;
-
+        public static final int BASE_HEALTH = 100;
 
     }
 
