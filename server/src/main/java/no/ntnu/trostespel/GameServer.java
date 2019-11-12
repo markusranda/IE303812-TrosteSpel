@@ -10,6 +10,7 @@ import no.ntnu.trostespel.udpServer.GameDataSender;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -108,22 +109,16 @@ public class GameServer {
     }
 
     private void dropIdleConnections() {
-        for (Connection connection : Connections.getInstance().getConnections()) {
+        Iterator it = Connections.getInstance().getConnections().iterator();
+        while (it.hasNext()) {
+            Connection connection = (Connection) it.next();
             double currentTime = System.currentTimeMillis();
             double timeArrived = connection.getTimeArrived();
             double timeSinceMillis = currentTime - timeArrived;
             if (timeSinceMillis > CommunicationConfig.RETRY_CONNECTION_TIMEOUT && timeArrived != 0.0) {
                 System.out.println(connection.getAddress() + " - Timed out!");
-                connectionsToDrop.add(connection);
+                it.remove();
             }
-        }
-        if (connectionsToDrop.size() > 0) {
-            for (Connection connection : connectionsToDrop) {
-                gameStateMaster.getGameState().getPlayers().remove(connection.getPid());
-                Connections.getInstance().getConnections().remove(connection);
-                System.out.println(connection.getUsername() + " - Got dropped from the game!");
-            }
-            connectionsToDrop.clear();
         }
     }
 

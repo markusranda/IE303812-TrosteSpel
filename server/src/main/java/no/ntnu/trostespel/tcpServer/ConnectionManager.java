@@ -62,8 +62,8 @@ public class ConnectionManager implements Runnable {
                 String[] args = msg.getArgs();
                 String uName = args[0];
                 int udpPort = Integer.parseInt(args[1]);
+
                 // Send the response back to the client.
-                Connection connection = new Connection(client.getInetAddress(), udpPort, uName);
                 OutputStream os = client.getOutputStream();
                 OutputStreamWriter osw = new OutputStreamWriter(os);
                 BufferedWriter bw = new BufferedWriter(osw);
@@ -73,6 +73,7 @@ public class ConnectionManager implements Runnable {
                     System.out.println("Message sent to the client is " + response);
                     bw.flush();
                 } else {
+                    Connection connection = new Connection(client.getInetAddress(), udpPort, uName);
                     String response = serialize(new Response(uName, connection.getPid(), mapFileName, CONNECTION_ACCEPTED));
                     bw.write(response);
                     System.out.println("Message sent to the client is " + response);
