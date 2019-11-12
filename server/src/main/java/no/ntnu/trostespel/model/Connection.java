@@ -5,6 +5,9 @@ import java.net.InetAddress;
 import java.net.SocketException;
 import java.util.concurrent.atomic.AtomicLong;
 
+import static no.ntnu.trostespel.model.ConnectionStatus.CONNECTED;
+import static no.ntnu.trostespel.model.ConnectionStatus.DISCONNECTED;
+
 public class Connection {
 
     private InetAddress address;
@@ -15,7 +18,7 @@ public class Connection {
     private String username;
     private long pid;
     private static AtomicLong idCounter = new AtomicLong(100);
-
+    private ConnectionStatus connectionStatus;
 
     public Connection(InetAddress address, int port, String username) {
         this.address = address;
@@ -28,6 +31,7 @@ public class Connection {
         } catch (SocketException e) {
             e.printStackTrace();
         }
+        this.connectionStatus = CONNECTED;
     }
 
     public DatagramSocket getClientSocket() {
@@ -58,6 +62,9 @@ public class Connection {
         return port;
     }
 
+    public void setDisconnected() {
+        this.connectionStatus = DISCONNECTED;
+    }
 
     public static long createID() {
         return idCounter.getAndIncrement();
@@ -66,5 +73,9 @@ public class Connection {
     @Override
     public String toString() {
         return super.toString() + "[" + this.clientSocket + ", " + this.username + ", " + this.pid +  "]";
+    }
+
+    public ConnectionStatus getConnectionStatus() {
+        return connectionStatus;
     }
 }
