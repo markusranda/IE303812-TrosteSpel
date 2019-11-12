@@ -11,6 +11,10 @@ import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 
+import static no.ntnu.trostespel.config.CommunicationConfig.MAX_PLAYERS;
+import static no.ntnu.trostespel.networking.tcp.TCPEvent.CONNECTION_ACCEPTED;
+import static no.ntnu.trostespel.networking.tcp.TCPEvent.CONNECTION_REJECTED_SERVER_IS_FULL;
+
 
 // TODO: 11.10.2019 This class should contain some sort of threadpool with a fixed size to handle all connection requests.
 
@@ -63,11 +67,18 @@ public class ConnectionManager implements Runnable {
                 OutputStream os = client.getOutputStream();
                 OutputStreamWriter osw = new OutputStreamWriter(os);
                 BufferedWriter bw = new BufferedWriter(osw);
-                String response = serialize(new Response(uName, connection.getPid(), mapFileName));
-                bw.write(response);
-                System.out.println("Message sent to the client is " + response);
-                bw.flush();
-                Connections.getInstance().setConnection(connection);
+                if (Connections.getInstance().getConnections().size() >= MAX_PLAYERS) {
+                    String response = serialize(new Response(CONNECTION_REJECTED_SERVER_IS_FULL));
+                    bw.write(response);
+                    System.out.println("Message sent to the client is " + response);
+                    bw.flush();
+                } else {
+                    String response = serialize(new Response(uName, connection.getPid(), mapFileName, CONNECTION_ACCEPTED));
+                    bw.write(response);
+                    System.out.println("Message sent to the client is " + response);
+                    bw.flush();
+                    Connections.getInstance().setConnection(connection);
+                }
         }
     }
 
@@ -75,7 +86,7 @@ public class ConnectionManager implements Runnable {
         return gson.fromJson(data, TCPMessage.class);
     }
 
-    private String serialize(Response msg) {
+    private String serialize(Object msg) {
         return gson.toJson(msg);
     }
 
