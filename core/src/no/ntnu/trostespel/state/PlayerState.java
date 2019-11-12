@@ -13,8 +13,7 @@ public class PlayerState extends ObjectState{
 
     private transient double velocity;
     private transient double maxVelocity;
-    public transient int accelrationTimer = 90 / CommunicationConfig.TICKRATE;
-    private transient double attackTimer = 0; //
+    private transient double attackTimer = 0;
     private transient Queue<MovableState> spawnedObjects = new LinkedList<>();
     private transient final short invincibilityFrames = 3;
     private transient long lastTimeDamageTaken = 0;

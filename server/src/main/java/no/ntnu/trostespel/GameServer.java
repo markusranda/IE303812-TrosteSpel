@@ -1,8 +1,5 @@
 package no.ntnu.trostespel;
 
-import no.ntnu.trostespel.ConnectionManager;
-import no.ntnu.trostespel.Tickable;
-import no.ntnu.trostespel.Tickable;
 import no.ntnu.trostespel.tcpServer.ConnectionManager;
 import no.ntnu.trostespel.config.CommunicationConfig;
 import no.ntnu.trostespel.game.GameStateMaster;
@@ -107,13 +104,7 @@ public class GameServer {
     }
 
     private void broadcastUpdate() {
-        try {
-            sender.broadcast(Connections.getInstance().getConnections(), getTickcounter());
-        } catch (InterruptedException e) {
-            // Server is running too slow
-            e.printStackTrace();
-            sender.purge();
-        }
+        sender.broadcast(Connections.getInstance().getConnections(), getTickcounter());
     }
 
     private void dropIdleConnections() {
