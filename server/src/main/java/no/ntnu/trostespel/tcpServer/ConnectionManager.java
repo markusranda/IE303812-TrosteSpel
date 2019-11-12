@@ -2,6 +2,7 @@ package no.ntnu.trostespel.tcpServer;
 
 import com.google.gson.Gson;
 import no.ntnu.trostespel.model.Connection;
+import no.ntnu.trostespel.model.ConnectionStatus;
 import no.ntnu.trostespel.model.Connections;
 import no.ntnu.trostespel.networking.tcp.TCPMessage;
 import no.ntnu.trostespel.networking.tcp.Response;
@@ -12,6 +13,7 @@ import java.net.ServerSocket;
 import java.net.Socket;
 
 import static no.ntnu.trostespel.config.CommunicationConfig.MAX_PLAYERS;
+import static no.ntnu.trostespel.model.ConnectionStatus.CONNECTED;
 import static no.ntnu.trostespel.networking.tcp.TCPEvent.CONNECTION_ACCEPTED;
 import static no.ntnu.trostespel.networking.tcp.TCPEvent.CONNECTION_REJECTED_SERVER_IS_FULL;
 
@@ -67,7 +69,7 @@ public class ConnectionManager implements Runnable {
                 OutputStream os = client.getOutputStream();
                 OutputStreamWriter osw = new OutputStreamWriter(os);
                 BufferedWriter bw = new BufferedWriter(osw);
-                if (Connections.getInstance().getConnections().size() >= MAX_PLAYERS) {
+                if (getActiveConnections() >= MAX_PLAYERS) {
                     String response = serialize(new Response(CONNECTION_REJECTED_SERVER_IS_FULL));
                     bw.write(response);
                     System.out.println("Message sent to the client is " + response);
@@ -81,6 +83,15 @@ public class ConnectionManager implements Runnable {
                     Connections.getInstance().setConnection(connection);
                 }
         }
+    }
+
+    private int getActiveConnections() {
+        int activeClients = 0;
+        for (Connection connection :
+                Connections.getInstance().getConnections()) {
+            if (connection.getConnectionStatus() == CONNECTED) activeClients++;
+        }
+        return activeClients;
     }
 
     private TCPMessage deserialize(String data) {

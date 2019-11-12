@@ -1,5 +1,6 @@
 package no.ntnu.trostespel;
 
+import no.ntnu.trostespel.model.ConnectionStatus;
 import no.ntnu.trostespel.tcpServer.ConnectionManager;
 import no.ntnu.trostespel.config.CommunicationConfig;
 import no.ntnu.trostespel.game.GameStateMaster;
@@ -15,6 +16,7 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;
 
 import static no.ntnu.trostespel.config.MapConfig.PVP_JUNGLE_ISLAND_FILENAME;
+import static no.ntnu.trostespel.model.ConnectionStatus.CONNECTED;
 
 
 /**
@@ -109,15 +111,15 @@ public class GameServer {
     }
 
     private void dropIdleConnections() {
-        Iterator it = Connections.getInstance().getConnections().iterator();
-        while (it.hasNext()) {
-            Connection connection = (Connection) it.next();
-            double currentTime = System.currentTimeMillis();
-            double timeArrived = connection.getTimeArrived();
-            double timeSinceMillis = currentTime - timeArrived;
-            if (timeSinceMillis > CommunicationConfig.RETRY_CONNECTION_TIMEOUT && timeArrived != 0.0) {
-                System.out.println(connection.getAddress() + " - Timed out!");
-                it.remove();
+        for (Connection connection : Connections.getInstance().getConnections()) {
+            if (connection.getConnectionStatus() == CONNECTED) {
+                double currentTime = System.currentTimeMillis();
+                double timeArrived = connection.getTimeArrived();
+                double timeSinceMillis = currentTime - timeArrived;
+                if (timeSinceMillis > CommunicationConfig.RETRY_CONNECTION_TIMEOUT && timeArrived != 0.0) {
+                    System.out.println(connection.getUsername() + " - Timed out!");
+                    connection.setDisconnected();
+                }
             }
         }
     }
