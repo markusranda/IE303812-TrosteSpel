@@ -6,6 +6,7 @@ import no.ntnu.trostespel.GameServer;
 import no.ntnu.trostespel.config.CommunicationConfig;
 import no.ntnu.trostespel.game.GameStateMaster;
 import no.ntnu.trostespel.model.Connection;
+import no.ntnu.trostespel.model.ConnectionStatus;
 import no.ntnu.trostespel.state.GameState;
 
 import java.io.IOException;
@@ -19,6 +20,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import static no.ntnu.trostespel.config.CommunicationConfig.MAX_PLAYERS;
 import static no.ntnu.trostespel.config.CommunicationConfig.RECEIVED_DATA_TYPE;
+import static no.ntnu.trostespel.model.ConnectionStatus.CONNECTED;
 
 public class GameDataSender extends ThreadPoolExecutor{
 
@@ -48,6 +50,7 @@ public class GameDataSender extends ThreadPoolExecutor{
         String json = gson.toJson(nextGameState, RECEIVED_DATA_TYPE);
         connectionsSize = connections.size();
         for (Connection con : connections) {
+            if (con.getConnectionStatus() == CONNECTED)
             execute(send(con, json));
         }
     }
