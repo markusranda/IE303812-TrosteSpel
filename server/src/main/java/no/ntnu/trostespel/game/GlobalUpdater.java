@@ -25,6 +25,11 @@ public class GlobalUpdater extends Updater {
         this.tick = tick;
     }
 
+    public GlobalUpdater prepareForUpdate(long tick) {
+        this.tick = tick;
+        return this;
+    }
+
     private void doUpdate() {
         // update projectiles positions and check collisions
         gameState.getProjectiles().forEach((k, v) -> {
@@ -96,10 +101,6 @@ public class GlobalUpdater extends Updater {
             removed.setAction(Action.KILL);
             gameState.getProjectilesStateUpdates().add(removed);
         }
-    }
-
-    public void setTick(long tick) {
-        this.tick = tick;
     }
 
     @Override
