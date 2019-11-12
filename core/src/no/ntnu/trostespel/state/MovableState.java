@@ -1,6 +1,7 @@
 package no.ntnu.trostespel.state;
 
 import com.badlogic.gdx.math.Vector2;
+import no.ntnu.trostespel.entity.Movable;
 
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -13,6 +14,10 @@ public class MovableState extends ObjectState {
 
     private transient int timeAlive;
     public final transient int damage = 15;
+
+    private MovableState() {
+        // kryo requires a no-args constructor to work properly
+    }
 
     public MovableState(long pid, double velocity) {
         super(24f, 24f, Vector2.Zero);

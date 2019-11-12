@@ -21,8 +21,9 @@ public class PlayerState extends ObjectState{
     private long timeOfDeath;
     private String username;
 
-    public PlayerState() {
+    private PlayerState() {
         super(72, 90, new Vector2(55, 55));
+        // kryo requires a no-args constructor to work properly
     }
 
     public PlayerState(long pid) {

@@ -25,6 +25,5 @@ public class PlayerActions {
     }
 
     public PlayerActions() {
-        pid = new Random().nextInt();
     }
 }

@@ -8,6 +8,10 @@ public class ObjectState {
     private transient Rectangle hitbox;
     private volatile Vector2 position;
 
+    private ObjectState() {
+        // kryo requires a no-args constructor to work properly
+    }
+
     public ObjectState(float x, float y, Vector2 position) {
         this.hitbox = new Rectangle(0, 0, x, y);
         this.position = position;
