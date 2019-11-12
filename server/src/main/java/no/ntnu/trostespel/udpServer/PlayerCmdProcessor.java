@@ -10,15 +10,13 @@ import no.ntnu.trostespel.state.GameState;
 import no.ntnu.trostespel.state.MovableState;
 import no.ntnu.trostespel.state.PlayerState;
 
+import java.util.ConcurrentModificationException;
 import java.util.EnumSet;
 import java.util.Queue;
 
 public class PlayerCmdProcessor {
 
     private GameState<PlayerState, MovableState> gameState;
-    private PlayerActions actions;
-    private long startTime;
-    private long delta;
     private long pid;
     private Vector2 displacement;
     private PlayerState playerState;
@@ -47,25 +45,37 @@ public class PlayerCmdProcessor {
     }
 
     /**
-     * @param playerState the playerstate object that will be updated
-     * @param actions     the actions to process
+     * @param gameState the playerstate object that will be updated
      */
-    public PlayerCmdProcessor(GameState<PlayerState, MovableState> gameState, PlayerState playerState, PlayerActions actions) {
+    public PlayerCmdProcessor(GameState<PlayerState, MovableState> gameState) {
         this.gameState = gameState;
-        this.actions = actions;
-        this.playerState = playerState;
         this.displacement = new Vector2(0, 0);
-        this.pid = actions.pid;
+
+        // this.playerState = playerState;
+        // this.actions = actions;
+        // this.pid = actions.pid;
 
     }
 
-    public void run() {
+    public void run(PlayerActions actions) {
+        // reset old values
+        this.count = 0;
+        this.shouldflipCounter = 0;
+        this.playerAngle = 0;
+        this.displacement = new Vector2(0, 0);
         pid = actions.pid;
-        if (!playerState.isDead()) {
-            addUsername(actions);
-            processActionButtons(actions);
-            processMovement(actions);
-            processAttack(actions);
+
+        // perform update
+        this.playerState = gameState.getPlayers().getOrDefault(pid, null);
+        if (playerState != null) {
+            if (!playerState.isDead()) {
+                addUsername(actions);
+                processActionButtons(actions);
+                processMovement(actions);
+                processAttack(actions);
+            }
+        } else {
+            throw new ConcurrentModificationException("Player no longer exists in gamestate");
         }
     }
 
@@ -177,11 +187,6 @@ public class PlayerCmdProcessor {
     private void putProjectile ( long k, MovableState v){
         gameState.getProjectilesStateUpdates().add(v);
         gameState.getProjectiles().put(k, v);
-    }
-
-
-    public long getStartTime() {
-        return this.startTime;
     }
 
     public long getPid() {

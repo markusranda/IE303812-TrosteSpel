@@ -45,8 +45,7 @@ public class GameStateMaster implements Tickable {
     }
 
     private void applyGlobalUpdate() {
-        globalUpdater.setTick(tick);
-            executor.execute(new GlobalUpdater(gameState, tick));
+        executor.execute(globalUpdater.prepareForUpdate(tick));
     }
 
     private Comparator<Runnable> getUpdatePrioritizer() {
