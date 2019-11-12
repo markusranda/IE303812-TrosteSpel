@@ -18,7 +18,6 @@ public class GameStateMaster implements Tickable {
     private long tick;
     private ExecutorService executor;
     private GlobalUpdater globalUpdater;
-    private PlayerUpdater playerUpdater;
 
     public static synchronized GameStateMaster getInstance() {
         if (instance == null) {
@@ -34,9 +33,9 @@ public class GameStateMaster implements Tickable {
                 TimeUnit.MILLISECONDS,
                 new LinkedBlockingQueue<Runnable>(),
                 new ThreadFactoryBuilder().setNameFormat("GameStateMasterUpdater").build());
-        GameServer.observe(this);;
+        GameServer.observe(this);
         this.gameState = gameState;
-        this.gameState.players.put(9L, new PlayerState(9, new Vector2(0, 400), 300)); // put dummy lemur on the the map
+        this.gameState.getPlayers().put(9L, new PlayerState(9, new Vector2(0, 400), 300)); // put dummy lemur on the the map
         this.globalUpdater = new GlobalUpdater(gameState, 0);
         Executors.newSingleThreadExecutor();
     }
@@ -45,25 +44,8 @@ public class GameStateMaster implements Tickable {
         return this.gameState;
     }
 
-    /**
-     * @param pid the id of the player to update
-     */
-    public synchronized void submitPlayerUpdate(long pid, long tick) {
-        try {
-            executor.execute(applyPlayerUpdate(pid, tick));
-        } catch (ClassCastException e) {
-            e.printStackTrace();
-        }
-    }
-
-    private Runnable applyPlayerUpdate(long pid, long tick) {
-        return new PlayerUpdater(gameState, pid);
-    }
-
     private void applyGlobalUpdate() {
-        globalUpdater.setTick(tick);
-            executor.execute(new GlobalUpdater(gameState, tick));
-
+        executor.execute(globalUpdater.prepareForUpdate(tick));
     }
 
     private Comparator<Runnable> getUpdatePrioritizer() {

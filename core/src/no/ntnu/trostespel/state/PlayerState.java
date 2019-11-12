@@ -1,13 +1,8 @@
 package no.ntnu.trostespel.state;
 
-import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
-import com.google.gson.annotations.Expose;
 import no.ntnu.trostespel.config.CommunicationConfig;
-import org.w3c.dom.css.Rect;
 
-import java.beans.Transient;
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Queue;
 
@@ -18,8 +13,7 @@ public class PlayerState extends ObjectState{
 
     private transient double velocity;
     private transient double maxVelocity;
-    public transient int accelrationTimer = 90 / CommunicationConfig.TICKRATE;
-    private transient double attackTimer = 0; //
+    private transient double attackTimer = 0;
     private transient Queue<MovableState> spawnedObjects = new LinkedList<>();
     private transient final short invincibilityFrames = 3;
     private transient long lastTimeDamageTaken = 0;

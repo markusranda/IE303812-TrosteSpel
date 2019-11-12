@@ -1,6 +1,5 @@
 package no.ntnu.trostespel.udpServer;
 
-import com.badlogic.gdx.utils.Pool;
 import com.google.gson.Gson;
 import com.google.gson.stream.JsonReader;
 import no.ntnu.trostespel.PlayerActions;

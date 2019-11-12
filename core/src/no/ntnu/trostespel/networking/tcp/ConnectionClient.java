@@ -4,7 +4,9 @@ import com.google.gson.Gson;
 import no.ntnu.trostespel.config.CommunicationConfig;
 import no.ntnu.trostespel.entity.Session;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.Socket;

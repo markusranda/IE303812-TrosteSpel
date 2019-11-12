@@ -1,22 +1,22 @@
 package no.ntnu.trostespel.udpServer;
 
 import com.badlogic.gdx.math.Vector2;
+import no.ntnu.trostespel.PlayerActions;
 import no.ntnu.trostespel.config.CommunicationConfig;
 import no.ntnu.trostespel.config.GameRules;
 import no.ntnu.trostespel.model.Connection;
 import no.ntnu.trostespel.model.Connections;
 import no.ntnu.trostespel.state.GameState;
-import no.ntnu.trostespel.PlayerActions;
-import no.ntnu.trostespel.state.PlayerState;
 import no.ntnu.trostespel.state.MovableState;
+import no.ntnu.trostespel.state.PlayerState;
 
+import java.util.ConcurrentModificationException;
 import java.util.EnumSet;
+import java.util.Queue;
 
 public class PlayerCmdProcessor {
 
-    private PlayerActions actions;
-    private long startTime;
-    private long delta;
+    private GameState<PlayerState, MovableState> gameState;
     private long pid;
     private Vector2 displacement;
     private PlayerState playerState;
@@ -45,23 +45,37 @@ public class PlayerCmdProcessor {
     }
 
     /**
-     * @param playerState the playerstate object that will be updated
-     * @param actions     the actions to process
+     * @param gameState the playerstate object that will be updated
      */
-    public PlayerCmdProcessor(PlayerState playerState, PlayerActions actions) {
-        this.actions = actions;
-        this.playerState = playerState;
+    public PlayerCmdProcessor(GameState<PlayerState, MovableState> gameState) {
+        this.gameState = gameState;
         this.displacement = new Vector2(0, 0);
-        this.pid = actions.pid;
+
+        // this.playerState = playerState;
+        // this.actions = actions;
+        // this.pid = actions.pid;
+
     }
 
-    public void run() {
+    public void run(PlayerActions actions) {
+        // reset old values
+        this.count = 0;
+        this.shouldflipCounter = 0;
+        this.playerAngle = 0;
+        this.displacement = new Vector2(0, 0);
         pid = actions.pid;
-        if (!playerState.isDead()) {
-            addUsername(actions);
-            processActionButtons(actions);
-            processMovement(actions);
-            processAttack(actions);
+
+        // perform update
+        this.playerState = gameState.getPlayers().getOrDefault(pid, null);
+        if (playerState != null) {
+            if (!playerState.isDead()) {
+                addUsername(actions);
+                processActionButtons(actions);
+                processMovement(actions);
+                processAttack(actions);
+            }
+        } else {
+            throw new ConcurrentModificationException("Player no longer exists in gamestate");
         }
     }
 
@@ -125,7 +139,9 @@ public class PlayerCmdProcessor {
             }
             // add resulting projectile to spawned objects list
             if (!attackDir.isEmpty()) {
-                playerState.getSpawnedObjects().add(projectile);
+                projectile.setPosition(playerState.getPosition());
+                putProjectile(projectile.getId(), projectile);
+
                 // allow attacks every 0.3 seconds
                 playerState.setAttackTimer(.3 * CommunicationConfig.TICKRATE + 1);
             }
@@ -168,8 +184,9 @@ public class PlayerCmdProcessor {
         playerAngle = displacement.angle();
     }
 
-    public long getStartTime() {
-        return this.startTime;
+    private void putProjectile ( long k, MovableState v){
+        gameState.getProjectilesStateUpdates().add(v);
+        gameState.getProjectiles().put(k, v);
     }
 
     public long getPid() {

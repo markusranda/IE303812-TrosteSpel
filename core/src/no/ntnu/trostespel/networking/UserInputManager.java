@@ -5,14 +5,13 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.math.Intersector;
 import com.badlogic.gdx.math.Rectangle;
-import com.badlogic.gdx.math.Vector;
 import com.badlogic.gdx.math.Vector2;
 import com.google.gson.Gson;
 import no.ntnu.trostespel.Direction;
 import no.ntnu.trostespel.PlayerActions;
+import no.ntnu.trostespel.config.CommunicationConfig;
 import no.ntnu.trostespel.config.GameRules;
 import no.ntnu.trostespel.config.KeyConfig;
-import no.ntnu.trostespel.config.CommunicationConfig;
 import no.ntnu.trostespel.entity.Movable;
 import no.ntnu.trostespel.entity.Player;
 import no.ntnu.trostespel.entity.Session;
@@ -92,8 +91,8 @@ public class UserInputManager {
 
     public void sendInput() {
 
-        if (!gameState.players.isEmpty()) {
-            myPlayer = gameState.players.get(Session.getInstance().getPid());
+        if (!gameState.getPlayers().isEmpty()) {
+            myPlayer = gameState.getPlayers().get(Session.getInstance().getPid());
         }
 
         if (canUp()) {

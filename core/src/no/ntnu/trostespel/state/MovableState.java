@@ -1,8 +1,6 @@
 package no.ntnu.trostespel.state;
 
 import com.badlogic.gdx.math.Vector2;
-import no.ntnu.trostespel.config.CommunicationConfig;
-import no.ntnu.trostespel.entity.Movable;
 
 import java.util.concurrent.atomic.AtomicLong;
 

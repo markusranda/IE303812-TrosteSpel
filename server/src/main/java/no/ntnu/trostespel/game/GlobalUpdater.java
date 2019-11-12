@@ -1,7 +1,6 @@
 package no.ntnu.trostespel.game;
 
 import com.badlogic.gdx.math.Vector2;
-import no.ntnu.trostespel.config.CommunicationConfig;
 import no.ntnu.trostespel.config.GameRules;
 import no.ntnu.trostespel.entity.Movable;
 import no.ntnu.trostespel.state.Action;
@@ -12,6 +11,7 @@ import no.ntnu.trostespel.state.PlayerState;
 import java.util.ArrayList;
 import java.util.ConcurrentModificationException;
 import java.util.Map;
+import java.util.concurrent.ConcurrentMap;
 
 public class GlobalUpdater extends Updater {
     private GameState<PlayerState, MovableState> gameState;
@@ -23,6 +23,11 @@ public class GlobalUpdater extends Updater {
         super(2);
         this.gameState = gameState;
         this.tick = tick;
+    }
+
+    public GlobalUpdater prepareForUpdate(long tick) {
+        this.tick = tick;
+        return this;
     }
 
     private void doUpdate() {
@@ -54,45 +59,48 @@ public class GlobalUpdater extends Updater {
      */
     private void detectCollision(MovableState obj, long currentTick) {
         // TODO: can be optimized using a quadtree
-        for (PlayerState playerState : gameState.players.values()) {
-            if (playerState.getPid() == obj.getPid()
-                    || playerState.getAction() == Action.DEAD) {
-                continue;
+        ConcurrentMap<Long, PlayerState> players = gameState.getPlayers();
+        players.forEach((key, playerState) -> {
+            if (playerState.getPid() != obj.getPid() || playerState.getAction() == Action.DEAD) {
+                if (players.containsKey(key)) {
+                    if (playerState.getHitbox().contains(obj.getPosition())) {
+                        long id = obj.getId();
+                        playerState.hurt(obj.damage, currentTick);
+                        System.out.println("Bullet @" + obj.getPosition() + " HIT " + "Player #" + playerState.getPid() + " @" + playerState.getPosition() + "Current health: " + playerState.getHealth() + ", Damage: " + obj.damage);
+                        removeList.add(id);
+                    }
+                }
             }
-            if (playerState.getHitbox().contains(obj.getPosition())) {
-                long id = obj.getId();
-                playerState.hurt(obj.damage, currentTick);
-                System.out.println("Bullet @" + obj.getPosition() + " HIT " + "Player #" + playerState.getPid() + " @" + playerState.getPosition() + "Current health: " + playerState.getHealth() + ", Damage: " +obj.damage);
-                removeList.add(id);
-            }
-        }
+        });
     }
 
     private void changeActionStatePlayers() {
-        for (Map.Entry mapEntry : gameState.getPlayers().entrySet()) {
-            PlayerState playerState = (PlayerState) mapEntry.getValue();
-            if (playerState.getAction() == Action.ALIVE) {
-                if (playerState.getHealth() <= 0) {
-                    playerState.setDead();
-                    System.out.println(playerState.getPid() + ": Is dead!");
-                }
-            } else if (playerState.getAction() == Action.DEAD) {
-                if (System.currentTimeMillis() >= playerState.getTimeOfDeath() + GameRules.Player.RESPAWN_TIME) {
-                    playerState.setAlive();
-                    System.out.println(playerState.getPid() + " has respawned!");
+        ConcurrentMap<Long, PlayerState> players = gameState.getPlayers();
+
+        players.forEach((key, playerState) -> {
+            if (players.containsKey(key)) {
+                if (playerState.getAction() == Action.ALIVE) {
+                    if (playerState.getHealth() <= 0) {
+                        playerState.setDead();
+                        System.out.println(playerState.getPid() + ": Is dead!");
+                    }
+                } else if (playerState.getAction() == Action.DEAD) {
+                    if (System.currentTimeMillis() >= playerState.getTimeOfDeath() + GameRules.Player.RESPAWN_TIME) {
+                        playerState.setAlive();
+                        System.out.println(playerState.getPid() + " has respawned!");
+                    }
                 }
             }
-        }
+        });
     }
 
     private void removeProjectile(long key) {
         MovableState removed = gameState.getProjectiles().remove(key);
-        removed.setAction(Action.KILL);
-        gameState.getProjectilesStateUpdates().add(removed);
-    }
-
-    public void setTick(long tick) {
-        this.tick = tick;
+        if (removed != null) {
+            // removed becomes null if a bullet hits multiple players, causing multiple removeProjectile calls
+            removed.setAction(Action.KILL);
+            gameState.getProjectilesStateUpdates().add(removed);
+        }
     }
 
     @Override

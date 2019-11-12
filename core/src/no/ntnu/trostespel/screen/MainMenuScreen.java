@@ -3,15 +3,18 @@ package no.ntnu.trostespel.screen;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
-import com.badlogic.gdx.scenes.scene2d.ui.*;
+import com.badlogic.gdx.scenes.scene2d.ui.Label;
+import com.badlogic.gdx.scenes.scene2d.ui.Skin;
+import com.badlogic.gdx.scenes.scene2d.ui.Table;
+import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
-import com.badlogic.gdx.graphics.*;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import no.ntnu.trostespel.TrosteSpel;
 import no.ntnu.trostespel.config.CommunicationConfig;
@@ -20,7 +23,10 @@ import no.ntnu.trostespel.entity.Session;
 import no.ntnu.trostespel.networking.tcp.ConnectionClient;
 import no.ntnu.trostespel.networking.tcp.Response;
 
-import java.util.concurrent.*;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Future;
 
 import static java.util.concurrent.Executors.newSingleThreadExecutor;
 
@@ -69,11 +75,13 @@ public class MainMenuScreen implements Screen {
         //Create labels
         Label connectedLabel = new Label("Not Connected", skin, "disconnected");
         Label.LabelStyle labelStyle = skin.get("connected", Label.LabelStyle.class);
+        Label statusLabel = new Label("", skin);
 
         Input.TextInputListener listener = new Input.TextInputListener() {
             @Override
             public void input(String text) {
                 try {
+                    statusLabel.setText("");
                     // Get username
                     Session.getInstance().setUserName(text);
 
@@ -86,14 +94,23 @@ public class MainMenuScreen implements Screen {
 
                     // Retrieve and set the pid
                     Response response = (Response) future.get();
-                        Session.getInstance().setPid(response.getPid());
-                    Session.getInstance().setUdpSocket(response.getSocket());
-                    Session.getInstance().setMapName(response.getMapFileName());
 
-                    connectedLabel.setText("Connected");
+                    switch (response.getEvent()) {
 
-                    connectedLabel.setStyle(labelStyle);
+                        case CONNECTION_ACCEPTED:
+                            Session.getInstance().setPid(response.getPid());
+                            Session.getInstance().setUdpSocket(response.getSocket());
+                            Session.getInstance().setMapName(response.getMapFileName());
 
+                            connectedLabel.setText("Connected");
+                            connectedLabel.setStyle(labelStyle);
+                            break;
+
+                        case CONNECTION_REJECTED_SERVER_IS_FULL:
+                            statusLabel.setText("Server is currently full..");
+                            break;
+
+                    }
                 } catch (InterruptedException | ExecutionException e) {
                     e.printStackTrace();
                 }
@@ -148,6 +165,8 @@ public class MainMenuScreen implements Screen {
         mainTable.add(connect).minSize(300, 100).padBottom(10).padTop(200);
         mainTable.row();
         mainTable.add(connectedLabel);
+        mainTable.row();
+        mainTable.add(statusLabel);
         mainTable.row();
         mainTable.add(play).minSize(300, 100).padBottom(10);
         mainTable.row();

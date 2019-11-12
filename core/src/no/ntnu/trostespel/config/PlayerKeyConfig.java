@@ -1,9 +1,6 @@
 package no.ntnu.trostespel.config;
 
-import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Input.Keys;
-
-import java.util.HashMap;
 
 public class PlayerKeyConfig {
     public static int up;

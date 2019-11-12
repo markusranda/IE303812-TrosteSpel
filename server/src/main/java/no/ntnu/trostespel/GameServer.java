@@ -1,6 +1,6 @@
 package no.ntnu.trostespel;
 
-import no.ntnu.trostespel.Tickable;
+import no.ntnu.trostespel.model.ConnectionStatus;
 import no.ntnu.trostespel.tcpServer.ConnectionManager;
 import no.ntnu.trostespel.config.CommunicationConfig;
 import no.ntnu.trostespel.game.GameStateMaster;
@@ -11,10 +11,12 @@ import no.ntnu.trostespel.udpServer.GameDataSender;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;
 
 import static no.ntnu.trostespel.config.MapConfig.PVP_JUNGLE_ISLAND_FILENAME;
+import static no.ntnu.trostespel.model.ConnectionStatus.CONNECTED;
 
 
 /**
@@ -32,9 +34,9 @@ public class GameServer {
     private List<Connection> connectionsToDrop = new ArrayList<>();
     private static List<Tickable> observers = new ArrayList<>();
 
-    GameDataReceiver receiver;
-    GameDataSender sender;
-    ConnectionManager connectionManager;
+    private GameDataReceiver receiver;
+    private GameDataSender sender;
+    private ConnectionManager connectionManager;
 
     public GameServer() {
         gameStateMaster = GameStateMaster.getInstance();
@@ -105,32 +107,20 @@ public class GameServer {
     }
 
     private void broadcastUpdate() {
-        try {
-            sender.broadcast(Connections.getInstance().getConnections(), tickCounter.get());
-        } catch (InterruptedException e) {
-            // Server is running too slow
-            e.printStackTrace();
-            sender.purge();
-        }
+        sender.broadcast(Connections.getInstance().getConnections(), getTickcounter());
     }
 
     private void dropIdleConnections() {
         for (Connection connection : Connections.getInstance().getConnections()) {
-            double currentTime = System.currentTimeMillis();
-            double timeArrived = connection.getTimeArrived();
-            double timeSinceMillis = currentTime - timeArrived;
-            if (timeSinceMillis > CommunicationConfig.RETRY_CONNECTION_TIMEOUT && timeArrived != 0.0) {
-                System.out.println(connection.getAddress() + " - Timed out!");
-                connectionsToDrop.add(connection);
+            if (connection.getConnectionStatus() == CONNECTED) {
+                double currentTime = System.currentTimeMillis();
+                double timeArrived = connection.getTimeArrived();
+                double timeSinceMillis = currentTime - timeArrived;
+                if (timeSinceMillis > CommunicationConfig.RETRY_CONNECTION_TIMEOUT && timeArrived != 0.0) {
+                    System.out.println(connection.getUsername() + " - Timed out!");
+                    connection.setDisconnected();
+                }
             }
-        }
-        if (connectionsToDrop.size() > 0) {
-            for (Connection connection : connectionsToDrop) {
-                gameStateMaster.getGameState().players.remove(connection.getPid());
-                Connections.getInstance().getConnections().remove(connection);
-                System.out.println(connection.getUsername() + " - Got dropped from the game!");
-            }
-            connectionsToDrop.clear();
         }
     }
 
@@ -146,5 +136,9 @@ public class GameServer {
         for (Tickable tickable : observers) {
             tickable.onTick(tick);
         }
+    }
+
+    private static long getTickcounter() {
+        return tickCounter.get();
     }
 }
