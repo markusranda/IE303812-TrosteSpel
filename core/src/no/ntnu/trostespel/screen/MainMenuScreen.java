@@ -75,11 +75,13 @@ public class MainMenuScreen implements Screen {
         //Create labels
         Label connectedLabel = new Label("Not Connected", skin, "disconnected");
         Label.LabelStyle labelStyle = skin.get("connected", Label.LabelStyle.class);
+        Label statusLabel = new Label("", skin);
 
         Input.TextInputListener listener = new Input.TextInputListener() {
             @Override
             public void input(String text) {
                 try {
+                    statusLabel.setText("");
                     // Get username
                     Session.getInstance().setUserName(text);
 
@@ -92,14 +94,23 @@ public class MainMenuScreen implements Screen {
 
                     // Retrieve and set the pid
                     Response response = (Response) future.get();
-                        Session.getInstance().setPid(response.getPid());
-                    Session.getInstance().setUdpSocket(response.getSocket());
-                    Session.getInstance().setMapName(response.getMapFileName());
 
-                    connectedLabel.setText("Connected");
+                    switch (response.getEvent()) {
 
-                    connectedLabel.setStyle(labelStyle);
+                        case CONNECTION_ACCEPTED:
+                            Session.getInstance().setPid(response.getPid());
+                            Session.getInstance().setUdpSocket(response.getSocket());
+                            Session.getInstance().setMapName(response.getMapFileName());
 
+                            connectedLabel.setText("Connected");
+                            connectedLabel.setStyle(labelStyle);
+                            break;
+
+                        case CONNECTION_REJECTED_SERVER_IS_FULL:
+                            statusLabel.setText("Server is currently full..");
+                            break;
+
+                    }
                 } catch (InterruptedException | ExecutionException e) {
                     e.printStackTrace();
                 }
@@ -154,6 +165,8 @@ public class MainMenuScreen implements Screen {
         mainTable.add(connect).minSize(300, 100).padBottom(10).padTop(200);
         mainTable.row();
         mainTable.add(connectedLabel);
+        mainTable.row();
+        mainTable.add(statusLabel);
         mainTable.row();
         mainTable.add(play).minSize(300, 100).padBottom(10);
         mainTable.row();
