@@ -4,25 +4,27 @@ import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 
 import java.util.HashMap;
 import java.util.Queue;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.ConcurrentMap;
 
 public class GameState<P, M> {
 
     private transient TiledMapTileLayer collidables;
-    private transient HashMap<Long, M> projectiles;
+    private transient ConcurrentMap<Long, M> projectiles; // TODO: Projectiles Should be pooled
 
-    public HashMap<Long, P> players;
+    private ConcurrentMap<Long, P> players;
     private Queue<M> projectilesStateUpdates;
     private boolean ack = false;
     private long tick;
 
     public GameState() {
         projectilesStateUpdates = new ConcurrentLinkedQueue<>();
-        projectiles = new HashMap<>();
-        players = new HashMap<>();
+        projectiles = new ConcurrentHashMap<>();
+        players = new ConcurrentHashMap<>();
     }
 
-    public HashMap<Long, M> getProjectiles() {
+    public ConcurrentMap<Long, M> getProjectiles() {
         return projectiles;
     }
 
@@ -38,7 +40,7 @@ public class GameState<P, M> {
         this.ack = ack;
     }
 
-    public HashMap<Long, P> getPlayers() {
+    public ConcurrentMap<Long, P> getPlayers() {
         return players;
     }
 

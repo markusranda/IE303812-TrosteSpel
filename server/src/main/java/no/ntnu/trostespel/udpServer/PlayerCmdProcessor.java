@@ -6,13 +6,16 @@ import no.ntnu.trostespel.config.CommunicationConfig;
 import no.ntnu.trostespel.config.GameRules;
 import no.ntnu.trostespel.model.Connection;
 import no.ntnu.trostespel.model.Connections;
+import no.ntnu.trostespel.state.GameState;
 import no.ntnu.trostespel.state.MovableState;
 import no.ntnu.trostespel.state.PlayerState;
 
 import java.util.EnumSet;
+import java.util.Queue;
 
 public class PlayerCmdProcessor {
 
+    private GameState<PlayerState, MovableState> gameState;
     private PlayerActions actions;
     private long startTime;
     private long delta;
@@ -47,11 +50,13 @@ public class PlayerCmdProcessor {
      * @param playerState the playerstate object that will be updated
      * @param actions     the actions to process
      */
-    public PlayerCmdProcessor(PlayerState playerState, PlayerActions actions) {
+    public PlayerCmdProcessor(GameState<PlayerState, MovableState> gameState, PlayerState playerState, PlayerActions actions) {
+        this.gameState = gameState;
         this.actions = actions;
         this.playerState = playerState;
         this.displacement = new Vector2(0, 0);
         this.pid = actions.pid;
+
     }
 
     public void run() {
@@ -124,7 +129,9 @@ public class PlayerCmdProcessor {
             }
             // add resulting projectile to spawned objects list
             if (!attackDir.isEmpty()) {
-                playerState.getSpawnedObjects().add(projectile);
+                projectile.setPosition(playerState.getPosition());
+                putProjectile(projectile.getId(), projectile);
+
                 // allow attacks every 0.3 seconds
                 playerState.setAttackTimer(.3 * CommunicationConfig.TICKRATE + 1);
             }
@@ -166,6 +173,12 @@ public class PlayerCmdProcessor {
         }
         playerAngle = displacement.angle();
     }
+
+    private void putProjectile ( long k, MovableState v){
+        gameState.getProjectilesStateUpdates().add(v);
+        gameState.getProjectiles().put(k, v);
+    }
+
 
     public long getStartTime() {
         return this.startTime;

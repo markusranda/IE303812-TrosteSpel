@@ -129,14 +129,14 @@ public class GameplayScreen extends ScreenAdapter {
         if (debug) {
             game.batch.begin();
             long pid = Session.getInstance().getPid();
-            PlayerState state = receivedState.players.get(pid);
+            PlayerState state = receivedState.getPlayers().get(pid);
 
             int height = ScreenConfig.SCREEN_HEIGHT;
             font.draw(game.batch, "Host: " + CommunicationConfig.host + ":" + CommunicationConfig.SERVER_UDP_GAMEDATA_RECEIVE_PORT, 10, height);
             font.draw(game.batch, "Local Port: " + Session.getInstance().getUdpSocket().getLocalPort(), 10, height - 20);
             font.draw(game.batch, "Framterate: " + Gdx.graphics.getFramesPerSecond(), 10, height - 40);
             font.draw(game.batch, "Tickrate: " + CommunicationConfig.TICKRATE, 10, height - 60);
-            font.draw(game.batch, "Connected players " + receivedState.players.size(), 10, height - 80);
+            font.draw(game.batch, "Connected players " + receivedState.getPlayers().size(), 10, height - 80);
             font.draw(game.batch, "Player: " + pid + "  " + state.getPosition(), 10, height - 100);
             game.batch.end();
         }
@@ -163,7 +163,7 @@ public class GameplayScreen extends ScreenAdapter {
 
     private void updatePlayers() {
         // iterate over received player changes
-        for (PlayerState change : receivedState.players.values()) {
+        for (PlayerState change : receivedState.getPlayers().values()) {
             long key = change.getPid();
             if (change.getAction() == Action.DEAD) {
                 for (MapObject mapObject : objectLayer.getObjects()) {
@@ -174,7 +174,7 @@ public class GameplayScreen extends ScreenAdapter {
                             Player player = (Player) obj;
                             if (player.getPid() == change.getPid()) {
                                 innerIterator.remove();
-                                if (gameState.players.containsKey(key)) {
+                                if (gameState.getPlayers().containsKey(key)) {
                                     player.removedFromLayer();
                                     player.setHealth(0);
                                 }
@@ -183,14 +183,14 @@ public class GameplayScreen extends ScreenAdapter {
                     }
                 }
             } else if (change.getAction() == Action.ALIVE) {
-                if (!gameState.players.containsKey(key)) {
+                if (!gameState.getPlayers().containsKey(key)) {
                     // add player to the game
                     Player newPlayer = new Player(change.getPosition(), Assets.lemurImage, change.getHealth(), change.getUsername());
-                    gameState.players.put(key, newPlayer);
+                    gameState.getPlayers().put(key, newPlayer);
                 }
 
                 // apply changed values
-                Player player = gameState.players.get(key);
+                Player player = gameState.getPlayers().get(key);
 
                 if (player.getUsername().equals("")) {
                     if (change.getUsername() != null) {
@@ -232,7 +232,7 @@ public class GameplayScreen extends ScreenAdapter {
             Action action = state.getAction();
             if (action == Action.CREATE) {
                 if (!gameState.getProjectiles().containsKey(eid)) {
-                    Player player = gameState.players.get(owner);
+                    Player player = gameState.getPlayers().get(owner);
                     player.setAttacking(true);
                     if (player != null) {
                         Vector2 spawnPos = player.getPos();
@@ -312,7 +312,7 @@ public class GameplayScreen extends ScreenAdapter {
         debuggerUiTable.clearChildren();
         if (debug) {
             long pid = Session.getInstance().getPid();
-            PlayerState state = receivedState.players.get(pid);
+            PlayerState state = receivedState.getPlayers().get(pid);
             debuggerUiTable.add(new Label("Host: " + CommunicationConfig.host + ":" + CommunicationConfig.SERVER_UDP_GAMEDATA_RECEIVE_PORT, skin));
             debuggerUiTable.row();
             debuggerUiTable.add(new Label("Local Port: " + Session.getInstance().getUdpSocket().getLocalPort(), skin));
@@ -321,7 +321,7 @@ public class GameplayScreen extends ScreenAdapter {
             debuggerUiTable.row();
             debuggerUiTable.add(new Label("Tickrate: " + CommunicationConfig.TICKRATE, skin));
             debuggerUiTable.row();
-            debuggerUiTable.add(new Label("Connected players " + receivedState.players.size(), skin));
+            debuggerUiTable.add(new Label("Connected players " + receivedState.getPlayers().size(), skin));
             debuggerUiTable.row();
             debuggerUiTable.add(new Label("Player: " + pid + "  " + state.getPosition(), skin));
             debuggerUiTable.row();
