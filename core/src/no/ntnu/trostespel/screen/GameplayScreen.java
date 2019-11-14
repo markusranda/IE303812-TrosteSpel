@@ -51,7 +51,7 @@ public class GameplayScreen extends ScreenAdapter {
     private final MapLayer objectLayer;
     private final MapLayer collisionLayer;
     private final Stage stage;
-    private final Table playerListTable;
+    private Table playerListTable;
     private final Table debuggerUiTable;
     private Label.LabelStyle labelStyle;
     private GameState<Player, Movable> gameState;
@@ -82,15 +82,8 @@ public class GameplayScreen extends ScreenAdapter {
 
         // init stage
         stage = new Stage();
-
-        // font test
         initFonts();
-
-        // init playerListTable
-        playerListTable = new Table();
-        stage.addActor(playerListTable);
-        playerListTable.setSkin(skin);
-        playerListTable.setPosition(Gdx.graphics.getWidth() - 200, Gdx.graphics.getHeight() - 200);
+        initPlayerList();
 
         // init debuggerUI
         debuggerUiTable = new Table();
@@ -127,6 +120,13 @@ public class GameplayScreen extends ScreenAdapter {
         communicate();
     }
 
+    private void initPlayerList() {
+        playerListTable = new Table();
+        stage.addActor(playerListTable);
+        playerListTable.setSkin(skin);
+        playerListTable.setPosition(Gdx.graphics.getWidth() - 200, Gdx.graphics.getHeight() - 200);
+    }
+
     private void initFonts() {
         FreeTypeFontGenerator generatorPlayerList
                 = new FreeTypeFontGenerator(Gdx.files.internal("fonts/Quicksand.ttf"));
@@ -136,9 +136,6 @@ public class GameplayScreen extends ScreenAdapter {
         parameterPlayerList.size = 28;
         parameterPlayerList.borderWidth = 3;
         parameterPlayerList.color = Color.WHITE;
-//        parameterPlayerList.shadowOffsetX = 1;
-//        parameterPlayerList.shadowOffsetY = 1;
-//        parameterPlayerList.shadowColor = new Color(0, 0.5f, 0, 0.75f);
         parameterPlayerList.minFilter = Texture.TextureFilter.Nearest;
         parameterPlayerList.magFilter = Texture.TextureFilter.MipMapLinearNearest;
 
