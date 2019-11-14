@@ -1,11 +1,12 @@
 package no.ntnu.trostespel.tcpServer;
 
 import com.google.gson.Gson;
+import no.ntnu.trostespel.config.CommunicationConfig;
 import no.ntnu.trostespel.model.Connection;
-import no.ntnu.trostespel.model.ConnectionStatus;
 import no.ntnu.trostespel.model.Connections;
-import no.ntnu.trostespel.networking.tcp.TCPMessage;
-import no.ntnu.trostespel.networking.tcp.Response;
+import no.ntnu.trostespel.networking.tcp.message.StringMessage;
+import no.ntnu.trostespel.networking.tcp.message.TCPMessage;
+import no.ntnu.trostespel.networking.tcp.message.ConnectionResponse;
 
 import java.io.*;
 import java.net.InetAddress;
@@ -14,8 +15,8 @@ import java.net.Socket;
 
 import static no.ntnu.trostespel.config.CommunicationConfig.MAX_PLAYERS;
 import static no.ntnu.trostespel.model.ConnectionStatus.CONNECTED;
-import static no.ntnu.trostespel.networking.tcp.TCPEvent.CONNECTION_ACCEPTED;
-import static no.ntnu.trostespel.networking.tcp.TCPEvent.CONNECTION_REJECTED_SERVER_IS_FULL;
+import static no.ntnu.trostespel.networking.tcp.message.TCPEvent.CONNECTION_ACCEPTED;
+import static no.ntnu.trostespel.networking.tcp.message.TCPEvent.CONNECTION_REJECTED_SERVER_IS_FULL;
 
 
 // TODO: 11.10.2019 This class should contain some sort of threadpool with a fixed size to handle all connection requests.
@@ -24,11 +25,12 @@ public class ConnectionManager implements Runnable {
 
     private final String mapFileName;
     private ServerSocket server;
-    private Gson gson = new Gson();
+    private Gson gson;
 
     public ConnectionManager(int port, String mapFileName) throws IOException {
         this.server = new ServerSocket(port, 1, null);
         this.mapFileName = mapFileName;
+        gson = CommunicationConfig.getGsonForTcp();
     }
 
     @Override
@@ -46,7 +48,6 @@ public class ConnectionManager implements Runnable {
             TCPMessage msg = deserialize(data);
             handlePackage(msg, client);
 
-
             client.close();
             System.out.println();
             System.out.println("Now serving " + Connections.getInstance().getConnections().size() + " player(s)");
@@ -61,26 +62,28 @@ public class ConnectionManager implements Runnable {
     private void handlePackage(TCPMessage msg, Socket client) throws IOException {
         switch (msg.getEvent()) {
             case CONNECT:
-                String[] args = msg.getArgs();
-                String uName = args[0];
-                int udpPort = Integer.parseInt(args[1]);
+                if (msg instanceof StringMessage) {
+                    String[] args = ((StringMessage) msg).getArgs();
+                    String uName = args[0];
+                    int udpPort = Integer.parseInt(args[1]);
 
-                // Send the response back to the client.
-                OutputStream os = client.getOutputStream();
-                OutputStreamWriter osw = new OutputStreamWriter(os);
-                BufferedWriter bw = new BufferedWriter(osw);
-                if (getActiveConnections() >= MAX_PLAYERS) {
-                    String response = serialize(new Response(CONNECTION_REJECTED_SERVER_IS_FULL));
-                    bw.write(response);
-                    System.out.println("Message sent to the client is " + response);
-                    bw.flush();
-                } else {
-                    Connection connection = new Connection(client.getInetAddress(), udpPort, uName);
-                    String response = serialize(new Response(uName, connection.getPid(), mapFileName, CONNECTION_ACCEPTED));
-                    bw.write(response);
-                    System.out.println("Message sent to the client is " + response);
-                    bw.flush();
-                    Connections.getInstance().setConnection(connection);
+                    // Send the response back to the client.
+                    OutputStream os = client.getOutputStream();
+                    OutputStreamWriter osw = new OutputStreamWriter(os);
+                    BufferedWriter bw = new BufferedWriter(osw);
+                    if (getActiveConnections() >= MAX_PLAYERS) {
+                        String response = serialize(new ConnectionResponse(CONNECTION_REJECTED_SERVER_IS_FULL));
+                        bw.write(response);
+                        System.out.println("Message sent to the client is " + response);
+                        bw.flush();
+                    } else {
+                        Connection connection = new Connection(client.getInetAddress(), udpPort, uName);
+                        String response = serialize(new ConnectionResponse(uName, connection.getPid(), mapFileName, CONNECTION_ACCEPTED));
+                        bw.write(response);
+                        System.out.println("Message sent to the client is " + response);
+                        bw.flush();
+                        Connections.getInstance().setConnection(connection);
+                    }
                 }
         }
     }
@@ -99,7 +102,7 @@ public class ConnectionManager implements Runnable {
     }
 
     private String serialize(Object msg) {
-        return gson.toJson(msg);
+        return gson.toJson(msg, TCPMessage.class);
     }
 
     public void send() {

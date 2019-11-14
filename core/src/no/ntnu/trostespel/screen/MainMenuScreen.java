@@ -15,18 +15,18 @@ import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
-import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import no.ntnu.trostespel.TrosteSpel;
 import no.ntnu.trostespel.config.CommunicationConfig;
 import no.ntnu.trostespel.config.ScreenConfig;
 import no.ntnu.trostespel.entity.Session;
 import no.ntnu.trostespel.networking.tcp.ConnectionClient;
-import no.ntnu.trostespel.networking.tcp.Response;
+import no.ntnu.trostespel.networking.tcp.message.ConnectionResponse;
+import no.ntnu.trostespel.networking.tcp.message.StringMessage;
+import no.ntnu.trostespel.networking.tcp.message.TCPEvent;
+import no.ntnu.trostespel.networking.tcp.message.TCPMessage;
 
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Future;
+import java.net.DatagramSocket;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import static java.util.concurrent.Executors.newSingleThreadExecutor;
 
@@ -85,39 +85,43 @@ public class MainMenuScreen implements Screen {
                     // Get username
                     Session.getInstance().setUserName(text);
 
-                    // Try connecting to the server
-                    ExecutorService executor = newSingleThreadExecutor((
-                            new ThreadFactoryBuilder().setNameFormat("ServerConnection-%d").build()));
-                    Callable connect = ConnectionClient.connect(CommunicationConfig.host,
-                            CommunicationConfig.SERVER_TCP_CONNECTION_RECEIVE_PORT);
-                    Future future = executor.submit(connect);
-
                     // Retrieve and set the pid
-                    Response response = (Response) future.get();
+                    ConnectionClient tcpClient = game.startTcpConnection();
+                    tcpClient.listen(new ConnectionClient.MessageReceivedListener() {
+                        @Override
+                        public void onReceive(TCPMessage msg) {
+                            if (msg instanceof ConnectionResponse) {
+                                ConnectionResponse response = (ConnectionResponse) msg;
+                                switch (response.getEvent()) {
+                                    case CONNECTION_ACCEPTED:
+                                        Session.getInstance().setPid(response.getPid());
+                                        Session.getInstance().setMapName(response.getMapFileName());
+                                        connectedLabel.setText("Connected");
+                                        connectedLabel.setStyle(labelStyle);
+                                        break;
 
-                    switch (response.getEvent()) {
-
-                        case CONNECTION_ACCEPTED:
-                            Session.getInstance().setPid(response.getPid());
-                            Session.getInstance().setUdpSocket(response.getSocket());
-                            Session.getInstance().setMapName(response.getMapFileName());
-
-                            connectedLabel.setText("Connected");
-                            connectedLabel.setStyle(labelStyle);
-                            break;
-
-                        case CONNECTION_REJECTED_SERVER_IS_FULL:
-                            statusLabel.setText("Server is currently full..");
-                            break;
-
+                                    case CONNECTION_REJECTED_SERVER_IS_FULL:
+                                        statusLabel.setText("Server is currently full..");
+                                }
+                                tcpClient.stopListen(this);
+                            }
+                        }
+                    });
+                    DatagramSocket socket = tcpClient.createUDPSocket(CommunicationConfig.CLIENT_UDP_GAMEDATA_PORT);
+                    Session.getInstance().setUdpSocket(socket);
+                    if (tcpClient.sendMessage(new StringMessage(TCPEvent.CONNECT, new String[]{text, String.valueOf(socket.getLocalPort())}))) {
+                    } else {
+                        // uh oh
                     }
-                } catch (InterruptedException | ExecutionException e) {
+                } catch (Exception e) {
                     e.printStackTrace();
                 }
             }
 
             @Override
-            public void canceled() { }
+            public void canceled() {
+
+            }
         };
 
 //        optionsButton.addListener(new ClickListener() {
@@ -160,17 +164,28 @@ public class MainMenuScreen implements Screen {
 
 
         //Add buttons to table
-//        mainTable.add(optionsButton);
+        //mainTable.add(optionsButton);
         mainTable.row();
-        mainTable.add(connect).minSize(300, 100).padBottom(10).padTop(200);
+        mainTable.add(connect).
+                minSize(300, 100).
+                padBottom(10).
+                padTop(200);
         mainTable.row();
         mainTable.add(connectedLabel);
         mainTable.row();
         mainTable.add(statusLabel);
         mainTable.row();
-        mainTable.add(play).minSize(300, 100).padBottom(10);
+        mainTable.add(play).
+
+                minSize(300, 100).
+
+                padBottom(10);
         mainTable.row();
-        mainTable.add(exitButton).minSize(300, 100).padBottom(10);
+        mainTable.add(exitButton).
+
+                minSize(300, 100).
+
+                padBottom(10);
 
         //Add table to stage
         stage.addActor(mainTable);

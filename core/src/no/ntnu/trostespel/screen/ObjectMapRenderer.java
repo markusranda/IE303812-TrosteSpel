@@ -22,16 +22,16 @@ public class ObjectMapRenderer extends com.badlogic.gdx.maps.tiled.renderers.Ort
      */
     @Override
     public void renderObject(MapObject object) {
-        if (object.getProperties().containsKey(MAP_OBJECT_ID_PLAYER)) {
-            Player player = (Player) object.getProperties().get(MAP_OBJECT_ID_PLAYER);
-            if (player.getTexture() != null) {
-                player.draw(batch);
-            }
-        }
         if (object.getProperties().containsKey(MAP_OBJECT_ID_PROJECTILE)) {
             Projectile projectile = (Projectile) object.getProperties().get(MAP_OBJECT_ID_PROJECTILE);
             if (projectile.getTextureRegion() != null) {
                 projectile.draw(batch);
+            }
+        }
+        if (object.getProperties().containsKey(MAP_OBJECT_ID_PLAYER)) {
+            Player player = (Player) object.getProperties().get(MAP_OBJECT_ID_PLAYER);
+            if (player.getTexture() != null) {
+                player.draw(batch);
             }
         }
     }

@@ -11,13 +11,18 @@ import no.ntnu.trostespel.config.KeyConfig;
 import no.ntnu.trostespel.entity.Movable;
 import no.ntnu.trostespel.entity.Player;
 import no.ntnu.trostespel.entity.Session;
-import no.ntnu.trostespel.networking.GameDataReceiver;
-import no.ntnu.trostespel.networking.GameDataTransmitter;
+import no.ntnu.trostespel.networking.udp.GameDataReceiver;
+import no.ntnu.trostespel.networking.udp.GameDataTransmitter;
+import no.ntnu.trostespel.networking.tcp.ConnectionClient;
 import no.ntnu.trostespel.screen.MainMenuScreen;
 import no.ntnu.trostespel.state.GameState;
 
 import java.net.DatagramSocket;
+import java.util.concurrent.Callable;
+import java.util.concurrent.Future;
 
+import static java.util.concurrent.Executors.newSingleThreadExecutor;
+import static java.util.concurrent.Executors.newSingleThreadScheduledExecutor;
 import static no.ntnu.trostespel.config.Assets.img;
 
 /**
@@ -29,6 +34,7 @@ public class TrosteSpel extends Game {
     private GameDataReceiver gameDataReceiver;
     public static Skin skin;
     private GameDataTransmitter transmitter;
+
 
     @Override
     public void create() {
@@ -45,6 +51,17 @@ public class TrosteSpel extends Game {
 
         // Set the screen to Main Menu
         setScreen(new MainMenuScreen(this));
+    }
+
+    public ConnectionClient startTcpConnection() {
+        ConnectionClient tcpClient = ConnectionClient.getInstance();
+        if (!tcpClient.isRunning()) {
+            tcpClient.bind(
+                    CommunicationConfig.host,
+                    CommunicationConfig.SERVER_TCP_CONNECTION_RECEIVE_PORT)
+                    .start();
+        }
+        return tcpClient;
     }
 
     public void startUdpConnection(GameState<Player, Movable> gameState) {
