@@ -5,6 +5,7 @@ import java.net.InetAddress;
 import java.net.SocketException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import static no.ntnu.trostespel.model.ConnectionStatus.CONNECTED;
@@ -12,16 +13,16 @@ import static no.ntnu.trostespel.model.ConnectionStatus.DISCONNECTED;
 
 public class Connection {
 
-    private InetAddress address;
-    private int port;
+    private final InetAddress address;
+    private final int port;
     private DatagramSocket clientSocket;
     private double timeArrived;
 
-    private String username;
-    private long pid;
+    private final String username;
+    private final long pid;
     private static AtomicLong idCounter = new AtomicLong(100);
     private volatile ConnectionStatus connectionStatus;
-    private ReentrantReadWriteLock reentrantReadWriteLock;
+    private final ReentrantReadWriteLock reentrantReadWriteLock = new ReentrantReadWriteLock();
 
     public Connection(InetAddress address, int port, String username) {
         this.address = address;
@@ -66,12 +67,23 @@ public class Connection {
     }
 
     public void setDisconnected() {
-        this.connectionStatus = DISCONNECTED;
+        Lock writeLock = reentrantReadWriteLock.writeLock();
+        writeLock.lock();
+        try {
+            this.connectionStatus = DISCONNECTED;
+        } finally {
+            writeLock.unlock();
+        }
     }
 
     public ConnectionStatus getConnectionStatus() {
-        ConnectionStatus connectionStatus = this.connectionStatus;
-        return connectionStatus;
+        Lock readLock = reentrantReadWriteLock.readLock();
+        readLock.lock();
+        try {
+            return connectionStatus;
+        } finally {
+            readLock.unlock();
+        }
     }
 
     public static long createID() {
@@ -80,6 +92,6 @@ public class Connection {
 
     @Override
     public String toString() {
-        return super.toString() + "[" + this.clientSocket + ", " + this.username + ", " + this.pid +  "]";
+        return super.toString() + "[" + this.clientSocket + ", " + this.username + ", " + this.pid + "]";
     }
 }
