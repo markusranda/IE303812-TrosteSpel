@@ -61,4 +61,8 @@ public class Projectile extends Movable {
     public long getId() {
         return id;
     }
+
+    public float getAngle() {
+        return angle;
+    }
 }

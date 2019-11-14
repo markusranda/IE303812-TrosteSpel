@@ -4,8 +4,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
-import com.badlogic.gdx.graphics.g2d.BitmapFont;
-import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.*;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.maps.MapLayer;
 import com.badlogic.gdx.maps.MapObject;
@@ -18,6 +17,7 @@ import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
+import com.badlogic.gdx.utils.Array;
 import no.ntnu.trostespel.TrosteSpel;
 import no.ntnu.trostespel.config.Assets;
 import no.ntnu.trostespel.config.CommunicationConfig;
@@ -58,6 +58,11 @@ public class GameplayScreen extends ScreenAdapter {
     private boolean debug = false;
     private BitmapFont font;
     private long tick;
+
+    private ParticleEffect impact;
+
+    private ParticleEffectPool impactEffectPool;
+    private Array<ParticleEffectPool.PooledEffect> effects = new Array();
 
     Skin skin = TrosteSpel.skin;
 
@@ -107,6 +112,9 @@ public class GameplayScreen extends ScreenAdapter {
         gameState.setCollidables((TiledMapTileLayer) collisionLayer);
 
         collisionLayer.setVisible(false);
+
+        impact = Assets.particleEffect;
+        impactEffectPool = new ParticleEffectPool(impact, 10, 100);
         // start sending and listening for data
         communicate();
     }
@@ -247,6 +255,19 @@ public class GameplayScreen extends ScreenAdapter {
                 }
             } else if (action == Action.KILL) {
                 Movable remove = gameState.getProjectiles().remove(eid);
+                if (remove != null) {
+                    if (remove instanceof Projectile) {
+                        Vector2 pos = remove.getPos();
+                        // show parrticle effect
+                        float angle = ((Projectile) remove).getAngle();
+                        ParticleEffectPool.PooledEffect effect = impactEffectPool.obtain();
+                        effect.setPosition(pos.x, pos.y);
+                        effect.getEmitters().first().getAngle().setLow(angle);
+                        effect.getEmitters().first().getAngle().setHigh(angle);
+                        effects.add(effect);
+                    }
+
+                }
                 for (MapObject mapObject : objectLayer.getObjects()) {
                     if (mapObject.getProperties().containsKey(MAP_OBJECT_ID_PROJECTILE)) {
                         Iterator innerIterator = mapObject.getProperties().getValues();
@@ -267,6 +288,19 @@ public class GameplayScreen extends ScreenAdapter {
             projectile.update(Gdx.graphics.getDeltaTime(), tick);
         }
     }
+
+    private void drawParticle() {
+        // Update and draw effects:
+        for (int i = effects.size - 1; i >= 0; i--) {
+            ParticleEffectPool.PooledEffect effect = effects.get(i);
+            effect.draw(game.batch, Gdx.graphics.getDeltaTime());
+            if (effect.isComplete()) {
+                effect.free();
+                effects.removeIndex(i);
+            }
+        }
+    }
+
 
     @Override
     public void render(float delta) {
@@ -296,6 +330,7 @@ public class GameplayScreen extends ScreenAdapter {
 
             // Draw
             game.batch.begin();
+            drawParticle();
             drawUI();
             stage.act(delta);
             stage.draw();
