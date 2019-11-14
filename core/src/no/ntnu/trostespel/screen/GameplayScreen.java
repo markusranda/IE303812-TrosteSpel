@@ -257,7 +257,7 @@ public class GameplayScreen extends ScreenAdapter {
                 Movable remove = gameState.getProjectiles().remove(eid);
                 if (remove != null) {
                     if (remove instanceof Projectile) {
-                        Vector2 pos = remove.getPos();
+                        Vector2 pos = remove.getCenterPos();
                         // show parrticle effect
                         float angle = ((Projectile) remove).getAngle();
                         ParticleEffectPool.PooledEffect effect = impactEffectPool.obtain();
