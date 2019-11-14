@@ -1,7 +1,7 @@
 package no.ntnu.trostespel.model;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 public class Connections {
 
@@ -18,7 +18,7 @@ public class Connections {
     }
 
     private Connections() {
-        connections = new ArrayList<>();
+        connections = new CopyOnWriteArrayList<>();
     }
 
     public List<Connection> getConnections() {
