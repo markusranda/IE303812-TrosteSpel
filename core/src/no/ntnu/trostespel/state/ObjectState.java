@@ -2,6 +2,7 @@ package no.ntnu.trostespel.state;
 
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
+import no.ntnu.trostespel.config.GameRules;
 
 public class ObjectState {
 
