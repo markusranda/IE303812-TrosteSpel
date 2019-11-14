@@ -3,7 +3,9 @@ package no.ntnu.trostespel.model;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.SocketException;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import static no.ntnu.trostespel.model.ConnectionStatus.CONNECTED;
 import static no.ntnu.trostespel.model.ConnectionStatus.DISCONNECTED;
@@ -18,7 +20,8 @@ public class Connection {
     private String username;
     private long pid;
     private static AtomicLong idCounter = new AtomicLong(100);
-    private ConnectionStatus connectionStatus;
+    private volatile ConnectionStatus connectionStatus;
+    private ReentrantReadWriteLock reentrantReadWriteLock;
 
     public Connection(InetAddress address, int port, String username) {
         this.address = address;
@@ -66,6 +69,11 @@ public class Connection {
         this.connectionStatus = DISCONNECTED;
     }
 
+    public ConnectionStatus getConnectionStatus() {
+        ConnectionStatus connectionStatus = this.connectionStatus;
+        return connectionStatus;
+    }
+
     public static long createID() {
         return idCounter.getAndIncrement();
     }
@@ -73,9 +81,5 @@ public class Connection {
     @Override
     public String toString() {
         return super.toString() + "[" + this.clientSocket + ", " + this.username + ", " + this.pid +  "]";
-    }
-
-    public ConnectionStatus getConnectionStatus() {
-        return connectionStatus;
     }
 }
