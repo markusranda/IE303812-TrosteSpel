@@ -16,6 +16,7 @@ public class MovableState extends ObjectState {
     public final transient int damage = 15;
 
     private MovableState() {
+        super(24f, 24f, Vector2.Zero);
         // kryo requires a no-args constructor to work properly
     }
 
