@@ -139,7 +139,7 @@ public class PlayerCmdProcessor {
             }
             // add resulting projectile to spawned objects list
             if (!attackDir.isEmpty()) {
-                projectile.setPosition(playerState.getPosition());
+                projectile.setPositionWithSpawnOffset(playerState.getPosition());
                 putProjectile(projectile.getId(), projectile);
 
                 // allow attacks every 0.3 seconds

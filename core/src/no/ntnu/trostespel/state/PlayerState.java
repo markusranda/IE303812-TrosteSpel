@@ -1,10 +1,13 @@
 package no.ntnu.trostespel.state;
 
+import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
-import no.ntnu.trostespel.config.CommunicationConfig;
 
 import java.util.LinkedList;
 import java.util.Queue;
+
+import static no.ntnu.trostespel.config.GameRules.Player.*;
+import static no.ntnu.trostespel.config.GameRules.Player.HEIGHT_OFFSET;
 
 public class PlayerState extends ObjectState{
 
@@ -112,5 +115,15 @@ public class PlayerState extends ObjectState{
 
     public void setUsername(String username) {
         this.username = username;
+    }
+
+    public Rectangle getHitboxWithPosition() {
+        Vector2 pos = getPosition();
+        Rectangle hitbox = super.getHitbox();
+        hitbox.height = HITBOX_HEIGHT;
+        hitbox.width = HITBOX_WIDTH;
+        hitbox.x = pos.x + WIDTH_OFFSET;
+        hitbox.y = pos.y + HEIGHT_OFFSET;
+        return hitbox;
     }
 }
