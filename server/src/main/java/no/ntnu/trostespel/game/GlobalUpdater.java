@@ -3,19 +3,22 @@ package no.ntnu.trostespel.game;
 import com.badlogic.gdx.math.Intersector;
 import com.badlogic.gdx.math.Vector2;
 import no.ntnu.trostespel.config.GameRules;
-import no.ntnu.trostespel.state.Action;
-import no.ntnu.trostespel.state.GameState;
-import no.ntnu.trostespel.state.MovableState;
-import no.ntnu.trostespel.state.PlayerState;
+import no.ntnu.trostespel.networking.tcp.message.StringMessage;
+import no.ntnu.trostespel.networking.tcp.message.TCPEvent;
+import no.ntnu.trostespel.networking.tcp.message.TCPMessage;
+import no.ntnu.trostespel.state.*;
 
 import java.util.ArrayList;
 import java.util.ConcurrentModificationException;
 import java.util.concurrent.ConcurrentMap;
 
+
 public class GlobalUpdater extends Updater {
     private GameState<PlayerState, MovableState> gameState;
     private long tick;
     private ArrayList<Long> removeList = new ArrayList<>();
+    private ArrayList<TCPMessage> globalEvents = new ArrayList<>();
+    private StringMessage msg = new StringMessage(TCPEvent.GLOBAL_MESSAGE);
 
 
     public GlobalUpdater(GameState gameState, long tick) {
@@ -64,7 +67,7 @@ public class GlobalUpdater extends Updater {
                 if (players.containsKey(key)) {
                     if (Intersector.overlaps(playerState.getHitboxWithPosition(), obj.getHitboxWithPosition())) {
                         long id = obj.getId();
-                        playerState.hurt(obj.damage, currentTick);
+                        playerState.hurt(obj, currentTick);
                         System.out.println("Bullet @" + obj.getPosition() + " HIT " + "Player #" + playerState.getPid() + " @" + playerState.getPosition() + "Current health: " + playerState.getHealth() + ", Damage: " + obj.damage);
                         removeList.add(id);
                     }
@@ -102,6 +105,29 @@ public class GlobalUpdater extends Updater {
         }
     }
 
+    private void newEvent(GameEvent event, ObjectState context) {
+        switch (event) {
+            case KILLSTREAK:
+                if (context instanceof PlayerState) {
+                    PlayerState player = (PlayerState) context;
+                    msg.addMessage(player.getUsername() + " IS ON A BRUTAL " + player.getKillStreak() + " KILL RAMPAGE");
+                }
+                break;
+            case PLAYER_KILLED:
+                if (context instanceof PlayerState) {
+                    PlayerState player = (PlayerState) context;
+                    PlayerState slayer = gameState.getPlayers().get(player.getLastDamager());
+                    msg.addMessage(player.getUsername() + " was SLAIN by " + slayer.getUsername());
+                    if (slayer.getKillStreak() > 2) {
+                        newEvent(GameEvent.KILLSTREAK, slayer);
+                    }
+                }
+                break;
+            default:
+                System.out.println("Error: Tried to create unsupported event: " + event);;
+        }
+    }
+
     @Override
     public void run() {
         try {
@@ -109,5 +135,10 @@ public class GlobalUpdater extends Updater {
         } catch (ConcurrentModificationException e) {
             e.printStackTrace();
         }
+    }
+
+    enum GameEvent {
+        KILLSTREAK,
+        PLAYER_KILLED
     }
 }

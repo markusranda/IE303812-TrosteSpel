@@ -20,6 +20,8 @@ public class PlayerState extends ObjectState{
     private transient Queue<MovableState> spawnedObjects = new LinkedList<>();
     private transient final short invincibilityFrames = 3;
     private transient long lastTimeDamageTaken = 0;
+    private transient long lastDamager = -1;
+    private int killStreak = 0;
     private Action action;
     private long timeOfDeath;
     private String username;
@@ -55,11 +57,21 @@ public class PlayerState extends ObjectState{
         return attackTimer;
     }
 
-    public void hurt(int damage, long currentTick) {
+    public void hurt(MovableState obj, long currentTick) {
         if (lastTimeDamageTaken < currentTick - invincibilityFrames) {
-            this.health -= damage;
+            this.health -= obj.damage;
+            lastDamager = obj.getPid();
             lastTimeDamageTaken = currentTick;
+            if (health <= 0) killStreak = 0;
         }
+    }
+
+    public int getKillStreak() {
+        return killStreak;
+    }
+
+    public long getLastDamager() {
+        return lastDamager;
     }
 
     public long getPid() {
