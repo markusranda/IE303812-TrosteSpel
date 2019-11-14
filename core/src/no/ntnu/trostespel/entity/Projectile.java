@@ -1,5 +1,6 @@
 package no.ntnu.trostespel.entity;
 
+import com.badlogic.gdx.Game;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.math.Rectangle;
@@ -13,12 +14,11 @@ public class Projectile extends Movable {
     private float angle;
     private Vector2 heading;
     private long id;
-    private final Vector2 SPAWN_OFFSET = new Vector2(GameRules.Projectile.SPAWN_POINT_x_OFFSET, GameRules.Projectile.SPAWN_POINT_Y_OFFSET);
 
 
     public Projectile(Vector2 pos, Texture texture, double velocity, float angle, long id) {
         super(pos, 24, 24, new Rectangle(), texture);
-        Vector2 spawnPos = getPos().add(SPAWN_OFFSET);
+        Vector2 spawnPos = getPos().add(GameRules.Projectile.SPAWN_OFFSET);
         setPos(spawnPos);
         this.velocity = velocity;
         this.angle = angle;

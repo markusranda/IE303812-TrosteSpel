@@ -14,9 +14,17 @@ public class ObjectState {
         this.position = position;
     }
 
-    public Rectangle getHitbox() {
+    public Rectangle getHitboxWithPosition() {
         hitbox.x = position.x;
         hitbox.y = position.y;
+        return hitbox;
+    }
+
+    /**
+     * return the raw hitbox object without any specific set values
+     * @return
+     */
+    public Rectangle getHitbox() {
         return hitbox;
     }
 
@@ -26,10 +34,6 @@ public class ObjectState {
 
     public void setPosition(Vector2 position) {
         this.position = position;
-    }
-
-    public boolean collides(ObjectState otherObject) {
-        return this.hitbox.overlaps(otherObject.getHitbox());
     }
 
     public void addPostion(Vector2 displacement) {
