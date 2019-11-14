@@ -72,6 +72,7 @@ public class GameplayScreen extends ScreenAdapter {
 
     private GameState<PlayerState, MovableState> receivedState;
     private BitmapFont fontUserName;
+    private Table messageListTable;
 
 
     public GameplayScreen(TrosteSpel game) {
@@ -84,6 +85,7 @@ public class GameplayScreen extends ScreenAdapter {
         stage = new Stage();
         initFonts();
         initPlayerList();
+        initMessageList();
 
         // init debuggerUI
         debuggerUiTable = new Table();
@@ -125,6 +127,13 @@ public class GameplayScreen extends ScreenAdapter {
         stage.addActor(playerListTable);
         playerListTable.setSkin(skin);
         playerListTable.setPosition(Gdx.graphics.getWidth() - 200, Gdx.graphics.getHeight() - 200);
+    }
+
+    private void initMessageList() {
+        messageListTable = new Table();
+        stage.addActor(messageListTable);
+        messageListTable.setSkin(skin);
+        messageListTable.setPosition(200, Gdx.graphics.getHeight() - 200);
     }
 
     private void initFonts() {
@@ -387,6 +396,22 @@ public class GameplayScreen extends ScreenAdapter {
             debuggerUiTable.add(new Label("Player: " + pid + "  " + state.getPosition(), skin));
             debuggerUiTable.row();
         }
+    }
+
+    /**
+     * Retrieves a list of messages, then displays them in a
+     * table on the screen.
+     */
+    private void updateMessageListUI() {
+        // Clear table
+        messageListTable.clearChildren();
+
+        // Iterate list of all messages
+//        for (LarsianMessage larsianMessage: getThoseLarsianMessages()) {
+//            // Add new labels with messages
+//            messageListTable.add(new Label(currentMessage.getMessage(), labelStyle));
+//            messageListTable.row();
+//        }
     }
 
     /**
