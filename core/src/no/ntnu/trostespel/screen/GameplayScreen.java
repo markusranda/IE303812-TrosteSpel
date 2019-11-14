@@ -2,9 +2,12 @@ package no.ntnu.trostespel.screen;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.ScreenAdapter;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.*;
+import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.maps.MapLayer;
 import com.badlogic.gdx.maps.MapObject;
@@ -50,6 +53,7 @@ public class GameplayScreen extends ScreenAdapter {
     private final Stage stage;
     private final Table playerListTable;
     private final Table debuggerUiTable;
+    private Label.LabelStyle labelStyle;
     private GameState<Player, Movable> gameState;
 
     private ShapeRenderer lineRenderer = new ShapeRenderer();
@@ -67,6 +71,7 @@ public class GameplayScreen extends ScreenAdapter {
     Skin skin = TrosteSpel.skin;
 
     private GameState<PlayerState, MovableState> receivedState;
+    private BitmapFont fontUserName;
 
 
     public GameplayScreen(TrosteSpel game) {
@@ -77,6 +82,9 @@ public class GameplayScreen extends ScreenAdapter {
 
         // init stage
         stage = new Stage();
+
+        // font test
+        initFonts();
 
         // init playerListTable
         playerListTable = new Table();
@@ -117,6 +125,27 @@ public class GameplayScreen extends ScreenAdapter {
         impactEffectPool = new ParticleEffectPool(impact, 10, 100);
         // start sending and listening for data
         communicate();
+    }
+
+    private void initFonts() {
+        FreeTypeFontGenerator generatorPlayerList
+                = new FreeTypeFontGenerator(Gdx.files.internal("fonts/Quicksand.ttf"));
+        FreeTypeFontGenerator.FreeTypeFontParameter
+                parameterPlayerList = new FreeTypeFontGenerator.FreeTypeFontParameter();
+        generatorPlayerList.scaleForPixelHeight(50);
+        parameterPlayerList.size = 28;
+        parameterPlayerList.borderWidth = 3;
+        parameterPlayerList.color = Color.WHITE;
+//        parameterPlayerList.shadowOffsetX = 1;
+//        parameterPlayerList.shadowOffsetY = 1;
+//        parameterPlayerList.shadowColor = new Color(0, 0.5f, 0, 0.75f);
+        parameterPlayerList.minFilter = Texture.TextureFilter.Nearest;
+        parameterPlayerList.magFilter = Texture.TextureFilter.MipMapLinearNearest;
+
+        BitmapFont fontPlayerList = generatorPlayerList.generateFont(parameterPlayerList);
+
+        labelStyle = new Label.LabelStyle();
+        labelStyle.font = fontPlayerList;
     }
 
     private void communicate() {
@@ -373,7 +402,7 @@ public class GameplayScreen extends ScreenAdapter {
             if (entry.getValue() instanceof Player) {
                 Player currentPlayer = (Player) entry.getValue();
                 if (!(currentPlayer.getUsername() == null)) {
-                    Label usernameLabel = new Label(currentPlayer.getUsername(), skin);
+                    Label usernameLabel = new Label(currentPlayer.getUsername(), labelStyle);
                     usernameLabel.setName(currentPlayer.getUsername());
                     playerListTable.add(usernameLabel);
                     playerListTable.row();
