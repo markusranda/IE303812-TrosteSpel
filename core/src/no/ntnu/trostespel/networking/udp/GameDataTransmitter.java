@@ -1,4 +1,4 @@
-package no.ntnu.trostespel.networking;
+package no.ntnu.trostespel.networking.udp;
 
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import no.ntnu.trostespel.config.CommunicationConfig;

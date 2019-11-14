@@ -1,6 +1,12 @@
 package no.ntnu.trostespel.config;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
+import no.ntnu.trostespel.networking.tcp.message.ConnectionResponse;
+import no.ntnu.trostespel.networking.tcp.message.RuntimeTypeAdapterFactory;
+import no.ntnu.trostespel.networking.tcp.message.StringMessage;
+import no.ntnu.trostespel.networking.tcp.message.TCPMessage;
 import no.ntnu.trostespel.state.GameState;
 import no.ntnu.trostespel.state.MovableState;
 import no.ntnu.trostespel.state.PlayerState;
@@ -24,7 +30,8 @@ public class CommunicationConfig {
     public static final int RETRY_CONNECTION_TIMEOUT = 10000; // 10 seconds
     public static final int MAX_PLAYERS = 8;
 
-    public static final Type RECEIVED_DATA_TYPE = new TypeToken<GameState<PlayerState, MovableState>>() {}.getType();
+    public static final Type RECEIVED_DATA_TYPE = new TypeToken<GameState<PlayerState, MovableState>>() {
+    }.getType();
 
     private static CommunicationConfig single_instance = null;
 
@@ -33,6 +40,17 @@ public class CommunicationConfig {
             single_instance = new CommunicationConfig();
         }
         return single_instance;
+    }
+
+    public static Gson getGsonForTcp() {
+        RuntimeTypeAdapterFactory<TCPMessage> typeAdapterFactory = RuntimeTypeAdapterFactory
+                .of(TCPMessage.class, "TCPMessage")
+                .registerSubtype(ConnectionResponse.class, "ConnectionResponse")
+                .registerSubtype(StringMessage.class, "StringMessage");
+
+        return new GsonBuilder().registerTypeAdapterFactory(typeAdapterFactory)
+                .setLenient()
+                .create();
     }
 
     private CommunicationConfig() {

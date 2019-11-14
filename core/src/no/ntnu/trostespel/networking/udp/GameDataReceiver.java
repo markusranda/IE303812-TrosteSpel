@@ -1,4 +1,4 @@
-package no.ntnu.trostespel.networking;
+package no.ntnu.trostespel.networking.udp;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonIOException;
@@ -10,6 +10,7 @@ import no.ntnu.trostespel.state.GameState;
 import no.ntnu.trostespel.state.MovableState;
 import no.ntnu.trostespel.state.PlayerState;
 
+import java.io.IOException;
 import java.io.StringReader;
 import java.lang.reflect.Type;
 import java.net.DatagramPacket;
@@ -53,7 +54,7 @@ public class GameDataReceiver implements Runnable {
                 // blocks until a packet is received
                 udpSocket.receive(packet);
 
-            } catch (Exception e) {
+            } catch (JsonSyntaxException | IllegalStateException | IOException e) {
                 e.printStackTrace();
             }
 

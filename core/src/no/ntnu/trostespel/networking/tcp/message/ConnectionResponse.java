@@ -1,25 +1,23 @@
-package no.ntnu.trostespel.networking.tcp;
+package no.ntnu.trostespel.networking.tcp.message;
 
 import java.net.DatagramSocket;
 
-public class Response {
+public class ConnectionResponse extends TCPMessage {
     private String mapFileName;
-    private TCPEvent event;
     private transient DatagramSocket socket;
     private String username;
     private long pid;
 
 
-
-    public Response(String uName, long pid, String mapFileName, TCPEvent event) {
+    public ConnectionResponse(String uName, long pid, String mapFileName, TCPEvent event) {
+        super(event);
         this.username = uName;
         this.pid = pid;
         this.mapFileName = mapFileName;
-        this.event = event;
     }
 
-    public Response(TCPEvent event) {
-        this.event = event;
+    public ConnectionResponse(TCPEvent event) {
+        super(event);
     }
 
     public DatagramSocket getSocket() {
@@ -46,7 +44,4 @@ public class Response {
         this.username = username;
     }
 
-    public TCPEvent getEvent() {
-        return this.event;
-    }
 }
