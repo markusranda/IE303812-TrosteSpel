@@ -2,6 +2,7 @@ package no.ntnu.trostespel.state;
 
 import com.badlogic.gdx.math.Vector2;
 import no.ntnu.trostespel.entity.Movable;
+import no.ntnu.trostespel.config.GameRules;
 
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -28,6 +29,10 @@ public class MovableState extends ObjectState {
         this.action = Action.CREATE;
         this.heading = new Vector2(1, 0);
         this.heading.setLength((float) velocity);
+    }
+
+    public void setPositionWithSpawnOffset(Vector2 position) {
+        this.setPosition(position.add(GameRules.Projectile.SPAWN_OFFSET));
     }
 
     public void setAction(Action action) {

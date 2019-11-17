@@ -1,8 +1,8 @@
 package no.ntnu.trostespel.game;
 
+import com.badlogic.gdx.math.Intersector;
 import com.badlogic.gdx.math.Vector2;
 import no.ntnu.trostespel.config.GameRules;
-import no.ntnu.trostespel.entity.Movable;
 import no.ntnu.trostespel.state.Action;
 import no.ntnu.trostespel.state.GameState;
 import no.ntnu.trostespel.state.MovableState;
@@ -10,7 +10,6 @@ import no.ntnu.trostespel.state.PlayerState;
 
 import java.util.ArrayList;
 import java.util.ConcurrentModificationException;
-import java.util.Map;
 import java.util.concurrent.ConcurrentMap;
 
 public class GlobalUpdater extends Updater {
@@ -63,7 +62,7 @@ public class GlobalUpdater extends Updater {
         players.forEach((key, playerState) -> {
             if (playerState.getPid() != obj.getPid() || playerState.getAction() == Action.DEAD) {
                 if (players.containsKey(key)) {
-                    if (playerState.getHitbox().contains(obj.getPosition())) {
+                    if (Intersector.overlaps(playerState.getHitboxWithPosition(), obj.getHitboxWithPosition())) {
                         long id = obj.getId();
                         playerState.hurt(obj.damage, currentTick);
                         System.out.println("Bullet @" + obj.getPosition() + " HIT " + "Player #" + playerState.getPid() + " @" + playerState.getPosition() + "Current health: " + playerState.getHealth() + ", Damage: " + obj.damage);

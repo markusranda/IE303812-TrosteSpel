@@ -42,6 +42,10 @@ public abstract class GameObject {
         return pos.cpy();
     }
 
+    public Vector2 getCenterPos() {
+        return getHitbox().getCenter(new Vector2());
+    }
+
     public Rectangle getHitbox() {
         this.shape.set(pos.x, pos.y, width, height);
         return this.shape;

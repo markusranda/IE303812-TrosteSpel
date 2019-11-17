@@ -2,10 +2,12 @@ package no.ntnu.trostespel.screen;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.ScreenAdapter;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
-import com.badlogic.gdx.graphics.g2d.BitmapFont;
-import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.*;
+import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.maps.MapLayer;
 import com.badlogic.gdx.maps.MapObject;
@@ -18,6 +20,7 @@ import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
+import com.badlogic.gdx.utils.Array;
 import no.ntnu.trostespel.TrosteSpel;
 import no.ntnu.trostespel.config.Assets;
 import no.ntnu.trostespel.config.CommunicationConfig;
@@ -48,8 +51,9 @@ public class GameplayScreen extends ScreenAdapter {
     private final MapLayer objectLayer;
     private final MapLayer collisionLayer;
     private final Stage stage;
-    private final Table playerListTable;
+    private Table playerListTable;
     private final Table debuggerUiTable;
+    private Label.LabelStyle labelStyle;
     private GameState<Player, Movable> gameState;
 
     private ShapeRenderer lineRenderer = new ShapeRenderer();
@@ -59,9 +63,16 @@ public class GameplayScreen extends ScreenAdapter {
     private BitmapFont font;
     private long tick;
 
+    private ParticleEffect impact;
+
+    private ParticleEffectPool impactEffectPool;
+    private Array<ParticleEffectPool.PooledEffect> effects = new Array();
+
     Skin skin = TrosteSpel.skin;
 
     private GameState<PlayerState, MovableState> receivedState;
+    private BitmapFont fontUserName;
+    private Table messageListTable;
 
 
     public GameplayScreen(TrosteSpel game) {
@@ -72,12 +83,9 @@ public class GameplayScreen extends ScreenAdapter {
 
         // init stage
         stage = new Stage();
-
-        // init playerListTable
-        playerListTable = new Table();
-        stage.addActor(playerListTable);
-        playerListTable.setSkin(skin);
-        playerListTable.setPosition(Gdx.graphics.getWidth() - 200, Gdx.graphics.getHeight() - 200);
+        initFonts();
+        initPlayerList();
+        initMessageList();
 
         // init debuggerUI
         debuggerUiTable = new Table();
@@ -107,8 +115,43 @@ public class GameplayScreen extends ScreenAdapter {
         gameState.setCollidables((TiledMapTileLayer) collisionLayer);
 
         collisionLayer.setVisible(false);
+
+        impact = Assets.particleEffect;
+        impactEffectPool = new ParticleEffectPool(impact, 10, 100);
         // start sending and listening for data
         communicate();
+    }
+
+    private void initPlayerList() {
+        playerListTable = new Table();
+        stage.addActor(playerListTable);
+        playerListTable.setSkin(skin);
+        playerListTable.setPosition(Gdx.graphics.getWidth() - 200, Gdx.graphics.getHeight() - 200);
+    }
+
+    private void initMessageList() {
+        messageListTable = new Table();
+        stage.addActor(messageListTable);
+        messageListTable.setSkin(skin);
+        messageListTable.setPosition(200, Gdx.graphics.getHeight() - 200);
+    }
+
+    private void initFonts() {
+        FreeTypeFontGenerator generatorPlayerList
+                = new FreeTypeFontGenerator(Gdx.files.internal("fonts/Quicksand.ttf"));
+        FreeTypeFontGenerator.FreeTypeFontParameter
+                parameterPlayerList = new FreeTypeFontGenerator.FreeTypeFontParameter();
+        generatorPlayerList.scaleForPixelHeight(50);
+        parameterPlayerList.size = 28;
+        parameterPlayerList.borderWidth = 3;
+        parameterPlayerList.color = Color.WHITE;
+        parameterPlayerList.minFilter = Texture.TextureFilter.Nearest;
+        parameterPlayerList.magFilter = Texture.TextureFilter.MipMapLinearNearest;
+
+        BitmapFont fontPlayerList = generatorPlayerList.generateFont(parameterPlayerList);
+
+        labelStyle = new Label.LabelStyle();
+        labelStyle.font = fontPlayerList;
     }
 
     private void communicate() {
@@ -247,6 +290,19 @@ public class GameplayScreen extends ScreenAdapter {
                 }
             } else if (action == Action.KILL) {
                 Movable remove = gameState.getProjectiles().remove(eid);
+                if (remove != null) {
+                    if (remove instanceof Projectile) {
+                        Vector2 pos = remove.getCenterPos();
+                        // show parrticle effect
+                        float angle = ((Projectile) remove).getAngle();
+                        ParticleEffectPool.PooledEffect effect = impactEffectPool.obtain();
+                        effect.setPosition(pos.x, pos.y);
+                        effect.getEmitters().first().getAngle().setLow(angle);
+                        effect.getEmitters().first().getAngle().setHigh(angle);
+                        effects.add(effect);
+                    }
+
+                }
                 for (MapObject mapObject : objectLayer.getObjects()) {
                     if (mapObject.getProperties().containsKey(MAP_OBJECT_ID_PROJECTILE)) {
                         Iterator innerIterator = mapObject.getProperties().getValues();
@@ -267,6 +323,19 @@ public class GameplayScreen extends ScreenAdapter {
             projectile.update(Gdx.graphics.getDeltaTime(), tick);
         }
     }
+
+    private void drawParticle() {
+        // Update and draw effects:
+        for (int i = effects.size - 1; i >= 0; i--) {
+            ParticleEffectPool.PooledEffect effect = effects.get(i);
+            effect.draw(game.batch, Gdx.graphics.getDeltaTime());
+            if (effect.isComplete()) {
+                effect.free();
+                effects.removeIndex(i);
+            }
+        }
+    }
+
 
     @Override
     public void render(float delta) {
@@ -296,6 +365,7 @@ public class GameplayScreen extends ScreenAdapter {
 
             // Draw
             game.batch.begin();
+            drawParticle();
             drawUI();
             stage.act(delta);
             stage.draw();
@@ -329,6 +399,22 @@ public class GameplayScreen extends ScreenAdapter {
     }
 
     /**
+     * Retrieves a list of messages, then displays them in a
+     * table on the screen.
+     */
+    private void updateMessageListUI() {
+        // Clear table
+        messageListTable.clearChildren();
+
+        // Iterate list of all messages
+//        for (LarsianMessage larsianMessage: getThoseLarsianMessages()) {
+//            // Add new labels with messages
+//            messageListTable.add(new Label(currentMessage.getMessage(), labelStyle));
+//            messageListTable.row();
+//        }
+    }
+
+    /**
      * Clear all the children of table and adds all
      * username's from the Game State
      */
@@ -338,7 +424,7 @@ public class GameplayScreen extends ScreenAdapter {
             if (entry.getValue() instanceof Player) {
                 Player currentPlayer = (Player) entry.getValue();
                 if (!(currentPlayer.getUsername() == null)) {
-                    Label usernameLabel = new Label(currentPlayer.getUsername(), skin);
+                    Label usernameLabel = new Label(currentPlayer.getUsername(), labelStyle);
                     usernameLabel.setName(currentPlayer.getUsername());
                     playerListTable.add(usernameLabel);
                     playerListTable.row();
