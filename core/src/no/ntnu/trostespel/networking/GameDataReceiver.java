@@ -1,9 +1,13 @@
 package no.ntnu.trostespel.networking;
 
+import com.badlogic.gdx.Game;
+import com.esotericsoftware.kryo.Kryo;
+import com.esotericsoftware.kryo.io.Input;
 import com.google.gson.Gson;
 import com.google.gson.JsonIOException;
 import com.google.gson.JsonSyntaxException;
 import com.google.gson.stream.JsonReader;
+import no.ntnu.trostespel.PlayerActions;
 import no.ntnu.trostespel.config.CommunicationConfig;
 import no.ntnu.trostespel.entity.Session;
 import no.ntnu.trostespel.state.GameState;
@@ -33,11 +37,13 @@ public class GameDataReceiver implements Runnable {
     private JsonReader reader;
     private DatagramSocket udpSocket;
     private long lastReceived;
+    private Deserializer<GameState> deserializer;
 
     private long packetReceiveTime = 0;
 
     public GameDataReceiver(DatagramSocket socket) {
         this.udpSocket = socket;
+        deserializer = new Deserializer<>(GameState.class);
     }
 
     @Override
@@ -45,32 +51,38 @@ public class GameDataReceiver implements Runnable {
 
         DatagramPacket packet;
         byte[] buf = new byte[BUF_LENGTH];
-
         while (true) {
             packet = new DatagramPacket(buf, buf.length);
             lastReceived = System.currentTimeMillis();
             try {
                 // blocks until a packet is received
                 udpSocket.receive(packet);
-
+                updatedGameState = deserializeKryo(packet);
             } catch (Exception e) {
                 e.printStackTrace();
             }
-
-            data = new String(packet.getData());
-            sr = new StringReader(data);
-            reader = new JsonReader(sr);
-            reader.setLenient(false);
-            try {
-                updatedGameState = gson.fromJson(reader, RECEIVED_DATA_TYPE);
-                Session.getInstance().setReceivedGameState(updatedGameState);
-            } catch (JsonIOException e) {
-                e.printStackTrace();
-            } catch (JsonSyntaxException e) {
-                e.printStackTrace();
-                System.out.println(data);
-            }
+            Session.getInstance().setReceivedGameState(updatedGameState);
         }
+    }
+
+    private GameState<PlayerState, MovableState> deserializeKryo(DatagramPacket packet) {
+        return deserializer.deserialize(packet);
+    }
+
+    private GameState<PlayerState, MovableState> deserializeJson(DatagramPacket packet) {
+        data = new String(packet.getData());
+        sr = new StringReader(data);
+        reader = new JsonReader(sr);
+        reader.setLenient(false);
+        try {
+            return gson.fromJson(reader, RECEIVED_DATA_TYPE);
+        } catch (JsonIOException e) {
+            e.printStackTrace();
+        } catch (JsonSyntaxException e) {
+            e.printStackTrace();
+            System.out.println(data);
+        }
+        return null;
     }
 
 
