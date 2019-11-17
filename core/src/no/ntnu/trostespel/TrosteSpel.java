@@ -37,10 +37,6 @@ public class TrosteSpel extends Game {
         // load textures
         Assets.load();
         batch = new SpriteBatch();
-        System.out.println(Arrays.toString(GameState.class.getDeclaredFields()));
-
-        System.out.println(Arrays.toString(GameState.class.getDeclaredClasses()));
-        System.out.println(Arrays.toString(GameState.class.getClasses()));
 
         // Load skin
         TextureAtlas atlas = new TextureAtlas("skin/star-soldier/skin/star-soldier-ui.atlas");
