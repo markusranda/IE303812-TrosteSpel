@@ -18,3 +18,7 @@ To use this task, create following file in root folder with the provided propert
     - user       = [your_username]
     - password   = [your_password]
     - host       = [server_ip]
+
+![](https://i.imgur.com/nhezhDD.png)
+![](https://i.imgur.com/1bfFCTh.png)
+![](https://i.imgur.com/jx84ioD.png)
