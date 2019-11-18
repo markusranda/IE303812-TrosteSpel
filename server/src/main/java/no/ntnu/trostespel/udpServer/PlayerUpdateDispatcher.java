@@ -77,12 +77,12 @@ public class PlayerUpdateDispatcher extends ThreadPoolExecutor implements Tickab
         private long tick;
         private PlayerCmdProcessor cmdProcessor;
         private GameState<PlayerState, MovableState> gameState;
-        private PacketDeserializerKryo deserializer;
+        private PacketDeserializer deserializer;
 
         public Processor(GameState<PlayerState, MovableState> gameState) {
             this.gameState = gameState;
             this.cmdProcessor = new PlayerCmdProcessor(gameState);
-            this.deserializer = new PacketDeserializerKryo();
+            this.deserializer = new PacketDeserializer();
         }
 
         Processor setPacketToHandle(DatagramPacket packet, long currentTick) {

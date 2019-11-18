@@ -16,9 +16,7 @@ import no.ntnu.trostespel.networking.GameDataTransmitter;
 import no.ntnu.trostespel.screen.MainMenuScreen;
 import no.ntnu.trostespel.state.GameState;
 
-import java.lang.reflect.Field;
 import java.net.DatagramSocket;
-import java.util.Arrays;
 
 import static no.ntnu.trostespel.config.Assets.img;
 

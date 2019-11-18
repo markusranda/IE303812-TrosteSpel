@@ -92,6 +92,7 @@ public class PlayerCmdProcessor {
 
     private void processAttack(PlayerActions action) {
         if (playerState.getAttackTimer() <= 0) {
+            MovableState projectile = new MovableState(action.pid, GameRules.Projectile.SPEED);
             EnumSet<Direction> attackDir = EnumSet.noneOf(Direction.class);
 
             if (action.isattackDown) {
@@ -109,26 +110,25 @@ public class PlayerCmdProcessor {
 
             // calculate angle of the bullet
             float direction = 0;
-            if (!attackDir.isEmpty()) {
-                MovableState projectile = new MovableState(action.pid, GameRules.Projectile.SPEED);
-                if (attackDir.size() <= 2) {
-                    for (Direction dir : attackDir) {
-                        direction += dir.value();
-                        if (dir == Direction.RIGHT || dir == Direction.DOWN) {
-                            // fix edge case
-                            shouldflipCounter++;
-                        }
-                    }
-                    direction = direction / attackDir.size();
-                    if (shouldflipCounter == 2) {
+            if (attackDir.size() <= 2) {
+                for (Direction dir : attackDir) {
+                    direction += dir.value();
+                    if (dir == Direction.RIGHT || dir == Direction.DOWN) {
                         // fix edge case
-                        direction += 180;
+                        shouldflipCounter++;
                     }
-                    projectile.setAngle(direction);
-                } else {
-                    projectile.setAngle(playerAngle);
                 }
-                // check if player and bullet is moving in the same direction
+                direction = direction / attackDir.size();
+                if(shouldflipCounter == 2) {
+                    // fix edge case
+                    direction += 180;
+                }
+                projectile.setAngle(direction);
+            } else {
+                projectile.setAngle(playerAngle);
+            }
+            // check if player and bullet is moving in the same direction
+            if (!attackDir.isEmpty()) {
                 double playerbulletangle = Math.abs(playerAngle - direction);
                 if (playerbulletangle <= 90 || playerbulletangle >= 270) {
                     // apply players velocity to bullet
@@ -183,7 +183,7 @@ public class PlayerCmdProcessor {
         playerAngle = displacement.angle();
     }
 
-    private void putProjectile(long k, MovableState v) {
+    private void putProjectile ( long k, MovableState v){
         gameState.getProjectilesStateUpdates().add(v);
         gameState.getProjectiles().put(k, v);
     }

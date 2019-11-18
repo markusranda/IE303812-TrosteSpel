@@ -47,6 +47,7 @@ public class GameDataReceiver implements Runnable {
 
                 // blocks until a packet is received
                 udpSocket.receive(packet);
+
                 // register arrival
                 for (Connection con : Connections.getInstance().getConnections()) {
                     if (con.getAddress().equals(packet.getAddress())) {
