@@ -136,15 +136,14 @@ public class PlayerCmdProcessor {
                     heading.add(displacement);
                     projectile.setHeading(heading);
                 }
-            }
-            // add resulting projectile to spawned objects list
-            if (!attackDir.isEmpty()) {
+                // add resulting projectile to spawned objects list
                 projectile.setPositionWithSpawnOffset(playerState.getPosition());
                 putProjectile(projectile.getId(), projectile);
 
                 // allow attacks every 0.3 seconds
                 playerState.setAttackTimer(.3 * CommunicationConfig.TICKRATE + 1);
             }
+
         }
         double attackTimer = playerState.getAttackTimer();
         playerState.setAttackTimer(attackTimer - 1);
