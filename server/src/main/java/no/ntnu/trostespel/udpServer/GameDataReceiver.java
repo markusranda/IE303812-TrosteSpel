@@ -1,6 +1,7 @@
 package no.ntnu.trostespel.udpServer;
 
 import com.google.gson.Gson;
+import no.ntnu.trostespel.dispatch.PlayerUpdateDispatcher;
 import no.ntnu.trostespel.model.Connection;
 import no.ntnu.trostespel.model.Connections;
 

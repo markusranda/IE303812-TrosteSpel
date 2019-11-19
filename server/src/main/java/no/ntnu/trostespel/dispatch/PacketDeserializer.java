@@ -1,4 +1,4 @@
-package no.ntnu.trostespel.udpServer;
+package no.ntnu.trostespel.dispatch;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;

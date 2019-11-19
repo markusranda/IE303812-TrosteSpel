@@ -1,15 +1,8 @@
-package no.ntnu.trostespel.udpServer;
+package no.ntnu.trostespel.dispatch;
 
-
-import com.badlogic.gdx.utils.Pool;
 import com.esotericsoftware.kryo.Kryo;
-import com.google.common.collect.*;
-import com.google.common.util.concurrent.ThreadFactoryBuilder;
-import no.ntnu.trostespel.GameServer;
-import no.ntnu.trostespel.Tickable;
+import com.google.common.collect.EvictingQueue;
 import no.ntnu.trostespel.PlayerActions;
-import no.ntnu.trostespel.config.CommunicationConfig;
-import no.ntnu.trostespel.game.GameStateMaster;
 import no.ntnu.trostespel.model.Connection;
 import no.ntnu.trostespel.model.ConnectionStatus;
 import no.ntnu.trostespel.model.Connections;
@@ -18,75 +11,23 @@ import no.ntnu.trostespel.state.MovableState;
 import no.ntnu.trostespel.state.PlayerState;
 
 import java.net.DatagramPacket;
-import java.net.SocketAddress;
-import java.util.*;
-import java.util.concurrent.*;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
+import java.util.Deque;
+import java.util.Queue;
+import java.util.concurrent.ConcurrentLinkedDeque;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.atomic.AtomicLong;
 
 /**
- * This class is responsible for queuing and demultiplexing incoming
- * updates, and dispathching them for processing.
+ * Class holding all necessary information to handle a given DatagramPacket
+ * each Player should gets its own unique processor object, as the class keeps track of some
+ * player-specific information in order to perform lag-compensation
  */
-public class PlayerUpdateDispatcher extends ThreadPoolExecutor implements Tickable {
-
-    private GameStateMaster gameStateMaster;
-    private Pool<Processor> processorPool;
-    private Map<SocketAddress, Processor> workers;
-    private Table<SocketAddress, Long, PlayerActions> workers1;
-    private volatile long currentTick = 0;
-    private Connections connections;
-
-    public PlayerUpdateDispatcher() {
-        super(2, CommunicationConfig.MAX_PLAYERS * 3, CommunicationConfig.RETRY_CONNECTION_TIMEOUT, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<>(64),
-                new ThreadFactoryBuilder().setNameFormat("Dispathcher-thread-%d").build());
-        gameStateMaster = GameStateMaster.getInstance();
-        this.workers = new ConcurrentHashMap<>(8);
-        workers1 = HashBasedTable.create();
-        connections = Connections.getInstance();
-        processorPool = new Pool<Processor>() {
-            @Override
-            protected Processor newObject() {
-                return new Processor(gameStateMaster.getGameState());
-            }
-        };
-        GameServer.observe(this);
-    }
-
-    /**
-     * dispatch actions for processing and update
-     *
-     * @param packet the packet to queue
-     */
-    public void dispatch(DatagramPacket packet) {
-        SocketAddress socketAddr = packet.getSocketAddress();
-        Processor worker = workers.get(socketAddr);
-        if (worker != null) {
-            Runnable processor = worker.tryRun(packet);
-            if (processor != null) {
-                execute(processor);
-            }
-        } else {
-            Processor p = new Processor(gameStateMaster.getGameState());
-            workers.put(socketAddr, p);
-            execute(p.tryRun(packet));
-        }
-    }
-
-
-    private Runnable futureListener() {
-        return () -> {
-
-        };
-    }
-
-    /**
-     * Class holding all necessary information to handle a given DatagramPacket
-     */
-    class Processor {
+public class DispatchProcessor {
         private long pid = -1;
         private DatagramPacket packet;
         private PlayerCmdProcessor cmdProcessor;
         private GameState<PlayerState, MovableState> gameState;
+        private Connections connections;
         private PacketDeserializer deserializer;
         private static final int MAX = 3;
         private Kryo kryo;
@@ -100,7 +41,9 @@ public class PlayerUpdateDispatcher extends ThreadPoolExecutor implements Tickab
 
         private Runnable worker;
 
-        public Processor(GameState<PlayerState, MovableState> gameState) {
+        private AtomicLong currentTick;
+
+        public DispatchProcessor(GameState<PlayerState, MovableState> gameState, AtomicLong tickCounter) {
             this.gameState = gameState;
             this.cmdProcessor = new PlayerCmdProcessor(gameState);
             this.deserializer = new PacketDeserializer();
@@ -109,6 +52,8 @@ public class PlayerUpdateDispatcher extends ThreadPoolExecutor implements Tickab
             this.tasks = new ConcurrentLinkedDeque<>();
             this.kryo.register(PlayerActions.class);
             this.worker = getWorker();
+            this.currentTick = tickCounter;
+            this.connections = Connections.getInstance();
         }
 
         /**
@@ -116,15 +61,14 @@ public class PlayerUpdateDispatcher extends ThreadPoolExecutor implements Tickab
          * @param packet
          * @return the Runnable if it is available for execution, or null if else
          */
-        Runnable tryRun(DatagramPacket packet) {
+        void tryRun(DatagramPacket packet, ExecutorService executor) {
             if (running) {
                 enqueueTask(packet);
                 System.out.println("Currently holding " + tasks.size() + " tasks . . .");
-                return null;
             } else {
                 running = true;
                 enqueueTask(packet);
-                return this.worker;
+                executor.execute(this.worker);
             }
         }
 
@@ -145,7 +89,7 @@ public class PlayerUpdateDispatcher extends ThreadPoolExecutor implements Tickab
                     e.printStackTrace();
                     handleIllegalConnection();
                 } finally {
-                    lastTick = currentTick;
+                    lastTick = currentTick.get();
                     running = false;
                 }
             };
@@ -165,7 +109,7 @@ public class PlayerUpdateDispatcher extends ThreadPoolExecutor implements Tickab
                 createPlayerInstanceIfNotExists();
 
                 // check if the player has already been handled this tick
-                final long timeSinceLastTick = currentTick - lastTick;
+                final long timeSinceLastTick = currentTick.get() - lastTick;
                 if (timeSinceLastTick > 0) {
                     if (timeSinceLastTick > 1) {
                         // player missed a tick or more
@@ -180,7 +124,7 @@ public class PlayerUpdateDispatcher extends ThreadPoolExecutor implements Tickab
                 handleIllegalConnection();
             }
         }
-        
+
         private void tryCompensateForMissedTicks(long timeSinceLastTick) {
             final long missedTicks = timeSinceLastTick - 1;
             if (!earlyActions.isEmpty()) {
@@ -227,15 +171,3 @@ public class PlayerUpdateDispatcher extends ThreadPoolExecutor implements Tickab
             return result;
         }
     }
-
-    @Override
-    protected void afterExecute(Runnable r, Throwable t) {
-        super.afterExecute(r, t);
-        processorPool.free((Processor) r);
-    }
-
-    @Override
-    public void onTick(long tick) {
-        this.currentTick = tick;
-    }
-}

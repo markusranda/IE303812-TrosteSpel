@@ -139,6 +139,10 @@ public class GameServer {
         }
     }
 
+    public static AtomicLong getTickCounter() {
+        return tickCounter;
+    }
+
     private static long getTickcounter() {
         return tickCounter.get();
     }
