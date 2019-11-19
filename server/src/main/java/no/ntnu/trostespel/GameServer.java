@@ -119,6 +119,7 @@ public class GameServer {
                 if (timeSinceMillis > CommunicationConfig.RETRY_CONNECTION_TIMEOUT && timeArrived != 0.0) {
                     System.out.println(connection.getUsername() + " - Timed out!");
                     connection.setDisconnected();
+                    gameStateMaster.getGameState().getPlayers().remove(connection.getPid());
                 }
             }
         }

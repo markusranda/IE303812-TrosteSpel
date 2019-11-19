@@ -1,6 +1,7 @@
 package no.ntnu.trostespel.udpServer;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonSyntaxException;
 import com.google.gson.stream.JsonReader;
 import no.ntnu.trostespel.PlayerActions;
 
@@ -26,7 +27,7 @@ public class PacketDeserializer{
         reader.setLenient(true);
         try {
             actions = gson.fromJson(reader, PlayerActions.class);
-        } catch (Exception e) {
+        } catch (JsonSyntaxException e) {
             e.printStackTrace();
             System.out.println("Failed to deserialize");
             System.out.println(data);

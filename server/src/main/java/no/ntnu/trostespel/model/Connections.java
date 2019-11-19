@@ -29,4 +29,13 @@ public class Connections {
         getConnections().add(connection);
         System.out.println("New connection added: " + connection.toString());
     }
+
+    public Connection find(long pid) {
+        for (Connection connection : connections) {
+            if (connection.getPid() == pid) {
+                return connection;
+            }
+        }
+        return null;
+    }
 }

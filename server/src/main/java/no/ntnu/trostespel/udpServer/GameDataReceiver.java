@@ -65,7 +65,6 @@ public class GameDataReceiver implements Runnable {
     }
 
     private long count = 0;
-
     private void countCmd() {
         count++;
         long time = System.currentTimeMillis();

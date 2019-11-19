@@ -66,6 +66,7 @@ project(":server") {
         implementation "com.badlogicgames.gdx:gdx-box2d:$gdxVersion"
         testImplementation 'junit:junit:4.12'
         testCompile "junit:junit:4.12"
+
     }
 }
 
@@ -78,5 +79,6 @@ project(":core") {
         compile group: 'com.google.code.gson', name: 'gson', version: '2.7'
         compile group: 'com.google.guava', name: 'guava', version: '28.1-jre'
         compile "com.badlogicgames.gdx:gdx-freetype:$gdxVersion"
+        compile group: 'com.esotericsoftware', name: 'kryo', version: '5.0.0-RC4'
     }
 }
