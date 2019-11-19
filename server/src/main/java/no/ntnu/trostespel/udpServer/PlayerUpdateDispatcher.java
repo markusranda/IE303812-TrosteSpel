@@ -21,6 +21,7 @@ import java.net.DatagramPacket;
 import java.net.SocketAddress;
 import java.util.*;
 import java.util.concurrent.*;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 /**
  * This class is responsible for queuing and demultiplexing incoming
@@ -60,7 +61,7 @@ public class PlayerUpdateDispatcher extends ThreadPoolExecutor implements Tickab
         SocketAddress socketAddr = packet.getSocketAddress();
         Processor worker = workers.get(socketAddr);
         if (worker != null) {
-            Processor processor = worker.tryRun(packet);
+            Runnable processor = worker.tryRun(packet);
             if (processor != null) {
                 execute(processor);
             }
@@ -71,9 +72,6 @@ public class PlayerUpdateDispatcher extends ThreadPoolExecutor implements Tickab
         }
     }
 
-    private Runnable doDispatch(DatagramPacket packet) {
-        return processorPool.obtain().tryRun(packet);
-    }
 
     private Runnable futureListener() {
         return () -> {
@@ -84,7 +82,7 @@ public class PlayerUpdateDispatcher extends ThreadPoolExecutor implements Tickab
     /**
      * Class holding all necessary information to handle a given DatagramPacket
      */
-    class Processor implements Runnable {
+    class Processor {
         private long pid = -1;
         private DatagramPacket packet;
         private PlayerCmdProcessor cmdProcessor;
@@ -95,14 +93,12 @@ public class PlayerUpdateDispatcher extends ThreadPoolExecutor implements Tickab
 
         private volatile boolean running = false;
 
-        private PlayerActions lastAction;
         private long lastTick = -999;
 
         private Queue<PlayerActions> earlyActions;
         private Deque<DatagramPacket> tasks;
 
-        private int earlycount = 0;
-        private int recovercount = 0;
+        private Runnable worker;
 
         public Processor(GameState<PlayerState, MovableState> gameState) {
             this.gameState = gameState;
@@ -111,10 +107,16 @@ public class PlayerUpdateDispatcher extends ThreadPoolExecutor implements Tickab
             this.earlyActions = EvictingQueue.create(MAX);
             this.kryo = new Kryo();
             this.tasks = new ConcurrentLinkedDeque<>();
-            kryo.register(PlayerActions.class);
+            this.kryo.register(PlayerActions.class);
+            this.worker = getWorker();
         }
 
-        Processor tryRun(DatagramPacket packet) {
+        /**
+         * enqueue a task for execution, and return the runnable only if it is not already running
+         * @param packet
+         * @return the Runnable if it is available for execution, or null if else
+         */
+        Runnable tryRun(DatagramPacket packet) {
             if (running) {
                 enqueueTask(packet);
                 System.out.println("Currently holding " + tasks.size() + " tasks . . .");
@@ -122,28 +124,31 @@ public class PlayerUpdateDispatcher extends ThreadPoolExecutor implements Tickab
             } else {
                 running = true;
                 enqueueTask(packet);
-                return this;
+                return this.worker;
             }
         }
 
-        @Override
-        public void run() {
-
-            try {
-                while (!tasks.isEmpty()) {
-                    work();
+        /**
+         * return the runnable containing the main logic of the Processor class
+         * @return
+         */
+        private Runnable getWorker() {
+            return () -> {
+                try {
+                    while (!tasks.isEmpty()) {
+                        work();
+                    }
+                } catch (IllegalAccessException e) {
+                    e.printStackTrace();
+                    handleIllegalConnection();
+                } catch (IllegalStateException e) {
+                    e.printStackTrace();
+                    handleIllegalConnection();
+                } finally {
+                    lastTick = currentTick;
+                    running = false;
                 }
-
-            } catch (IllegalAccessException e) {
-                e.printStackTrace();
-                handleIllegalConnection();
-            } catch (IllegalStateException e) {
-                e.printStackTrace();
-                handleIllegalConnection();
-            } finally {
-                lastTick = currentTick;
-                running = false;
-            }
+            };
         }
 
         private void work() throws IllegalAccessException {
@@ -157,49 +162,47 @@ public class PlayerUpdateDispatcher extends ThreadPoolExecutor implements Tickab
             this.pid = actions.pid;
             if (validateConnection()) {
 
-                PlayerState playerState = getPlayerState();
+                createPlayerInstanceIfNotExists();
 
                 // check if the player has already been handled this tick
                 final long timeSinceLastTick = currentTick - lastTick;
-
                 if (timeSinceLastTick > 0) {
-                    if (timeSinceLastTick > 1) {  // player missed a tick
-                        final long missedTicks = timeSinceLastTick - 1;
-                        System.out.println("Player " + playerState.getUsername() + " missed " + missedTicks + " ticks");
-                        if (!earlyActions.isEmpty()) {
-                            long numActionsToRecover = Math.min(timeSinceLastTick, MAX);
-                            for (int i = 0; i < numActionsToRecover; i++) {
-                                PlayerActions recoveredActions = earlyActions.poll();
-                                if (recoveredActions != null) {
-                                    cmdProcessor.run(recoveredActions, timeSinceLastTick);
-                                }
-                            }
-                            System.out.println("Early: " + earlycount + ", Recovered: " + recovercount++);
-
-                        }
+                    if (timeSinceLastTick > 1) {
+                        // player missed a tick or more
+                        tryCompensateForMissedTicks(timeSinceLastTick);
                     }
-                    cmdProcessor.run(actions, timeSinceLastTick);
+                    cmdProcessor.run(actions);
                 } else {
                     // packet arrived early
-                    //cmdProcessor.run(actions, 0L);
-                    System.out.println("Early: " + earlycount++ + ", Recovered: " + recovercount);
                     earlyActions.offer(kryo.copy(actions));
                 }
             } else {
                 handleIllegalConnection();
             }
         }
+        
+        private void tryCompensateForMissedTicks(long timeSinceLastTick) {
+            final long missedTicks = timeSinceLastTick - 1;
+            if (!earlyActions.isEmpty()) {
+                long numActionsToRecover = Math.min(timeSinceLastTick, MAX);
+                for (int i = 0; i < numActionsToRecover; i++) {
+                    PlayerActions recoveredActions = earlyActions.poll();
+                    if (recoveredActions != null) {
+                        cmdProcessor.run(recoveredActions);
+                    }
+                }
+            }
+        }
 
-        private PlayerState getPlayerState() {
+        private void createPlayerInstanceIfNotExists() {
             PlayerState playerState = gameState.getPlayers().get(pid);
             if (playerState == null) {
                 playerState = new PlayerState(pid);
                 gameState.getPlayers().put(pid, playerState);
             }
-            return playerState;
         }
 
-        public synchronized void enqueueTask(DatagramPacket packet) {
+        private void enqueueTask(DatagramPacket packet) {
             this.tasks.offer(packet);
         }
 
@@ -212,6 +215,8 @@ public class PlayerUpdateDispatcher extends ThreadPoolExecutor implements Tickab
             Connection conn = connections.find(pid);
             if (conn != null) {
                 if (!conn.getAddress().equals(packet.getAddress())) {
+                    System.out.println("PID-InetAddress mismatch: ");
+                    System.out.println("Stored address: " + conn.getAddress().getHostAddress() +", received address: " + packet.getAddress().getHostAddress());
                     // throw new IllegalAccessException("Wrong ip !?!");
                 }
                 if (conn.getConnectionStatus() != ConnectionStatus.CONNECTED) {
@@ -220,10 +225,6 @@ public class PlayerUpdateDispatcher extends ThreadPoolExecutor implements Tickab
                 result = true;
             }
             return result;
-        }
-
-        private PlayerActions getDifference() {
-            return null;
         }
     }
 

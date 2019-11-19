@@ -57,7 +57,7 @@ public class PlayerCmdProcessor {
 
     }
 
-    public void run(PlayerActions actions, long interpolateCoefficient) {
+    public void run(PlayerActions actions) {
         // reset old values
         this.count = 0;
         this.shouldflipCounter = 0;
