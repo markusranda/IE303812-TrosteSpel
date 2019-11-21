@@ -121,11 +121,11 @@ public class DispatchProcessor {
             if (timeSinceLastTick > 0) {
                 if (timeSinceLastTick > 1) {
                     // player missed a tick or more
-                    missedTicks += timeSinceLastTick;
+                    missedTicks += timeSinceLastTick - 1;
                     tryCompensateForMissedTicks(timeSinceLastTick);
                     if (missedTicks % 10 == 0) {
                         //debug info
-                        System.out.println("Player #" + pid + "missed ticks: " + missedTicks);
+                        System.out.println("Player #" + pid + " missed ticks: " + missedTicks);
                     }
                 }
                 cmdProcessor.run(actions);

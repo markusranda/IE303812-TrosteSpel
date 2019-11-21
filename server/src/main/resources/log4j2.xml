@@ -17,6 +17,30 @@
             </Policies>
             <DefaultRolloverStrategy max="20"/>
         </RollingFile>
+        <RollingFile name="GameDataSender" fileName="logs/gamedatasender.log"
+                     filePattern="logs/$${date:yyyy-MM}/app-%d{MM-dd-yyyy}-%i.zip">
+            <PatternLayout>
+                <Pattern>%d [%t] %p %c - %m%n</Pattern>
+            </PatternLayout>
+            <Policies>
+                <OnStartupTriggeringPolicy/>
+                <TimeBasedTriggeringPolicy/>
+                <SizeBasedTriggeringPolicy size="50 MB"/>
+            </Policies>
+            <DefaultRolloverStrategy max="20"/>
+        </RollingFile>
+        <RollingFile name="GameServer" fileName="logs/gameserver.log"
+                     filePattern="logs/$${date:yyyy-MM}/app-%d{MM-dd-yyyy}-%i.zip">
+            <PatternLayout>
+                <Pattern>%d [%t] %p %c - %m%n</Pattern>
+            </PatternLayout>
+            <Policies>
+                <OnStartupTriggeringPolicy/>
+                <TimeBasedTriggeringPolicy/>
+                <SizeBasedTriggeringPolicy size="50 MB"/>
+            </Policies>
+            <DefaultRolloverStrategy max="20"/>
+        </RollingFile>
     </Appenders>
     <Loggers>
         <Root level="OFF">
@@ -27,6 +51,12 @@
         </logger>
         <logger name="projectiles" level="TRACE" additivity="false">
             <AppenderRef ref="RollingFileAppender"/>
+        </logger>
+        <logger name="gamedatasender" level="TRACE" additivity="false">
+            <AppenderRef ref="GameDataSender"/>
+        </logger>
+        <logger name="GameServer" level="TRACE" additivity="false">
+            <AppenderRef ref="GameServer"/>
         </logger>
     </Loggers>
 </Configuration>
