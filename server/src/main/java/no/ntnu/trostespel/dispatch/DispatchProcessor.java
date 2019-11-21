@@ -44,7 +44,7 @@ public class DispatchProcessor {
 
     private AtomicLong currentTick;
 
-    private long missedTicks = 0;
+    private long totalMissedTicks = 0;
 
     public DispatchProcessor(GameState<PlayerState, MovableState> gameState, AtomicLong tickCounter) {
         this.gameState = gameState;
@@ -68,6 +68,7 @@ public class DispatchProcessor {
      * @param executor the executor to execute on
      */
     void tryRun(DatagramPacket packet, ExecutorService executor) {
+        if (startTick == 0) startTick = currentTick.get();
         if (running) {
             enqueueTask(packet);
             System.out.println("Currently holding " + tasks.size() + " tasks . . .");
@@ -103,6 +104,8 @@ public class DispatchProcessor {
         };
     }
 
+    long workCount = 0;
+    long startTick = 0;
     private void work() throws IllegalAccessException {
         this.packet = tasks.poll();
         if (packet == null) {
@@ -121,11 +124,12 @@ public class DispatchProcessor {
             if (timeSinceLastTick > 0) {
                 if (timeSinceLastTick > 1) {
                     // player missed a tick or more
-                    missedTicks += timeSinceLastTick - 1;
-                    tryCompensateForMissedTicks(timeSinceLastTick);
-                    if (missedTicks % 10 == 0) {
+                    long missedTicks = timeSinceLastTick - 1;
+                    totalMissedTicks += missedTicks;
+                    tryCompensateForMissedTicks(missedTicks);
+                    if (totalMissedTicks % 10 == 0) {
                         //debug info
-                        System.out.println("Player #" + pid + " missed ticks: " + missedTicks);
+                        System.out.println("Player #" + pid + " missed ticks: " + totalMissedTicks);
                     }
                 }
                 cmdProcessor.run(actions);
@@ -136,6 +140,8 @@ public class DispatchProcessor {
         } else {
             handleIllegalConnection();
         }
+
+
     }
 
     private void tryCompensateForMissedTicks(long timeSinceLastTick) {
@@ -146,7 +152,7 @@ public class DispatchProcessor {
                 PlayerActions recoveredActions = earlyActions.poll();
                 if (recoveredActions != null) {
                     cmdProcessor.run(recoveredActions);
-                    missedTicks--;
+                    totalMissedTicks--;
                 }
             }
         }
