@@ -4,6 +4,8 @@ import com.badlogic.gdx.math.Vector2;
 
 public class GameRules {
 
+    public static final boolean DEBUG = true;
+
     public static class Player {
         public static final long RESPAWN_TIME = 3000; // millis
 
