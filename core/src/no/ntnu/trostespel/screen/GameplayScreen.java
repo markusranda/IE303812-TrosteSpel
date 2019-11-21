@@ -21,6 +21,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.utils.Array;
+import com.badlogic.gdx.utils.Pool;
 import no.ntnu.trostespel.TrosteSpel;
 import no.ntnu.trostespel.config.Assets;
 import no.ntnu.trostespel.config.CommunicationConfig;
@@ -65,6 +66,7 @@ public class GameplayScreen extends ScreenAdapter {
 
     private ParticleEffect impact;
 
+    private Pool<Projectile> bulletPool;
     private ParticleEffectPool impactEffectPool;
     private Array<ParticleEffectPool.PooledEffect> effects = new Array();
 
@@ -115,6 +117,13 @@ public class GameplayScreen extends ScreenAdapter {
         gameState.setCollidables((TiledMapTileLayer) collisionLayer);
 
         collisionLayer.setVisible(false);
+
+        bulletPool = new Pool() {
+            @Override
+            protected Object newObject() {
+                return new Projectile(Vector2.Zero, Assets.bullet, 0d, 0f, -1);
+            }
+        };
 
         impact = Assets.particleEffect;
         impactEffectPool = new ParticleEffectPool(impact, 10, 100);
@@ -279,7 +288,8 @@ public class GameplayScreen extends ScreenAdapter {
                     player.setAttacking(true);
                     if (player != null) {
                         Vector2 spawnPos = player.getPos();
-                        Projectile newProjectile = new Projectile(spawnPos, Assets.bullet, state.getVelocity(), state.getAngle(), eid);
+                        Projectile newProjectile = bulletPool.obtain().construct(spawnPos, state.getVelocity(), state.getAngle(), eid);
+
                         gameState.getProjectiles().put(eid, newProjectile);
 
                         // Add projectile to object layer
@@ -301,18 +311,19 @@ public class GameplayScreen extends ScreenAdapter {
                         effect.getEmitters().first().getAngle().setHigh(angle);
                         effects.add(effect);
                     }
-
-                }
-                for (MapObject mapObject : objectLayer.getObjects()) {
-                    if (mapObject.getProperties().containsKey(MAP_OBJECT_ID_PROJECTILE)) {
-                        Iterator innerIterator = mapObject.getProperties().getValues();
-                        while (innerIterator.hasNext()) {
-                            Projectile projectile = (Projectile) innerIterator.next();
-                            if (projectile.getId() == eid) {
-                                innerIterator.remove();
+                    for (MapObject mapObject : objectLayer.getObjects()) {
+                        if (mapObject.getProperties().containsKey(MAP_OBJECT_ID_PROJECTILE)) {
+                            Iterator innerIterator = mapObject.getProperties().getValues();
+                            while (innerIterator.hasNext()) {
+                                Projectile projectile = (Projectile) innerIterator.next();
+                                if (projectile.getId() == eid) {
+                                    innerIterator.remove();
+                                }
                             }
                         }
                     }
+                    ((Projectile) remove).reset();
+                    bulletPool.free((Projectile) remove);
                 }
             }
         }

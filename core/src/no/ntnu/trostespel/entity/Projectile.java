@@ -5,10 +5,11 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.utils.Pool;
 import no.ntnu.trostespel.config.CommunicationConfig;
 import no.ntnu.trostespel.config.GameRules;
 
-public class Projectile extends Movable {
+public class Projectile extends Movable implements Pool.Poolable {
 
     private double velocity;
     private float angle;
@@ -24,6 +25,15 @@ public class Projectile extends Movable {
         this.angle = angle;
         heading = new Vector2(1, 0);
         this.id = id;
+    }
+
+    public Projectile construct(Vector2 pos, double velocity, float angle, long id) {
+        Vector2 spawnPos = pos.add(GameRules.Projectile.SPAWN_OFFSET);
+        setPos(spawnPos);
+        this.velocity = velocity;
+        this.angle = angle;
+        this.id = id;
+        return this;
     }
 
     @Override
@@ -68,5 +78,14 @@ public class Projectile extends Movable {
 
     public float getAngle() {
         return angle;
+    }
+
+    @Override
+    public void reset() {
+        setPos(Vector2.Zero);
+        this.velocity = 0;
+        this.angle = 0;
+        heading = new Vector2(1, 0);
+        this.id = -1;
     }
 }
