@@ -5,7 +5,7 @@
             <PatternLayout pattern="%d{HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n"/>
         </Console>
 
-        <RollingFile name="RollingFileAppender" fileName="logs/game_server_main.log"
+        <RollingFile name="RollingFileAppender" fileName="logs/projectiles.log"
                      filePattern="logs/$${date:yyyy-MM}/app-%d{MM-dd-yyyy}-%i.zip">
             <PatternLayout>
                 <Pattern>%d [%t] %p %c - %m%n</Pattern>
@@ -25,7 +25,7 @@
         <logger name="console" level="TRACE" additivity="false">
             <AppenderRef ref="Console"/>
         </logger>
-        <logger name="rollingFileAppender" level="TRACE" additivity="false">
+        <logger name="projectiles" level="TRACE" additivity="false">
             <AppenderRef ref="RollingFileAppender"/>
         </logger>
     </Loggers>

@@ -1,5 +1,7 @@
 package no.ntnu.trostespel.entity;
 
+import org.apache.logging.log4j.LogManager;
+
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -79,8 +81,12 @@ public abstract class ObjectPool<T> {
     public T borrowObject() {
         T object;
         if ((object = pool.poll()) == null) {
+            LogManager.getLogger("projectiles").trace("The pool doesn't contain any free objects");
             object = createObject();
+            LogManager.getLogger("projectiles").trace(object.toString() + " - Was created");
         }
+        LogManager.getLogger("projectiles").trace("Current pool size: " + pool.size());
+        LogManager.getLogger("projectiles").trace(object.toString() + " - Was borrowed");
         return object;
     }
 
@@ -93,6 +99,8 @@ public abstract class ObjectPool<T> {
         if (object == null) {
             return;
         }
+        LogManager.getLogger("projectiles").trace("Current pool size: " + pool.size());
+        LogManager.getLogger("projectiles").trace(object.toString() + " - Was returned");
         this.pool.offer(object);
     }
 
