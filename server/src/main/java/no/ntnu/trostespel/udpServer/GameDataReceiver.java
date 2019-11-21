@@ -1,6 +1,7 @@
 package no.ntnu.trostespel.udpServer;
 
 import com.google.gson.Gson;
+import no.ntnu.trostespel.dispatch.PlayerUpdateDispatcher;
 import no.ntnu.trostespel.model.Connection;
 import no.ntnu.trostespel.model.Connections;
 
@@ -65,7 +66,6 @@ public class GameDataReceiver implements Runnable {
     }
 
     private long count = 0;
-
     private void countCmd() {
         count++;
         long time = System.currentTimeMillis();

@@ -28,7 +28,7 @@ public class GameDataTransmitter {
     }
 
     public void run() {
-        ticker.scheduleAtFixedRate(emitter, 0, 1000 / CommunicationConfig.TICKRATE, TimeUnit.MILLISECONDS);
+        ticker.scheduleAtFixedRate(emitter, 0, 1000000000  / CommunicationConfig.TICKRATE, TimeUnit.NANOSECONDS);
     }
 
 
