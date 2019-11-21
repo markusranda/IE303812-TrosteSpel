@@ -133,3 +133,5 @@ Thumbs.db
 /sshProfile.properties
 /sshprofile.properties
 /transferjar.bat
+*.log
+*.zip
