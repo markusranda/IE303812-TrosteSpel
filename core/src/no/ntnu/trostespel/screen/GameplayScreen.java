@@ -352,6 +352,9 @@ public class GameplayScreen extends ScreenAdapter {
             // Update all entities
             spawnNewProjectiles();
 
+            // TODO: 21.11.2019 TEST
+            System.out.println(receivedState.getSeqNum());
+
             updatePlayers();
             updateProjectiles();
             camera.update();

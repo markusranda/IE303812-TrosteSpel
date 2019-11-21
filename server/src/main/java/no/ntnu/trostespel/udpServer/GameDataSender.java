@@ -7,6 +7,7 @@ import no.ntnu.trostespel.config.CommunicationConfig;
 import no.ntnu.trostespel.game.GameStateMaster;
 import no.ntnu.trostespel.model.Connection;
 import no.ntnu.trostespel.model.ConnectionStatus;
+import no.ntnu.trostespel.model.Connections;
 import no.ntnu.trostespel.state.GameState;
 
 import java.io.IOException;
@@ -60,13 +61,22 @@ public class GameDataSender extends ThreadPoolExecutor{
      */
     private Runnable send(Connection connection, String json) {
         return () -> {
+            GameState gameState = gson.fromJson(json, RECEIVED_DATA_TYPE);
+            long gameStateTick = gameState.getTick();
+            if (!connection.getSeqNumGameTickMap().isEmpty()) {
+                long seqNum = connection.getSeqNumGameTickMap().get(gameStateTick);
+                gameState.setSeqNum(seqNum);
+            }
+
+            String updatedJson = gson.toJson(gameState);
+
             DatagramPacket packet = new DatagramPacket(
-                    json.getBytes(),
-                    json.getBytes().length,
+                    updatedJson.getBytes(),
+                    updatedJson.getBytes().length,
                     connection.getAddress(),
                     connection.getPort());
 
-            packet.setData(json.getBytes());
+            packet.setData(updatedJson.getBytes());
             try {
                 DatagramSocket socket = connection.getClientSocket();
                 socket.send(packet);

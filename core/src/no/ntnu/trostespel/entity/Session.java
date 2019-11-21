@@ -68,7 +68,7 @@ public class Session {
     }
 
     public GameState<PlayerState, MovableState> getReceivedGameState() {
-        writeLock.lock();
+        writeLock.lock(); // todo should this be a readlock? NOTICE ME SEMPAI IN PULL REQUEST PLEASE
         GameState<PlayerState, MovableState> copy = receivedGameState;
         try {
             return copy;

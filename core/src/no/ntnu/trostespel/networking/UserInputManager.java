@@ -134,6 +134,10 @@ public class UserInputManager {
         model.isaction1 = Gdx.input.isKeyPressed(KeyConfig.action1);
         model.isaction2 = Gdx.input.isKeyPressed(KeyConfig.action2);
         model.isaction3 = Gdx.input.isKeyPressed(KeyConfig.action3);
+
+        // Set sequence number for this cmd
+        model.seqNum++;
+
         String json = new Gson().toJson(model);
         packet.setData(json.getBytes());
         try {
