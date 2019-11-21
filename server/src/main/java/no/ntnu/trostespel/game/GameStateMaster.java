@@ -5,6 +5,7 @@ import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import no.ntnu.trostespel.Tickable;
 import no.ntnu.trostespel.config.GameRules;
 import no.ntnu.trostespel.entity.ObjectPool;
+import no.ntnu.trostespel.state.Action;
 import no.ntnu.trostespel.state.GameState;
 import no.ntnu.trostespel.state.MovableState;
 import no.ntnu.trostespel.state.PlayerState;
@@ -80,6 +81,18 @@ public class GameStateMaster implements Tickable {
             return 0;
         };
     }
+
+    public void clearProjectileStateUpdates() {
+        for (MovableState movableState : gameState.getProjectilesStateUpdates()) {
+            if (movableState.getAction() == Action.KILL) {
+                movableState.resetObject();
+                movablesPool.returnObject(movableState);
+            }
+        }
+        gameState.getProjectilesStateUpdates().clear();
+
+    }
+
 
     @Override
     public void onTick(long tick) {

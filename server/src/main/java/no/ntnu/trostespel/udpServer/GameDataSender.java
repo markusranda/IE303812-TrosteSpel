@@ -44,7 +44,7 @@ public class GameDataSender extends ThreadPoolExecutor{
         nextGameState = gameStateMaster.getGameState();
         nextGameState.setTick(tick);
         String json = gson.toJson(nextGameState, RECEIVED_DATA_TYPE);
-        nextGameState.getProjectilesStateUpdates().clear();
+        GameStateMaster.getInstance().clearProjectileStateUpdates();
 
         for (Connection con : connections) {
             if (con.getConnectionStatus() == CONNECTED)

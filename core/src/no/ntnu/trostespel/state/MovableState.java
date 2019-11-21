@@ -110,7 +110,8 @@ public class MovableState extends ObjectState {
      * This method is intented for reseting the object and make it ready for reuse.
      */
     public void resetObject() {
-        id = 0;
+        setPosition(Vector2.Zero);
+        id = createID();
         pid = 0;
         action = KILL;
         heading = Vector2.Zero;
