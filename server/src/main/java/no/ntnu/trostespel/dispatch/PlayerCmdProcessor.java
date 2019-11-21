@@ -4,6 +4,8 @@ import com.badlogic.gdx.math.Vector2;
 import no.ntnu.trostespel.PlayerActions;
 import no.ntnu.trostespel.config.CommunicationConfig;
 import no.ntnu.trostespel.config.GameRules;
+import no.ntnu.trostespel.entity.Movable;
+import no.ntnu.trostespel.game.GameStateMaster;
 import no.ntnu.trostespel.model.Connection;
 import no.ntnu.trostespel.model.Connections;
 import no.ntnu.trostespel.state.GameState;
@@ -91,8 +93,12 @@ public class PlayerCmdProcessor {
     }
 
     private void processAttack(PlayerActions action) {
-        if (playerState.getAttackTimer() <= 0) {
-            MovableState projectile = new MovableState(action.pid, GameRules.Projectile.SPEED);
+        if (playerState.getAttackTimer() <= 0 &&
+                (action.isattackDown || action.isattackUp || action.isattackLeft || action.isattackRight)) {
+//            MovableState projectile = new MovableState(action.pid, GameRules.Projectile.SPEED);
+            MovableState projectile = GameStateMaster.getInstance().getMovablesPool().borrowObject();
+            projectile.setPid(action.pid);
+
             EnumSet<Direction> attackDir = EnumSet.noneOf(Direction.class);
 
             if (action.isattackDown) {

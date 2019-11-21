@@ -5,6 +5,8 @@ import no.ntnu.trostespel.config.GameRules;
 
 import java.util.concurrent.atomic.AtomicLong;
 
+import static no.ntnu.trostespel.state.Action.KILL;
+
 public class MovableState extends ObjectState {
 
     private long id;
@@ -14,12 +16,23 @@ public class MovableState extends ObjectState {
 
     private transient int timeAlive;
     public final transient int damage = 15;
+    private static AtomicLong idCounter = new AtomicLong();
 
     public MovableState(long pid, double velocity) {
         super(24f, 24f, Vector2.Zero);
         this.heading = new Vector2(1, 0); // Unit vector
         this.id = createID();
         this.pid = pid;
+        this.action = Action.CREATE;
+        this.heading = new Vector2(1, 0);
+        this.heading.setLength((float) velocity);
+    }
+
+    public MovableState(double velocity) {
+        super(24f, 24f, Vector2.Zero);
+        this.heading = new Vector2(1, 0); // Unit vector
+        this.id = createID();
+        this.pid = 0;
         this.action = Action.CREATE;
         this.heading = new Vector2(1, 0);
         this.heading.setLength((float) velocity);
@@ -73,7 +86,6 @@ public class MovableState extends ObjectState {
         this.pid = pid;
     }
 
-    private static AtomicLong idCounter = new AtomicLong();
     public static long createID() {
         return idCounter.getAndIncrement();
     }
@@ -92,5 +104,16 @@ public class MovableState extends ObjectState {
 
     public void incrementTimeAlive() {
         this.timeAlive++;
+    }
+
+    /**
+     * This method is intented for reseting the object and make it ready for reuse.
+     */
+    public void resetObject() {
+        id = 0;
+        pid = 0;
+        action = KILL;
+        heading = Vector2.Zero;
+        timeAlive = 0;
     }
 }
