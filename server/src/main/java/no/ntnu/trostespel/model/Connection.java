@@ -3,6 +3,7 @@ package no.ntnu.trostespel.model;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.SocketException;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.locks.Lock;
@@ -23,6 +24,11 @@ public class Connection {
     private static AtomicLong idCounter = new AtomicLong(100);
     private volatile ConnectionStatus connectionStatus;
     private final ReentrantReadWriteLock reentrantReadWriteLock = new ReentrantReadWriteLock();
+
+    /**
+     * This is a map connecting a player cmd to a game tick. The key needs to be the tick
+     */
+    private volatile ConcurrentHashMap<Long, Long> seqNumGameTickMap = new ConcurrentHashMap<>();
 
     public Connection(InetAddress address, int port, String username) {
         this.address = address;
@@ -93,5 +99,9 @@ public class Connection {
     @Override
     public String toString() {
         return super.toString() + "[" + this.clientSocket + ", " + this.username + ", " + this.pid + "]";
+    }
+
+    public ConcurrentHashMap<Long, Long> getSeqNumGameTickMap() {
+        return seqNumGameTickMap;
     }
 }

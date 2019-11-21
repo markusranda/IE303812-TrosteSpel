@@ -241,8 +241,13 @@ public class GameplayScreen extends ScreenAdapter {
                     }
                 }
                 // setting projected pos
-                Vector2 pos = change.getPosition();
-                player.setPos(pos);
+                {
+                    for (long prevSeqNum : Session.getInstance().getSeqNums()) {
+                        System.out.println(prevSeqNum);
+                    }
+                    Vector2 pos = change.getPosition();
+                    player.setPos(pos);
+                }
 
                 player.setHealth(change.getHealth());
                 player.setPid(change.getPid());

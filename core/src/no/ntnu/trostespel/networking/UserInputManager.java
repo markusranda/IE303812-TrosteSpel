@@ -134,13 +134,43 @@ public class UserInputManager {
         model.isaction1 = Gdx.input.isKeyPressed(KeyConfig.action1);
         model.isaction2 = Gdx.input.isKeyPressed(KeyConfig.action2);
         model.isaction3 = Gdx.input.isKeyPressed(KeyConfig.action3);
+
+        // Set sequence number for this cmd
+        long curSeqNum = model.seqNum++;
+        // Save it to a queue
+        Session.getInstance().addSeqNum(curSeqNum);
+
         String json = new Gson().toJson(model);
         packet.setData(json.getBytes());
+
+        if (gameState.getPlayers().containsKey(Session.getInstance().getPid())) {
+            interpolateMovement(myPlayer, model);
+        }
+
         try {
             socket.send(packet);
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    private void interpolateMovement(Player myPlayer, PlayerActions action) {
+        Vector2 playerPos = myPlayer.getPos();
+
+        if (action.isleft) {
+            playerPos.x += -GameRules.Player.SPEED;
+        }
+        if (action.isright) {
+            playerPos.x += GameRules.Player.SPEED;
+        }
+        if (action.isup) {
+            playerPos.y += GameRules.Player.SPEED;
+        }
+        if (action.isdown) {
+            playerPos.y += -GameRules.Player.SPEED;
+        }
+
+        myPlayer.setPos(playerPos);
     }
 
     private boolean canRight() {

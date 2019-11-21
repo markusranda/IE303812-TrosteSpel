@@ -1,6 +1,7 @@
 package no.ntnu.trostespel;
 
 import java.util.Random;
+import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * Model for building json object
@@ -19,6 +20,11 @@ public class PlayerActions {
     public boolean isaction1 = false;
     public boolean isaction2 = false;
     public boolean isaction3 = false;
+
+    /**
+     * This field is meant to be used to determine which CMD that has been sent and
+     */
+    public long seqNum = 0;
 
     public PlayerActions(int pid) {
         this.pid = pid;

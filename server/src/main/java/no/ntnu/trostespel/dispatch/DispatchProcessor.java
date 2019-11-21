@@ -12,7 +12,9 @@ import no.ntnu.trostespel.state.PlayerState;
 
 import java.net.DatagramPacket;
 import java.util.Deque;
+import java.util.Map;
 import java.util.Queue;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.atomic.AtomicLong;
@@ -115,6 +117,9 @@ public class DispatchProcessor {
         if (validateConnection()) {
 
             createPlayerInstanceIfNotExists();
+
+            // add current to tick to a map together with sequence number from actions
+            Connections.getInstance().find(actions.pid).getSeqNumGameTickMap().put(currentTick.longValue(), actions.seqNum);
 
             // check if the player has already been handled this tick
             final long timeSinceLastTick = currentTick.get() - lastTick;
