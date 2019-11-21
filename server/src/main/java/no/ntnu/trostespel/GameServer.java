@@ -89,12 +89,24 @@ public class GameServer {
         }
     }
 
+    private void printDebug() {
+        boolean noConnectedPlayers = true;
+        for (Connection connection : connections) {
+            if (connection.getConnectionStatus() == CONNECTED) {
+                noConnectedPlayers = false;
+                break;
+            }
+        }
+        if (noConnectedPlayers) {
+            System.out.println("Waiting for at least one connection..");
+        }
+    }
 
     private void tick() {
-        long currentTick;
-        if ((currentTick = tickCounter.get()) >= timerCounter) {
-            System.out.println("Waiting for at least one connection..");
-            timerCounter = currentTick + 1000;
+        if ((tickCounter.get()) >= timerCounter) {
+            // print some info every 1000 ticks
+            printDebug();
+            timerCounter = tickCounter.get() + 1000;
         }
         updateClients();
         notifyObservers(tickCounter.incrementAndGet());
