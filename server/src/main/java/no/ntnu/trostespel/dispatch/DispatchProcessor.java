@@ -68,7 +68,6 @@ public class DispatchProcessor {
      * @param executor the executor to execute on
      */
     void tryRun(DatagramPacket packet, ExecutorService executor) {
-        if (startTick == 0) startTick = currentTick.get();
         if (running) {
             enqueueTask(packet);
             System.out.println("Currently holding " + tasks.size() + " tasks . . .");
@@ -104,8 +103,6 @@ public class DispatchProcessor {
         };
     }
 
-    long workCount = 0;
-    long startTick = 0;
     private void work() throws IllegalAccessException {
         this.packet = tasks.poll();
         if (packet == null) {
