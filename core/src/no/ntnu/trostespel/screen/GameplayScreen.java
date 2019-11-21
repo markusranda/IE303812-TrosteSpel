@@ -27,6 +27,8 @@ import no.ntnu.trostespel.entity.Movable;
 import no.ntnu.trostespel.entity.Player;
 import no.ntnu.trostespel.entity.Projectile;
 import no.ntnu.trostespel.entity.Session;
+import no.ntnu.trostespel.networking.tcp.ConnectionClient;
+import no.ntnu.trostespel.networking.tcp.message.TCPMessage;
 import no.ntnu.trostespel.networking.udp.UserInputManager;
 import no.ntnu.trostespel.state.Action;
 import no.ntnu.trostespel.state.GameState;
@@ -121,6 +123,9 @@ public class GameplayScreen extends ScreenAdapter {
 
     private void communicate() {
         game.startUdpConnection(gameState);
+        game.startTcpConnection().listen(msg -> {
+            System.out.println(msg);
+        });
     }
 
     private void drawUI() {

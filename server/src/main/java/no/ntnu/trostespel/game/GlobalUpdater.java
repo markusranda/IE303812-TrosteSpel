@@ -54,6 +54,7 @@ public class GlobalUpdater extends Updater {
         }
         removeList.clear();
         changeActionStatePlayers();
+
     }
 
     /**
@@ -67,7 +68,10 @@ public class GlobalUpdater extends Updater {
                 if (players.containsKey(key)) {
                     if (Intersector.overlaps(playerState.getHitboxWithPosition(), obj.getHitboxWithPosition())) {
                         long id = obj.getId();
-                        playerState.hurt(obj, currentTick);
+                        int newHealth = playerState.hurt(obj, currentTick);
+                        if (newHealth < 1) {
+                            newEvent(GameEvent.PLAYER_KILLED, playerState);
+                        }
                         System.out.println("Bullet @" + obj.getPosition() + " HIT " + "Player #" + playerState.getPid() + " @" + playerState.getPosition() + "Current health: " + playerState.getHealth() + ", Damage: " + obj.damage);
                         removeList.add(id);
                     }
@@ -140,5 +144,11 @@ public class GlobalUpdater extends Updater {
     enum GameEvent {
         KILLSTREAK,
         PLAYER_KILLED
+    }
+
+    public StringMessage collectMessage() {
+        StringMessage result = new StringMessage(TCPEvent.GLOBAL_MESSAGE, msg.getArgs());
+        msg = new StringMessage(TCPEvent.GLOBAL_MESSAGE);
+        return result;
     }
 }

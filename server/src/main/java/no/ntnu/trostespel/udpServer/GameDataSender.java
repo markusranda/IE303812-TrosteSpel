@@ -6,7 +6,6 @@ import no.ntnu.trostespel.GameServer;
 import no.ntnu.trostespel.config.CommunicationConfig;
 import no.ntnu.trostespel.game.GameStateMaster;
 import no.ntnu.trostespel.model.Connection;
-import no.ntnu.trostespel.model.ConnectionStatus;
 import no.ntnu.trostespel.state.GameState;
 
 import java.io.IOException;
@@ -16,7 +15,6 @@ import java.util.List;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import static no.ntnu.trostespel.config.CommunicationConfig.MAX_PLAYERS;
 import static no.ntnu.trostespel.config.CommunicationConfig.RECEIVED_DATA_TYPE;
@@ -62,13 +60,9 @@ public class GameDataSender extends ThreadPoolExecutor{
         return () -> {
             DatagramPacket packet = new DatagramPacket(
                     json.getBytes(),
-                    json.getBytes().length,
-                    connection.getAddress(),
-                    connection.getPort());
-
-            packet.setData(json.getBytes());
+                    json.getBytes().length);
             try {
-                DatagramSocket socket = connection.getClientSocket();
+                DatagramSocket socket = connection.getClientUdpSocket();
                 socket.send(packet);
             } catch (IOException e) {
                 e.printStackTrace();

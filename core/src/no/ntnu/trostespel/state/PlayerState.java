@@ -57,13 +57,14 @@ public class PlayerState extends ObjectState{
         return attackTimer;
     }
 
-    public void hurt(MovableState obj, long currentTick) {
+    public int hurt(MovableState obj, long currentTick) {
         if (lastTimeDamageTaken < currentTick - invincibilityFrames) {
             this.health -= obj.damage;
             lastDamager = obj.getPid();
             lastTimeDamageTaken = currentTick;
             if (health <= 0) killStreak = 0;
         }
+        return this.health;
     }
 
     public int getKillStreak() {

@@ -29,15 +29,15 @@ public class ConnectionClient {
     private InetAddress serverAddress;
     private int serverPort;
     private BlockingQueue<TCPMessage> outQueue;
-    private ExecutorService executor;
+    private ScheduledExecutorService executor;
     private final Object MONITOR = new Object();
 
     private volatile boolean running = false;
 
     private ConnectionClient() {
-        executor = Executors.newFixedThreadPool(2);
-        outQueue = new LinkedBlockingQueue<>();
+        outQueue = new LinkedBlockingQueue<>(1);
         listeners = new HashSet<>();
+        executor = Executors.newScheduledThreadPool(2);
 
         // the following code allows deserializing classes which inherits some base class,
         // making tcp messaging easy kill
@@ -62,12 +62,22 @@ public class ConnectionClient {
         //executor.execute(senderRunnable());
         //executor.execute(receiverRunnable());
         executor.execute(tcpRunner());
+        executor.scheduleWithFixedDelay(messagePoller(), 1000, 1000, TimeUnit.MILLISECONDS);
+    }
+
+    private Runnable messagePoller() {
+        TCPMessage msg = new StringMessage(TCPEvent.GLOBAL_MESSAGE);
+        return () -> {
+            System.out.println("Offered: " + msg);
+            outQueue.offer(msg);
+        };
     }
 
     /**
      * core logic of the TCP client
      * blocks on send with a timeout
      * does NOT block while waiting for incoming data
+     *
      * @return
      */
     private Runnable tcpRunner() {
@@ -75,29 +85,34 @@ public class ConnectionClient {
             running = true;
             while (running) {
                 Socket socket = null;
+
                 try {
                     socket = new Socket(serverAddress, serverPort);
                     InputStream inputStream = socket.getInputStream();
                     BufferedReader in = new BufferedReader(new InputStreamReader(inputStream));
                     PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
-
                     // Send
                     // wait up to one second for an outgoing message
                     // on timeout, the method continues and checks for incoming messages
-                    TCPMessage msg = outQueue.poll(1000, TimeUnit.MILLISECONDS);
+                    System.out.println("START OF SEND METHOD " + outQueue.size());
+                    if (outQueue.isEmpty()) {
+
+                    }
+                    TCPMessage msg = outQueue.take();
                     if (msg != null) {
                         String json = serialize(msg);
+                        System.out.println("Sent: " + json);
                         out.println(json);
                     }
 
                     // Receive
-                    if (inputStream.available() < 2) {
-                        String receivedString = in.readLine();
-                        TCPMessage received = deserialize(receivedString);
-                        notifyListeners(received);
-                    }
+                    String receivedString = in.readLine();
+                    System.out.println("Received: " + receivedString);
 
-                } catch (InterruptedException | IOException ex) {
+                    TCPMessage received = deserialize(receivedString);
+                    notifyListeners(received);
+
+                } catch (IOException | InterruptedException ex) {
                     ex.printStackTrace();
                 } finally {
                     if (socket != null) {
