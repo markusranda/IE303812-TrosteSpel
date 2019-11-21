@@ -11,6 +11,7 @@ import java.io.*;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.SocketAddress;
 
 import static no.ntnu.trostespel.config.CommunicationConfig.MAX_PLAYERS;
 import static no.ntnu.trostespel.model.ConnectionStatus.CONNECTED;
@@ -106,7 +107,7 @@ public class ConnectionManager implements Runnable {
 
     }
 
-    public InetAddress getSocketAddress() {
-        return this.server.getInetAddress();
+    public SocketAddress getSocketAddress() {
+        return this.server.getLocalSocketAddress();
     }
 }

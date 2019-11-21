@@ -13,6 +13,9 @@ public abstract class Movable extends GameObject {
 
     private long previousTick;
 
+    // interpolation var
+    float epsilon = .1f;
+
     public Movable(Vector2 pos, float width, float height, Rectangle rect, Texture texture) {
         super(pos, width, height, rect, texture);
         previousPos = new Vector2().setZero();
@@ -26,7 +29,7 @@ public abstract class Movable extends GameObject {
         }
 
         if (tick > previousTick) {
-            if (!position.epsilonEquals(previousPos)) {
+            if (!position.epsilonEquals(previousPos, epsilon)) {
                 displacement = previousPos.cpy().sub(position).scl(-1);
                 moving = true;
             } else {
