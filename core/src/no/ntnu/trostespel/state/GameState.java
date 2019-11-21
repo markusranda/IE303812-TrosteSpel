@@ -2,7 +2,6 @@ package no.ntnu.trostespel.state;
 
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 
-import java.util.HashMap;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
