@@ -242,7 +242,7 @@ public class GameplayScreen extends ScreenAdapter {
                 }
                 // setting projected pos
                 Vector2 pos = change.getPosition();
-                player.setPos(pos);
+                player.interpolatePos(pos);
 
                 player.setHealth(change.getHealth());
                 player.setPid(change.getPid());
