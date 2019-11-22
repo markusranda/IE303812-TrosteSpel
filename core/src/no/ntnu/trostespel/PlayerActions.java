@@ -7,6 +7,7 @@ import java.util.Random;
  */
 public class PlayerActions {
 
+    public transient long time;
     public long pid = -1;
     public boolean isup = false;
     public boolean isright = false;

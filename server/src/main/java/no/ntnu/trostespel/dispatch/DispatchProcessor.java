@@ -4,6 +4,9 @@ import com.esotericsoftware.kryo.Kryo;
 import com.google.common.collect.EvictingQueue;
 import no.ntnu.trostespel.PlayerActions;
 import no.ntnu.trostespel.Tickable;
+import no.ntnu.trostespel.config.CommunicationConfig;
+import no.ntnu.trostespel.exception.IdentityMismatchException;
+import no.ntnu.trostespel.exception.PlayerDisconnectedException;
 import no.ntnu.trostespel.model.Connection;
 import no.ntnu.trostespel.model.ConnectionStatus;
 import no.ntnu.trostespel.model.Connections;
@@ -24,37 +27,38 @@ import java.util.concurrent.atomic.AtomicLong;
  * player-specific information in order to perform lag-compensation
  */
 public class DispatchProcessor implements Tickable {
+
+    private Deque<DatagramPacket> tasks; // the packets to process
+
     private long pid = -1;
     private DatagramPacket packet;
     private PlayerCmdProcessor cmdProcessor;
     private GameState<PlayerState, MovableState> gameState;
     private Connections connections;
     private PacketDeserializer deserializer;
-
-    // a MAX value is set to limit the amount of leniancy the player gets on lagging. Measured in tick
-    private static final int MAX = 3;
-    private Kryo kryo;
-    private volatile boolean running = false;
-
-    private long lastTick = -999;
-
-    private Queue<PlayerActions> earlyActions;// hold packets that arrive early for potential later use
-    private Deque<DatagramPacket> tasks; // the packets to process
-
     private Runnable worker;
+    private Kryo kryo;
 
     private AtomicLong currentTick;
+    private volatile boolean running = false;
+    private long lastTick = -999;
 
-    private long totalMissedTicks = 0;
-    private Rolling movingAvg = new Rolling(30);
-    private volatile boolean executedThisTick = false;
+    // dispatch strategy fields
+    private boolean step = false;
+    private MovingAverage movingAvg = new MovingAverage(CommunicationConfig.TICKRATE);
+    private Queue<PlayerActions> excessActions;// hold actions that arrive early for potential later use
+    private static final int CACHED_ACTIONS_SIZE = CommunicationConfig.TICKRATE / 10;
+    ;
+    private static final double MAX_MA_LENIENCY = 1d / CommunicationConfig.TICKRATE;
+    private static final int MAX_ACTIONS_AGE = CommunicationConfig.TICKRATE / 10;
+
 
     public DispatchProcessor(GameState<PlayerState, MovableState> gameState, AtomicLong tickCounter) {
         this.gameState = gameState;
         this.cmdProcessor = new PlayerCmdProcessor(gameState);
         this.deserializer = new PacketDeserializer();
 
-        this.earlyActions = EvictingQueue.create(MAX);
+        this.excessActions = EvictingQueue.create(CACHED_ACTIONS_SIZE);
         this.tasks = new ConcurrentLinkedDeque<>();
         this.kryo = new Kryo();
         this.kryo.register(PlayerActions.class);
@@ -73,7 +77,6 @@ public class DispatchProcessor implements Tickable {
     void tryRun(DatagramPacket packet, ExecutorService executor) {
         if (running) {
             enqueueTask(packet);
-            System.out.println("Currently holding " + tasks.size() + " tasks . . .");
         } else {
             running = true;
             enqueueTask(packet);
@@ -93,12 +96,8 @@ public class DispatchProcessor implements Tickable {
                 while (!tasks.isEmpty()) {
                     work2();
                 }
-            } catch (IllegalAccessException e) {
+            } catch (PlayerDisconnectedException e) {
                 e.printStackTrace();
-                handleIllegalConnection();
-            } catch (IllegalStateException e) {
-                e.printStackTrace();
-                handleIllegalConnection();
             } finally {
                 lastTick = currentTick.get();
                 running = false;
@@ -106,87 +105,76 @@ public class DispatchProcessor implements Tickable {
         };
     }
 
-    private void work() throws IllegalAccessException {
-        this.packet = tasks.poll();
-        if (packet == null) {
-            System.out.println("ERROR NPE");
-            running = false;
-            return;
+    /**
+     * Polls tasks from task queue, and decides if they can be executed
+     * Uses a moving average of the amount of executed tasks each tick to decide how to dispatch
+     * This method ensures that a player cannot send requests faster than the server tickrate, and also
+     * tries to compensate for packets arriving with irregular timing
+     * <p>
+     * Moving average values should be interpreted the following way:
+     * - ma = 0: Amount of executed tasks is the same as expected
+     * - ma < 0: Amount of executed tasks is less than expected
+     * - ma > 0: Amount of executed tasks is more than expected
+     *
+     */
+    private void work2() throws PlayerDisconnectedException {
+        // todo come up with better method name 😂
+        if (step) {
+            movingAvg.step();
+            step = false;
         }
-        PlayerActions actions = deserializer.deserialize(packet);
-        this.pid = actions.pid;
-        if (validateConnection()) {
 
+        getPacket();
+
+        PlayerActions actions = deserializer.deserialize(packet);
+        actions.time = currentTick.get();
+        this.pid = actions.pid;
+
+        if (validateConnection()) {
             createPlayerInstanceIfNotExists();
 
-            // check if the player has already been handled this tick
-            final long timeSinceLastTick = currentTick.get() - lastTick;
-            if (timeSinceLastTick > 0) {
-                if (timeSinceLastTick > 1) {
-                    // player missed a tick or more
-                    long missedTicks = timeSinceLastTick - 1;
-                    totalMissedTicks += missedTicks;
-                    tryCompensateForMissedTicks(missedTicks);
-                    if (totalMissedTicks % 10 == 0) {
-                        //debug info
-                        System.out.println("Player #" + pid + " missed ticks: " + totalMissedTicks);
-                    }
-                }
-                cmdProcessor.run(actions);
-            } else {
-                // packet arrived early
-                earlyActions.offer(kryo.copy(actions));
-            }
-        } else {
-            handleIllegalConnection();
-        }
-    }
-
-    // work2 Rolling average test
-    private void work2() throws IllegalAccessException {
-        this.packet = tasks.poll();
-        if (packet == null) {
-            System.out.println("ERROR NPE");
-            running = false;
-            return;
-        }
-        createPlayerInstanceIfNotExists();
-        PlayerActions actions = deserializer.deserialize(packet);
-        this.pid = actions.pid;
-        if (validateConnection()) {
-            movingAvg.add(1);
             double avg = movingAvg.getAverage();
-            if (actions.pid == 100) {
-                System.out.println(avg);
-            }
             if (avg == 0) {
                 // perfect execution
-                cmdProcessor.run(actions);
+                processCmd(actions);
             } else if (avg < 0) {
                 // executed too little
-
-            } else if (avg > 0) {
+                processCmd(actions);
+                handleLowExecution();
+            } else if (avg > MAX_MA_LENIENCY) {
                 // executed too much
+                excessActions.offer(actions);
             }
-            executedThisTick = true;
         } else {
             handleIllegalConnection();
-            // packet arrived early
         }
     }
 
-    private void tryCompensateForMissedTicks(long timeSinceLastTick) {
-        // final long missedTicks = timeSinceLastTick - 1;
-        if (!earlyActions.isEmpty()) {
-            long numActionsToRecover = Math.min(timeSinceLastTick, MAX);
-            for (int i = 0; i < numActionsToRecover; i++) {
-                PlayerActions recoveredActions = earlyActions.poll();
-                if (recoveredActions != null) {
-                    cmdProcessor.run(recoveredActions);
-                    totalMissedTicks--;
-                }
+    private void getPacket() {
+        // get packet
+        this.packet = tasks.poll();
+        if (packet == null) {
+            throw new RuntimeException("Fetched NULL task from task queue");
+        }
+    }
+
+    /**
+     * Tries to recover the moving average by executing cached packages
+     */
+    private void handleLowExecution() {
+        while (!excessActions.isEmpty() || movingAvg.getAverage() > MAX_MA_LENIENCY) {
+            PlayerActions recoveredAction = excessActions.poll();
+            if (recoveredAction != null) {
+                long age = currentTick.get() - recoveredAction.time;
+                if (age > MAX_ACTIONS_AGE) continue;
+                processCmd(recoveredAction);
             }
         }
+    }
+
+    private void processCmd(PlayerActions actions) {
+        movingAvg.accumulate(1);
+        cmdProcessor.run(actions);
     }
 
     private void createPlayerInstanceIfNotExists() {
@@ -205,17 +193,17 @@ public class DispatchProcessor implements Tickable {
         gameState.getPlayers().remove(pid);
     }
 
-    private boolean validateConnection() throws IllegalAccessException {
+    private boolean validateConnection() throws PlayerDisconnectedException {
         boolean result = false;
         Connection conn = connections.find(pid);
         if (conn != null) {
             if (!conn.getAddress().equals(packet.getAddress())) {
                 System.out.println("PID-InetAddress mismatch: ");
                 System.out.println("Stored address: " + conn.getAddress().getHostAddress() + ", received address: " + packet.getAddress().getHostAddress());
-                // throw new IllegalAccessException("Wrong ip !?!");
+                //throw new IdentityMismatchException();
             }
             if (conn.getConnectionStatus() != ConnectionStatus.CONNECTED) {
-                throw new IllegalStateException("Player is disconnected");
+                throw new PlayerDisconnectedException();
             }
             result = true;
         }
@@ -224,8 +212,6 @@ public class DispatchProcessor implements Tickable {
 
     @Override
     public void onTick(long tick) {
-        if (!executedThisTick) movingAvg.add(0);
-        executedThisTick = false;
-
+        step = true;
     }
 }
