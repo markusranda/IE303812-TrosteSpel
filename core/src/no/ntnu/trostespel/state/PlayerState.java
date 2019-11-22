@@ -23,6 +23,7 @@ public class PlayerState extends ObjectState{
     private Action action;
     private long timeOfDeath;
     private String username;
+    private long seqNum;
 
     public PlayerState(long pid) {
         super(72, 90, new Vector2(55, 55));
@@ -37,6 +38,20 @@ public class PlayerState extends ObjectState{
         this.pid = pid;
         this.health = health;
         this.action = Action.ALIVE;
+    }
+
+    /**
+     * Constructor to be used when it's important to know at which seqNum this PlayerState got created.
+     * @param pid player id
+     * @param position position
+     * @param seqNum sequence number used to identity when this state got created
+     */
+    public PlayerState(long pid, Vector2 position, long seqNum) {
+        super(72, 90, position);
+        this.pid = pid;
+        this.health = 0;
+        this.action = Action.ALIVE;
+        this.seqNum = seqNum;
     }
 
     public void setHealth(int health) {
@@ -125,5 +140,13 @@ public class PlayerState extends ObjectState{
         hitbox.x = pos.x + WIDTH_OFFSET;
         hitbox.y = pos.y + HEIGHT_OFFSET;
         return hitbox;
+    }
+
+    public long getSeqNum() {
+        return seqNum;
+    }
+
+    public void setSeqNum(long seqNum) {
+        this.seqNum = seqNum;
     }
 }

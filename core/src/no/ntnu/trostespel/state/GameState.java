@@ -16,13 +16,11 @@ public class GameState<P, M> {
     private Queue<M> projectilesStateUpdates;
     private boolean ack = false;
     private long tick;
-    private long seqNum;
 
     public GameState() {
         projectilesStateUpdates = new ConcurrentLinkedQueue<>();
         projectiles = new ConcurrentHashMap<>();
         players = new ConcurrentHashMap<>();
-        seqNum = 0;
     }
 
     public ConcurrentMap<Long, M> getProjectiles() {
@@ -59,13 +57,5 @@ public class GameState<P, M> {
 
     public void setTick(long tick) {
         this.tick = tick;
-    }
-
-    public void setSeqNum(long seqNum) {
-        this.seqNum = seqNum;
-    }
-
-    public long getSeqNum() {
-        return seqNum;
     }
 }
