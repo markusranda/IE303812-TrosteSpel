@@ -77,12 +77,13 @@ public class GameServer {
 
         long lastTime = System.nanoTime();
 
-        System.out.println("Starting tick-loop with frequecy " + ns + "ns");
+        System.out.println(" - Starting tick-loop with frequecy " + ns + "ns (" + CommunicationConfig.TICKRATE+" ticks/s)");
         while (true) {
             long now = System.nanoTime();
             delta += (now - lastTime) / ns;
             lastTime = now;
             while (delta >= 1) {
+                GameServerStats.measureJitter();
                 tick();
                 delta--;
             }

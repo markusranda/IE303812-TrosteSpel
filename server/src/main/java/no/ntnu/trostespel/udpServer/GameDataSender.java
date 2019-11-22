@@ -10,6 +10,7 @@ import no.ntnu.trostespel.model.ConnectionStatus;
 import no.ntnu.trostespel.model.Connections;
 import no.ntnu.trostespel.state.GameState;
 import no.ntnu.trostespel.state.PlayerState;
+import org.apache.logging.log4j.LogManager;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
@@ -24,17 +25,23 @@ import static no.ntnu.trostespel.config.CommunicationConfig.MAX_PLAYERS;
 import static no.ntnu.trostespel.config.CommunicationConfig.RECEIVED_DATA_TYPE;
 import static no.ntnu.trostespel.model.ConnectionStatus.CONNECTED;
 
-public class GameDataSender extends ThreadPoolExecutor{
+public class GameDataSender extends ThreadPoolExecutor {
 
     private GameServer master;
     private GameStateMaster gameStateMaster;
     private Gson gson = new Gson();
-    GameState nextGameState;
+    private GameState nextGameState;
+
+    private static final String tag = "gamedatasender";
+
+    private long time;
 
     public GameDataSender() {
         super(1, MAX_PLAYERS, CommunicationConfig.RETRY_CONNECTION_TIMEOUT, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<>(16),
                 new ThreadFactoryBuilder().setNameFormat("GameDataSender-%d").build());
         this.gameStateMaster = GameStateMaster.getInstance();
+        LogManager.getLogger(tag).trace("Created " + this.getClass().getName());
+        time = System.currentTimeMillis();
     }
 
 
@@ -43,6 +50,7 @@ public class GameDataSender extends ThreadPoolExecutor{
      */
     public void broadcast(List<Connection> connections, long tick) {
         // Send GameState to all clients
+        log();
         nextGameState = gameStateMaster.getGameState();
         nextGameState.setTick(tick);
         String json = gson.toJson(nextGameState, RECEIVED_DATA_TYPE);
@@ -83,6 +91,10 @@ public class GameDataSender extends ThreadPoolExecutor{
                 e.printStackTrace();
             }
         };
+    }
+
+    private void log() {
+
     }
 
     @Override

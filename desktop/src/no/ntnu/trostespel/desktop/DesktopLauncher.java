@@ -11,7 +11,7 @@ public class DesktopLauncher {
 		config.title = "Troster i Kamp";
 		config.width = ScreenConfig.SCREEN_WIDTH;
 		config.height = ScreenConfig.SCREEN_HEIGHT;
-		config.foregroundFPS = 60;
+		config.foregroundFPS = 144;
 		new LwjglApplication(new TrosteSpel(), config);
 	}
 }
