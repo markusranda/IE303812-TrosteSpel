@@ -31,6 +31,7 @@ import no.ntnu.trostespel.entity.Player;
 import no.ntnu.trostespel.entity.Projectile;
 import no.ntnu.trostespel.entity.Session;
 import no.ntnu.trostespel.networking.UserInputManager;
+import no.ntnu.trostespel.networking.tcp.ConnectionClient;
 import no.ntnu.trostespel.state.Action;
 import no.ntnu.trostespel.state.GameState;
 import no.ntnu.trostespel.state.MovableState;
@@ -240,11 +241,32 @@ public class GameplayScreen extends ScreenAdapter {
                         player.setUsername(change.getUsername());
                     }
                 }
-                // setting projected pos
-                {
-                    for (long prevSeqNum : Session.getInstance().getSeqNums()) {
-                        System.out.println(prevSeqNum);
+
+                // If change is me
+                if (change.getPid() == Session.getInstance().getPid()) {
+                    // Iterating the circular buffer of playerStates
+                    for (int i = 0; i < Session.getInstance().getPlayerStateBufferSize(); i++) {
+
+                        // Retrieving the first buffered PlayerState
+                        PlayerState bufferedPlayerState = Session.getInstance().getFirstPlayerStateFromBuffer();
+
+                        // Matches SeqNum with PlayerState from server
+                        System.out.println("Currently matching: " + change.getSeqNum());
+                        if (bufferedPlayerState.getSeqNum() == change.getSeqNum()) {
+                            // Then checks if position is ok, and corrects if wrong
+                            if (!bufferedPlayerState.getPosition().epsilonEquals(change.getPosition())) {
+                                // Correction to pos
+                                Vector2 pos = change.getPosition();
+                                player.setPos(pos);
+                                System.out.println("[XXXX] For some reason the server had to correct my prediction!");
+                            } else {
+                                System.out.println("[0000] Server didn't have to correct my prediction!");
+                            }
+                        } else {
+                            System.out.println("Something is wrong, sequence number: " + change.getSeqNum() + " was not found..");
+                        }
                     }
+                } else {
                     Vector2 pos = change.getPosition();
                     player.setPos(pos);
                 }
