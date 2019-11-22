@@ -1,6 +1,7 @@
 package no.ntnu.trostespel.entity;
 
 
+import com.badlogic.gdx.math.Vector2;
 import com.google.common.collect.EvictingQueue;
 import no.ntnu.trostespel.state.GameState;
 import no.ntnu.trostespel.state.MovableState;
@@ -24,41 +25,12 @@ public class Session {
     private Lock writeLock = lock.writeLock();
 
     /**
-     * This queue will contain the five last seqNums, in other words it will contain the five last
-     * commands the client sent to the server
+     *
      */
-    private final int MAX_SIZE_SEQ_NUMS = 5;
-    private EvictingQueue<Long> seqNums = EvictingQueue.create(MAX_SIZE_SEQ_NUMS);
+    private EvictingQueue<PlayerState> bufferedPlayerStates = EvictingQueue.create(100);
     private ReentrantReadWriteLock seqNumLock = new ReentrantReadWriteLock();
     private Lock seqNumWriteLock = seqNumLock.writeLock();
     private Lock seqNumReadLock = seqNumLock.readLock();
-
-    /**
-     * Adds a new seqNum to the EvictingQueue. This method implements
-     * a write lock, so it's considered thread-safe.
-     *
-     * @param seqNum the sequence number to add
-     */
-    public void addSeqNum(long seqNum) {
-        seqNumWriteLock.lock();
-        try {
-            seqNums.add(seqNum);
-        } finally {
-            seqNumWriteLock.unlock();
-        }
-    }
-
-    /**
-     * Retrieves all the seqNums
-     */
-    public EvictingQueue<Long> getSeqNums() {
-        seqNumReadLock.lock();
-        try {
-            return seqNums;
-        } finally {
-            seqNumReadLock.unlock();
-        }
-    }
 
     private String username;
     private DatagramSocket udpSocket;
@@ -138,4 +110,27 @@ public class Session {
     public String getMapFileName() {
         return mapFileName;
     }
+
+    public void saveThisPlayerState(long seqNum, Vector2 playerPos, long pid) {
+        seqNumWriteLock.lock();
+        try {
+            bufferedPlayerStates.add(new PlayerState(pid, playerPos, seqNum));
+        } finally {
+            seqNumWriteLock.unlock();
+        }
+    }
+
+    public PlayerState getFirstPlayerStateFromBuffer() {
+        seqNumReadLock.lock();
+        try {
+            return bufferedPlayerStates.poll();
+        } finally {
+            seqNumReadLock.unlock();
+        }
+    }
+
+    public int getPlayerStateBufferSize() {
+        return bufferedPlayerStates.size();
+    }
+
 }

@@ -9,6 +9,7 @@ import no.ntnu.trostespel.model.Connection;
 import no.ntnu.trostespel.model.ConnectionStatus;
 import no.ntnu.trostespel.model.Connections;
 import no.ntnu.trostespel.state.GameState;
+import no.ntnu.trostespel.state.PlayerState;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
@@ -65,9 +66,8 @@ public class GameDataSender extends ThreadPoolExecutor{
             long gameStateTick = gameState.getTick();
             if (connection.getSeqNumGameTickMap().contains(gameStateTick)) {
                 long seqNum = connection.getSeqNumGameTickMap().remove(gameStateTick);
-                gameState.setSeqNum(seqNum);
+                ((PlayerState) gameState.getPlayers().get(connection.getPid())).setSeqNum(seqNum);
             }
-
             String updatedJson = gson.toJson(gameState);
 
             DatagramPacket packet = new DatagramPacket(
