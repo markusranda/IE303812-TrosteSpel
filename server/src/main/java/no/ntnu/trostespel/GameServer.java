@@ -103,23 +103,24 @@ public class GameServer {
     }
 
     private void tick() {
-        if ((tickCounter.get()) >= timerCounter) {
+        final long lastTick = tickCounter.get();
+        if (lastTick >= timerCounter) {
             // print some info every 1000 ticks
             printDebug();
-            timerCounter = tickCounter.get() + 1000;
+            timerCounter = lastTick + 1000;
         }
-        updateClients();
+        updateClients(lastTick);
         notifyObservers(tickCounter.incrementAndGet());
     }
 
 
-    private void updateClients() {
+    private void updateClients(long tick) {
         dropIdleConnections();
-        broadcastUpdate();
+        broadcastUpdate(tick);
     }
 
-    private void broadcastUpdate() {
-        sender.broadcast(Connections.getInstance().getConnections(), getTickcounter());
+    private void broadcastUpdate(long tick) {
+        sender.broadcast(Connections.getInstance().getConnections(), tick);
     }
 
     private void dropIdleConnections() {

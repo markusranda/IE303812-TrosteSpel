@@ -50,7 +50,7 @@ public class GameDataSender extends ThreadPoolExecutor{
 
         for (Connection con : connections) {
             if (con.getConnectionStatus() == CONNECTED)
-                execute(send(con, json));
+                execute(send(con, json, tick));
         }
     }
 
@@ -60,12 +60,11 @@ public class GameDataSender extends ThreadPoolExecutor{
      * @param connection The Connection
      * @return Returns a runnable
      */
-    private Runnable send(Connection connection, String json) {
+    private Runnable send(Connection connection, String json, long tick) {
         return () -> {
             GameState gameState = gson.fromJson(json, RECEIVED_DATA_TYPE);
-            Long gameStateTick = gameState.getTick();
-            if (connection.getSeqNumGameTickMap().containsKey(gameStateTick)) {
-                long seqNum = connection.getSeqNumGameTickMap().remove(gameStateTick);
+            if (connection.getSeqNumGameTickMap().containsKey(tick)) {
+                long seqNum = connection.getSeqNumGameTickMap().remove(tick);
                 ((PlayerState) gameState.getPlayers().get(connection.getPid())).setSeqNum(seqNum);
             }
             String updatedJson = gson.toJson(gameState);
