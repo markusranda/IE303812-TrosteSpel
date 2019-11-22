@@ -119,7 +119,7 @@ public class DispatchProcessor {
             createPlayerInstanceIfNotExists();
 
             // add current to tick to a map together with sequence number from actions
-            Connections.getInstance().find(actions.pid).getSeqNumGameTickMap().put(currentTick.longValue(), actions.seqNum);
+            Connections.getInstance().find(actions.pid).getSeqNumGameTickMap().put(currentTick.get(), actions.seqNum);
 
             // check if the player has already been handled this tick
             final long timeSinceLastTick = currentTick.get() - lastTick;
