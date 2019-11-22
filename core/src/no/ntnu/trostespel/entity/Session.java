@@ -8,6 +8,7 @@ import no.ntnu.trostespel.state.MovableState;
 import no.ntnu.trostespel.state.PlayerState;
 
 import java.net.DatagramSocket;
+import java.util.NoSuchElementException;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
@@ -123,8 +124,11 @@ public class Session {
     public PlayerState getFirstPlayerStateFromBuffer() {
         seqNumReadLock.lock();
         try {
-            return bufferedPlayerStates.poll();
-        } finally {
+            return bufferedPlayerStates.element();
+        } catch (NoSuchElementException | NullPointerException ne) {
+            return null;
+        }
+        finally {
             seqNumReadLock.unlock();
         }
     }
@@ -133,4 +137,7 @@ public class Session {
         return bufferedPlayerStates.size();
     }
 
+    public void removePlayerFromBuffer(PlayerState playerState) {
+        bufferedPlayerStates.remove(playerState);
+    }
 }

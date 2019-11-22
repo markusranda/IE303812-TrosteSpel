@@ -245,25 +245,27 @@ public class GameplayScreen extends ScreenAdapter {
                 // If change is me
                 if (change.getPid() == Session.getInstance().getPid()) {
                     // Iterating the circular buffer of playerStates
-                    for (int i = 0; i < Session.getInstance().getPlayerStateBufferSize(); i++) {
+                    System.out.println("Size of this shit: " + Session.getInstance().getPlayerStateBufferSize());
+                    for (int i = 1; i <= Session.getInstance().getPlayerStateBufferSize(); i++) {
 
                         // Retrieving the first buffered PlayerState
                         PlayerState bufferedPlayerState = Session.getInstance().getFirstPlayerStateFromBuffer();
 
-                        // Matches SeqNum with PlayerState from server
-                        System.out.println("Currently matching: " + change.getSeqNum());
-                        if (bufferedPlayerState.getSeqNum() == change.getSeqNum()) {
-                            // Then checks if position is ok, and corrects if wrong
-                            if (!bufferedPlayerState.getPosition().epsilonEquals(change.getPosition())) {
-                                // Correction to pos
-                                Vector2 pos = change.getPosition();
-                                player.setPos(pos);
-                                System.out.println("[XXXX] For some reason the server had to correct my prediction!");
-                            } else {
-                                System.out.println("[0000] Server didn't have to correct my prediction!");
+                        if (bufferedPlayerState != null) {
+                            // Matches SeqNum with PlayerState from server
+                            System.out.println("Currently matching: " + change.getSeqNum() + " with: " + bufferedPlayerState.getSeqNum());
+                            if (bufferedPlayerState.getSeqNum() == change.getSeqNum()) {
+                                // Then checks if position is ok, and corrects if wrong
+                                if (!bufferedPlayerState.getPosition().epsilonEquals(change.getPosition())) {
+                                    // Correction to pos
+                                    Vector2 pos = change.getPosition();
+                                    player.setPos(pos);
+                                    System.out.println(" For some reason the server had to correct my prediction!"); // TODO: 22/11/2019 Remove when finished
+                                } else {
+                                    System.out.println(" Server didn't have to correct my prediction!"); // TODO: 22/11/2019 Remove when finished
+                                }
+                                Session.getInstance().removePlayerFromBuffer(bufferedPlayerState);
                             }
-                        } else {
-                            System.out.println("Something is wrong, sequence number: " + change.getSeqNum() + " was not found..");
                         }
                     }
                 } else {
