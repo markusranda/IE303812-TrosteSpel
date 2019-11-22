@@ -135,16 +135,14 @@ public class UserInputManager {
         model.isaction2 = Gdx.input.isKeyPressed(KeyConfig.action2);
         model.isaction3 = Gdx.input.isKeyPressed(KeyConfig.action3);
 
-        // Set sequence number for this cmd
-        long curSeqNum = model.seqNum++;
-        // Save it to a queue
-        Session.getInstance().addSeqNum(curSeqNum);
-
         String json = new Gson().toJson(model);
         packet.setData(json.getBytes());
 
+        // Set sequence number for this cmd
+        long curSeqNum = model.seqNum++;
+
         if (gameState.getPlayers().containsKey(Session.getInstance().getPid())) {
-            interpolateMovement(myPlayer, model);
+            interpolateMovement(myPlayer, model, curSeqNum);
         }
 
         try {
@@ -154,7 +152,7 @@ public class UserInputManager {
         }
     }
 
-    private void interpolateMovement(Player myPlayer, PlayerActions action) {
+    private void interpolateMovement(Player myPlayer, PlayerActions action, long curSeqNum) {
         Vector2 playerPos = myPlayer.getPos();
 
         if (action.isleft) {
@@ -169,6 +167,9 @@ public class UserInputManager {
         if (action.isdown) {
             playerPos.y += -GameRules.Player.SPEED;
         }
+
+        // Save it to a queue
+        Session.getInstance().saveThisPlayerState(curSeqNum, playerPos, myPlayer.getPid());
 
         myPlayer.setPos(playerPos);
     }
