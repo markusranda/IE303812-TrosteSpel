@@ -3,6 +3,7 @@ package no.ntnu.trostespel.dispatch;
 import com.esotericsoftware.kryo.Kryo;
 import com.google.common.collect.EvictingQueue;
 import no.ntnu.trostespel.PlayerActions;
+import no.ntnu.trostespel.Tickable;
 import no.ntnu.trostespel.model.Connection;
 import no.ntnu.trostespel.model.ConnectionStatus;
 import no.ntnu.trostespel.model.Connections;
@@ -22,7 +23,7 @@ import java.util.concurrent.atomic.AtomicLong;
  * each Player should gets its own unique processor object, as the class keeps track of some
  * player-specific information in order to perform lag-compensation
  */
-public class DispatchProcessor {
+public class DispatchProcessor implements Tickable {
     private long pid = -1;
     private DatagramPacket packet;
     private PlayerCmdProcessor cmdProcessor;
@@ -45,6 +46,8 @@ public class DispatchProcessor {
     private AtomicLong currentTick;
 
     private long totalMissedTicks = 0;
+    private Rolling movingAvg = new Rolling(30);
+    private volatile boolean executedThisTick = false;
 
     public DispatchProcessor(GameState<PlayerState, MovableState> gameState, AtomicLong tickCounter) {
         this.gameState = gameState;
@@ -88,7 +91,7 @@ public class DispatchProcessor {
             try {
                 if (lastTick == -999) lastTick = currentTick.get() - 1;
                 while (!tasks.isEmpty()) {
-                    work();
+                    work2();
                 }
             } catch (IllegalAccessException e) {
                 e.printStackTrace();
@@ -137,8 +140,39 @@ public class DispatchProcessor {
         } else {
             handleIllegalConnection();
         }
+    }
 
+    // work2 Rolling average test
+    private void work2() throws IllegalAccessException {
+        this.packet = tasks.poll();
+        if (packet == null) {
+            System.out.println("ERROR NPE");
+            running = false;
+            return;
+        }
+        createPlayerInstanceIfNotExists();
+        PlayerActions actions = deserializer.deserialize(packet);
+        this.pid = actions.pid;
+        if (validateConnection()) {
+            movingAvg.add(1);
+            double avg = movingAvg.getAverage();
+            if (actions.pid == 100) {
+                System.out.println(avg);
+            }
+            if (avg == 0) {
+                // perfect execution
+                cmdProcessor.run(actions);
+            } else if (avg < 0) {
+                // executed too little
 
+            } else if (avg > 0) {
+                // executed too much
+            }
+            executedThisTick = true;
+        } else {
+            handleIllegalConnection();
+            // packet arrived early
+        }
     }
 
     private void tryCompensateForMissedTicks(long timeSinceLastTick) {
@@ -153,8 +187,6 @@ public class DispatchProcessor {
                 }
             }
         }
-
-
     }
 
     private void createPlayerInstanceIfNotExists() {
@@ -188,5 +220,12 @@ public class DispatchProcessor {
             result = true;
         }
         return result;
+    }
+
+    @Override
+    public void onTick(long tick) {
+        if (!executedThisTick) movingAvg.add(0);
+        executedThisTick = false;
+
     }
 }

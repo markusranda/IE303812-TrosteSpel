@@ -48,6 +48,7 @@ public class PlayerUpdateDispatcher extends ThreadPoolExecutor {
             worker.tryRun(packet, this);
         } else {
             worker = new DispatchProcessor(gameStateMaster.getGameState(), tickCounter);
+            GameServer.observe(worker);
             workers.put(socketAddr, worker);
             worker.tryRun(packet, this);
         }
