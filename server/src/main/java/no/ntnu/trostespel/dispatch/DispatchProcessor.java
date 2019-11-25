@@ -39,8 +39,8 @@ public class DispatchProcessor implements Tickable {
     private Runnable worker;
     private Kryo kryo;
 
-    private AtomicLong currentTick;
     private volatile boolean running = false;
+    private long currentTick;
     private long lastTick = -999;
 
     // dispatch strategy fields
@@ -49,11 +49,11 @@ public class DispatchProcessor implements Tickable {
     private Queue<PlayerActions> excessActions;// hold actions that arrive early for potential later use
     private static final int CACHED_ACTIONS_SIZE = CommunicationConfig.TICKRATE / 10;
     ;
-    private static final double MAX_MA_LENIENCY = 1d / CommunicationConfig.TICKRATE;
+    private static final double MAX_MA_LENIENCY = (1d / CommunicationConfig.TICKRATE);
     private static final int MAX_ACTIONS_AGE = CommunicationConfig.TICKRATE / 10;
 
 
-    public DispatchProcessor(GameState<PlayerState, MovableState> gameState, AtomicLong tickCounter) {
+    public DispatchProcessor(GameState<PlayerState, MovableState> gameState) {
         this.gameState = gameState;
         this.cmdProcessor = new PlayerCmdProcessor(gameState);
         this.deserializer = new PacketDeserializer();
@@ -63,7 +63,6 @@ public class DispatchProcessor implements Tickable {
         this.kryo = new Kryo();
         this.kryo.register(PlayerActions.class);
         this.worker = getWorker();
-        this.currentTick = tickCounter;
         this.connections = Connections.getInstance();
     }
 
@@ -92,14 +91,14 @@ public class DispatchProcessor implements Tickable {
     private Runnable getWorker() {
         return () -> {
             try {
-                if (lastTick == -999) lastTick = currentTick.get() - 1;
+                if (lastTick == -999) lastTick = currentTick - 1;
                 while (!tasks.isEmpty()) {
                     work2();
                 }
             } catch (PlayerDisconnectedException e) {
                 e.printStackTrace();
             } finally {
-                lastTick = currentTick.get();
+                lastTick = currentTick;
                 running = false;
             }
         };
@@ -127,7 +126,7 @@ public class DispatchProcessor implements Tickable {
         getPacket();
 
         PlayerActions actions = deserializer.deserialize(packet);
-        actions.time = currentTick.get();
+        actions.time = currentTick;
         this.pid = actions.pid;
 
         if (validateConnection()) {
@@ -150,6 +149,11 @@ public class DispatchProcessor implements Tickable {
         }
     }
 
+    private void processCmd(PlayerActions actions) {
+        movingAvg.accumulate();
+        cmdProcessor.run(actions);
+    }
+
     private void getPacket() {
         // get packet
         this.packet = tasks.poll();
@@ -162,20 +166,18 @@ public class DispatchProcessor implements Tickable {
      * Tries to recover the moving average by executing cached packages
      */
     private void handleLowExecution() {
-        while (!excessActions.isEmpty() || movingAvg.getAverage() > MAX_MA_LENIENCY) {
+        while (!excessActions.isEmpty() && movingAvg.getAverage() < MAX_MA_LENIENCY) {
             PlayerActions recoveredAction = excessActions.poll();
             if (recoveredAction != null) {
-                long age = currentTick.get() - recoveredAction.time;
+                long age = currentTick - recoveredAction.time;
                 if (age > MAX_ACTIONS_AGE) continue;
                 processCmd(recoveredAction);
+                System.out.println("LOW EXEC HANDLING " + excessActions.size() + " " + movingAvg.getAverage());
             }
         }
     }
 
-    private void processCmd(PlayerActions actions) {
-        movingAvg.accumulate(1);
-        cmdProcessor.run(actions);
-    }
+
 
     private void createPlayerInstanceIfNotExists() {
         PlayerState playerState = gameState.getPlayers().get(pid);
@@ -213,5 +215,6 @@ public class DispatchProcessor implements Tickable {
     @Override
     public void onTick(long tick) {
         step = true;
+        currentTick = tick;
     }
 }

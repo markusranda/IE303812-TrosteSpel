@@ -1,14 +1,11 @@
 package no.ntnu.trostespel.dispatch;
 
-import com.google.common.collect.*;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import no.ntnu.trostespel.GameServer;
 import no.ntnu.trostespel.Tickable;
 import no.ntnu.trostespel.config.CommunicationConfig;
-import no.ntnu.trostespel.dispatch.DispatchProcessor;
 import no.ntnu.trostespel.game.GameStateMaster;
 import no.ntnu.trostespel.model.Connections;
-import no.ntnu.trostespel.state.GameState;
 
 import java.net.DatagramPacket;
 import java.net.SocketAddress;
@@ -47,7 +44,7 @@ public class PlayerUpdateDispatcher extends ThreadPoolExecutor {
         if (worker != null) {
             worker.tryRun(packet, this);
         } else {
-            worker = new DispatchProcessor(gameStateMaster.getGameState(), tickCounter);
+            worker = new DispatchProcessor(gameStateMaster.getGameState());
             GameServer.observe(worker);
             workers.put(socketAddr, worker);
             worker.tryRun(packet, this);

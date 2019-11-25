@@ -10,17 +10,17 @@ public class MovingAverage {
     public MovingAverage(int size) {
         this.size = size;
         samples = new double[size];
-        for (int i = 0; i < size; i++) samples[i] = 0d;
+        for (int i = 0; i < size; i++) samples[i] = 1d;
     }
 
-    public void accumulate(double x) {
-        samples[index] += x;
-        total += x;
+    public void accumulate() {
+        samples[index] += 1;
+        total += 1;
     }
 
     public void step() {
+        if (++index == size) index = 0;
         total -= samples[index];
-        if (++index == size) index = 0; // cheaper than modulus
         samples[index] = 0;
     }
 
