@@ -59,7 +59,6 @@ public class GameDataSender extends ThreadPoolExecutor {
         Queue snapshot = new LinkedList(nextGameState.getProjectileEvents());
         String json = gson.toJson(nextGameState, RECEIVED_DATA_TYPE);
         GameStateMaster.getInstance().onEventsConsumed();
-        System.out.println(this.getActiveCount());
         for (Connection con : connections) {
             if (con.getConnectionStatus() == CONNECTED)
                 execute(send(con, json));

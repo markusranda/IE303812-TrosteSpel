@@ -10,9 +10,10 @@ import java.util.concurrent.ConcurrentMap;
 public class GameState<P, M> {
 
     private transient TiledMapTileLayer collidables;
-    private transient ConcurrentMap<Long, M> projectiles;
 
+    private transient ConcurrentMap<Long, M> projectiles;
     private ConcurrentMap<Long, P> players;
+
     private Queue<M> projectileEvents;
     private boolean ack = false;
     private long tick;
