@@ -10,7 +10,7 @@ import java.util.concurrent.ConcurrentMap;
 public class GameState<P, M> {
 
     private transient TiledMapTileLayer collidables;
-    private transient ConcurrentMap<Long, M> projectiles; // TODO: Projectiles Should be pooled
+    private transient ConcurrentMap<Long, M> projectiles;
 
     private ConcurrentMap<Long, P> players;
     private Queue<M> projectileEvents;
