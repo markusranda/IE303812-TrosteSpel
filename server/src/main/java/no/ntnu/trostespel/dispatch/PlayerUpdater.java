@@ -16,7 +16,7 @@ import java.util.ConcurrentModificationException;
 import java.util.EnumSet;
 import java.util.Queue;
 
-public class PlayerCmdProcessor {
+public class PlayerUpdater {
 
     private GameState<PlayerState, MovableState> gameState;
     private long pid;
@@ -49,7 +49,7 @@ public class PlayerCmdProcessor {
     /**
      * @param gameState the playerstate object that will be updated
      */
-    public PlayerCmdProcessor(GameState<PlayerState, MovableState> gameState) {
+    public PlayerUpdater(GameState<PlayerState, MovableState> gameState) {
         this.gameState = gameState;
         this.displacement = new Vector2(0, 0);
 

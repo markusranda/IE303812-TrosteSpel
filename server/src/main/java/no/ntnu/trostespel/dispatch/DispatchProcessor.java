@@ -5,7 +5,6 @@ import com.google.common.collect.EvictingQueue;
 import no.ntnu.trostespel.PlayerActions;
 import no.ntnu.trostespel.Tickable;
 import no.ntnu.trostespel.config.CommunicationConfig;
-import no.ntnu.trostespel.exception.IdentityMismatchException;
 import no.ntnu.trostespel.exception.PlayerDisconnectedException;
 import no.ntnu.trostespel.model.Connection;
 import no.ntnu.trostespel.model.ConnectionStatus;
@@ -19,7 +18,6 @@ import java.util.Deque;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * Class holding all necessary information to handle a given DatagramPacket
@@ -32,7 +30,7 @@ public class DispatchProcessor implements Tickable {
 
     private long pid = -1;
     private DatagramPacket packet;
-    private PlayerCmdProcessor cmdProcessor;
+    private PlayerUpdater cmdProcessor;
     private GameState<PlayerState, MovableState> gameState;
     private Connections connections;
     private PacketDeserializer deserializer;
@@ -55,7 +53,7 @@ public class DispatchProcessor implements Tickable {
 
     public DispatchProcessor(GameState<PlayerState, MovableState> gameState) {
         this.gameState = gameState;
-        this.cmdProcessor = new PlayerCmdProcessor(gameState);
+        this.cmdProcessor = new PlayerUpdater(gameState);
         this.deserializer = new PacketDeserializer();
 
         this.excessActions = EvictingQueue.create(CACHED_ACTIONS_SIZE);

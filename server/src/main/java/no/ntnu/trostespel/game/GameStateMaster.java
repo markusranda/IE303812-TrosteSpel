@@ -82,7 +82,7 @@ public class GameStateMaster implements Tickable {
         };
     }
 
-    public void clearProjectileStateUpdates() {
+    public void onEventsConsumed() {
         for (MovableState movableState : gameState.getProjectilesStateUpdates()) {
             if (movableState.getAction() == Action.KILL) {
                 movableState.resetObject();
