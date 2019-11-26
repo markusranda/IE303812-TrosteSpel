@@ -40,7 +40,7 @@ public class GameStateMaster implements Tickable {
                 1,
                 0L,
                 TimeUnit.MILLISECONDS,
-                new LinkedBlockingQueue<Runnable>(),
+                new LinkedBlockingQueue<>(),
                 new ThreadFactoryBuilder().setNameFormat("GameStateMasterUpdater").build());
         GameServer.observe(this);
         this.gameState = gameState;

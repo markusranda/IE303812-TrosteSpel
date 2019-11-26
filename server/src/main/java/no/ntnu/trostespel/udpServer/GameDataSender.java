@@ -17,6 +17,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
@@ -37,7 +38,7 @@ public class GameDataSender extends ThreadPoolExecutor {
     private long time;
 
     public GameDataSender() {
-        super(1, MAX_PLAYERS, CommunicationConfig.RETRY_CONNECTION_TIMEOUT, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<>(16),
+        super(1, Integer.MAX_VALUE, CommunicationConfig.RETRY_CONNECTION_TIMEOUT, TimeUnit.MILLISECONDS, new SynchronousQueue<>(),
                 new ThreadFactoryBuilder().setNameFormat("GameDataSender-%d").build());
         this.gameStateMaster = GameStateMaster.getInstance();
         LogManager.getLogger(tag).trace("Created " + this.getClass().getName());
@@ -58,7 +59,7 @@ public class GameDataSender extends ThreadPoolExecutor {
         Queue snapshot = new LinkedList(nextGameState.getProjectileEvents());
         String json = gson.toJson(nextGameState, RECEIVED_DATA_TYPE);
         GameStateMaster.getInstance().onEventsConsumed();
-
+        System.out.println(this.getActiveCount());
         for (Connection con : connections) {
             if (con.getConnectionStatus() == CONNECTED)
                 execute(send(con, json));

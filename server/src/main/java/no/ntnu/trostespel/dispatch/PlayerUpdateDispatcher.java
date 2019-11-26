@@ -25,7 +25,7 @@ public class PlayerUpdateDispatcher extends ThreadPoolExecutor {
     private AtomicLong tickCounter;
 
     public PlayerUpdateDispatcher() {
-        super(2, CommunicationConfig.MAX_PLAYERS * 3, CommunicationConfig.RETRY_CONNECTION_TIMEOUT, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<>(64),
+        super(2, CommunicationConfig.MAX_PLAYERS * 3, CommunicationConfig.RETRY_CONNECTION_TIMEOUT, TimeUnit.MILLISECONDS, new SynchronousQueue<>(),
                 new ThreadFactoryBuilder().setNameFormat("Dispathcher-thread-%d").build());
         gameStateMaster = GameStateMaster.getInstance();
         connections = Connections.getInstance();

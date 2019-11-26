@@ -131,7 +131,6 @@ public class DispatchProcessor implements Tickable {
             createPlayerInstanceIfNotExists();
 
             double avg = movingAvg.getAverage();
-            System.out.println(avg);
             if (avg == 1) {
                 // perfect execution
                 processCmd(actions);
