@@ -1,6 +1,5 @@
 package no.ntnu.trostespel;
 
-import no.ntnu.trostespel.model.ConnectionStatus;
 import no.ntnu.trostespel.tcpServer.ConnectionManager;
 import no.ntnu.trostespel.config.CommunicationConfig;
 import no.ntnu.trostespel.game.GameStateMaster;
@@ -11,8 +10,9 @@ import no.ntnu.trostespel.udpServer.GameDataSender;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.atomic.AtomicLong;
 
 import static no.ntnu.trostespel.config.MapConfig.PVP_JUNGLE_ISLAND_FILENAME;
@@ -68,22 +68,22 @@ public class GameServer {
 
 
         System.out.println("Server is ready to handle incoming connections!");
-        heartbeat();
+        runTickLoop();
     }
 
-    private void heartbeat() {
+    private volatile boolean running = false;
+
+    private void runTickLoop() {
+        running = true;
         double ns = 1000000000.0 / CommunicationConfig.TICKRATE;
         double delta = 0;
-
         long lastTime = System.nanoTime();
 
-        System.out.println(" - Starting tick-loop with frequecy " + ns + "ns (" + CommunicationConfig.TICKRATE+" ticks/s)");
-        while (true) {
+        while (running) {
             long now = System.nanoTime();
             delta += (now - lastTime) / ns;
             lastTime = now;
             while (delta >= 1) {
-                GameServerStats.measureJitter();
                 tick();
                 delta--;
             }

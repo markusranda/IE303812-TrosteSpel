@@ -3,6 +3,7 @@ package no.ntnu.trostespel.game;
 import com.badlogic.gdx.math.Intersector;
 import com.badlogic.gdx.math.Vector2;
 import no.ntnu.trostespel.config.GameRules;
+import no.ntnu.trostespel.entity.Movable;
 import no.ntnu.trostespel.state.Action;
 import no.ntnu.trostespel.state.GameState;
 import no.ntnu.trostespel.state.MovableState;
@@ -31,26 +32,33 @@ public class GlobalUpdater extends Updater {
 
     private void doUpdate() {
         // update projectiles positions and check collisions
-        gameState.getProjectiles().forEach((k, v) -> {
-            // update the heading vector
-            if (v.getTimeAlive() > GameRules.Projectile.MAX_TIME_ALIVE) {
-                removeList.add(k);
-            } else {
-                Vector2 heading = v.getHeading();
-                // apply the heading vector
-                Vector2 position = v.getPosition();
-                Vector2 newPos = position.add(heading);
-                v.setPosition(newPos);
+        ConcurrentMap<Long, MovableState> projectiles = gameState.getProjectiles();
 
-                detectCollision(v, tick);
-                v.incrementTimeAlive();
+        projectiles.forEach((key, projectile) -> {
+            if (projectiles.containsKey(key)) {
+                if (projectile.getTimeAlive() > GameRules.Projectile.MAX_TIME_ALIVE) {
+                    removeList.add(key);
+                } else {
+                    updateProjectile(projectile);
+                    detectCollision(projectile, tick);
+                }
             }
         });
+
         for (Long key : removeList) {
             removeProjectile(key);
         }
         removeList.clear();
         changeActionStatePlayers();
+    }
+
+    private void updateProjectile(MovableState projectile) {
+        Vector2 heading = projectile.getHeading();
+        // apply the heading vector
+        Vector2 position = projectile.getPosition();
+        Vector2 newPos = position.add(heading);
+        projectile.setPosition(newPos);
+        projectile.incrementTimeAlive();
     }
 
     /**
@@ -60,13 +68,15 @@ public class GlobalUpdater extends Updater {
         // TODO: can be optimized using a quadtree
         ConcurrentMap<Long, PlayerState> players = gameState.getPlayers();
         players.forEach((key, playerState) -> {
-            if (playerState.getPid() != obj.getPid() || playerState.getAction() == Action.DEAD) {
-                if (players.containsKey(key)) {
-                    if (Intersector.overlaps(playerState.getHitboxWithPosition(), obj.getHitboxWithPosition())) {
-                        long id = obj.getId();
-                        playerState.hurt(obj.damage, currentTick);
-                        System.out.println("Bullet @" + obj.getPosition() + " HIT " + "Player #" + playerState.getPid() + " @" + playerState.getPosition() + "Current health: " + playerState.getHealth() + ", Damage: " + obj.damage);
-                        removeList.add(id);
+            if (players.containsKey(key)) {
+                if (playerState.getPid() != obj.getPid() || playerState.getAction() == Action.DEAD) {
+                    if (players.containsKey(key)) {
+                        if (Intersector.overlaps(playerState.getHitboxWithPosition(), obj.getHitboxWithPosition())) {
+                            long id = obj.getId();
+                            playerState.hurt(obj.damage, currentTick);
+                            System.out.println("Bullet @" + obj.getPosition() + " HIT " + "Player #" + playerState.getPid() + " @" + playerState.getPosition() + "Current health: " + playerState.getHealth() + ", Damage: " + obj.damage);
+                            removeList.add(id);
+                        }
                     }
                 }
             }
