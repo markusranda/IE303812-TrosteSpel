@@ -1,5 +1,6 @@
 package no.ntnu.trostespel.udpServer;
 
+import com.esotericsoftware.kryo.Kryo;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.google.gson.Gson;
 import no.ntnu.trostespel.GameServer;
@@ -12,7 +13,9 @@ import org.apache.logging.log4j.LogManager;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Queue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -27,6 +30,7 @@ public class GameDataSender extends ThreadPoolExecutor {
     private GameStateMaster gameStateMaster;
     private Gson gson = new Gson();
     private GameState nextGameState;
+    private Kryo kryo;
 
     private static final String tag = "gamedatasender";
 
@@ -38,6 +42,8 @@ public class GameDataSender extends ThreadPoolExecutor {
         this.gameStateMaster = GameStateMaster.getInstance();
         LogManager.getLogger(tag).trace("Created " + this.getClass().getName());
         time = System.currentTimeMillis();
+        kryo = new Kryo();
+        kryo.setRegistrationRequired(false);
     }
 
 
@@ -49,6 +55,7 @@ public class GameDataSender extends ThreadPoolExecutor {
         log();
         nextGameState = gameStateMaster.getGameState();
         nextGameState.setTick(tick);
+        Queue snapshot = new LinkedList(nextGameState.getProjectileEvents());
         String json = gson.toJson(nextGameState, RECEIVED_DATA_TYPE);
         GameStateMaster.getInstance().onEventsConsumed();
 

@@ -13,12 +13,12 @@ public class GameState<P, M> {
     private transient ConcurrentMap<Long, M> projectiles; // TODO: Projectiles Should be pooled
 
     private ConcurrentMap<Long, P> players;
-    private Queue<M> projectilesStateUpdates;
+    private Queue<M> projectileEvents;
     private boolean ack = false;
     private long tick;
 
     public GameState() {
-        projectilesStateUpdates = new ConcurrentLinkedQueue<>();
+        projectileEvents = new ConcurrentLinkedQueue<>();
         projectiles = new ConcurrentHashMap<>();
         players = new ConcurrentHashMap<>();
     }
@@ -27,8 +27,8 @@ public class GameState<P, M> {
         return projectiles;
     }
 
-    public Queue<M> getProjectilesStateUpdates() {
-        return projectilesStateUpdates;
+    public Queue<M> getProjectileEvents() {
+        return projectileEvents;
     }
 
     public boolean isAck() {

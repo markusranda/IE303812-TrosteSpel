@@ -47,7 +47,7 @@ public class DispatchProcessor implements Tickable {
     private Queue<PlayerActions> excessActions;// hold actions that arrive early for potential later use
     private static final int CACHED_ACTIONS_SIZE = CommunicationConfig.TICKRATE / 10;
     ;
-    private static final double MAX_MA_LENIENCY = (1d / CommunicationConfig.TICKRATE);
+    private static final double MAX_MA_LENIENCY = (1d / CommunicationConfig.TICKRATE - 1);
     private static final int MAX_ACTIONS_AGE = CommunicationConfig.TICKRATE / 10;
 
 
@@ -131,14 +131,15 @@ public class DispatchProcessor implements Tickable {
             createPlayerInstanceIfNotExists();
 
             double avg = movingAvg.getAverage();
-            if (avg == 0) {
+            System.out.println(avg);
+            if (avg == 1) {
                 // perfect execution
                 processCmd(actions);
-            } else if (avg < 0) {
+            } else if (avg < 1) {
                 // executed too little
                 processCmd(actions);
                 handleLowExecution();
-            } else if (avg > MAX_MA_LENIENCY) {
+            } else if (avg > 1 + MAX_MA_LENIENCY) {
                 // executed too much
                 excessActions.offer(actions);
             }

@@ -98,7 +98,7 @@ public class GlobalUpdater extends Updater {
         if (removed != null) {
             // removed becomes null if a bullet hits multiple players, causing multiple removeProjectile calls
             removed.setAction(Action.KILL);
-            gameState.getProjectilesStateUpdates().add(removed);
+            gameState.getProjectileEvents().add(removed);
         }
     }
 

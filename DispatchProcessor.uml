@@ -1,0 +1,306 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Diagram>
+  <ID>JAVA</ID>
+  <OriginalElement>no.ntnu.trostespel.dispatch.DispatchProcessor</OriginalElement>
+  <nodes>
+    <node x="1126.6140028717907" y="86.0">no.ntnu.trostespel.game.GlobalUpdater</node>
+    <node x="233.85329276205812" y="576.0">no.ntnu.trostespel.udpServer.GameDataReceiver</node>
+    <node x="17.323529411764753" y="308.0">no.ntnu.trostespel.tcpServer.ConnectionManager</node>
+    <node x="195.85222306812568" y="86.0">no.ntnu.trostespel.model.Connection</node>
+    <node x="530.7297794117646" y="500.0">no.ntnu.trostespel.dispatch.PlayerUpdateDispatcher</node>
+    <node x="1021.6874999999999" y="732.0">no.ntnu.trostespel.GameServer</node>
+    <node x="1006.154306401459" y="308.0">no.ntnu.trostespel.udpServer.GameDataSender</node>
+    <node x="363.22977941176464" y="308.0">no.ntnu.trostespel.dispatch.PacketDeserializer</node>
+    <node x="514.6272230681257" y="0.0">no.ntnu.trostespel.model.ConnectionStatus</node>
+    <node x="712.2297794117646" y="308.0">no.ntnu.trostespel.dispatch.PlayerCmdProcessor</node>
+    <node x="219.22977941176464" y="202.0">no.ntnu.trostespel.model.Connections</node>
+    <node x="1035.6557930511653" y="202.0">no.ntnu.trostespel.game.GameStateMaster</node>
+    <node x="555.2297794117646" y="308.0">no.ntnu.trostespel.dispatch.MovingAverage</node>
+    <node x="506.97977941176464" y="414.0">no.ntnu.trostespel.dispatch.DispatchProcessor</node>
+    <node x="1007.6874999999999" y="808.0">no.ntnu.trostespel.ServerLauncher</node>
+    <node x="1004.6140028717907" y="86.0">no.ntnu.trostespel.Tickable</node>
+  </nodes>
+  <notes />
+  <edges>
+    <edge source="no.ntnu.trostespel.udpServer.GameDataReceiver" target="no.ntnu.trostespel.model.Connections">
+      <point x="-19.75" y="-13.0" />
+      <point x="293.1032927620581" y="556.0" />
+      <point x="266.41727941176464" y="556.0" />
+      <point x="266.41727941176464" y="288.0" />
+      <point x="257.66727941176464" y="288.0" />
+      <point x="-23.0625" y="13.0" />
+    </edge>
+    <edge source="no.ntnu.trostespel.tcpServer.ConnectionManager" target="no.ntnu.trostespel.model.Connection">
+      <point x="20.625" y="-13.0" />
+      <point x="120.44852941176475" y="288.0" />
+      <point x="109.97722306812568" y="288.0" />
+      <point x="109.97722306812568" y="162.0" />
+      <point x="236.4522230681257" y="162.0" />
+      <point x="-17.399999999999977" y="13.0" />
+    </edge>
+    <edge source="no.ntnu.trostespel.udpServer.GameDataReceiver" target="no.ntnu.trostespel.dispatch.PlayerUpdateDispatcher">
+      <point x="59.25" y="-13.0" />
+      <point x="372.1032927620581" y="556.0" />
+      <point x="630.7297794117646" y="556.0" />
+      <point x="0.0" y="13.0" />
+    </edge>
+    <edge source="no.ntnu.trostespel.dispatch.PlayerCmdProcessor" target="no.ntnu.trostespel.model.Connections">
+      <point x="-57.33333333333337" y="-13.0" />
+      <point x="740.8964460784313" y="288.0" />
+      <point x="334.54227941176464" y="288.0" />
+      <point x="53.8125" y="13.0" />
+    </edge>
+    <edge source="no.ntnu.trostespel.model.Connections" target="no.ntnu.trostespel.model.Connection">
+      <point x="-30.75" y="-13.0" />
+      <point x="249.97977941176464" y="182.0" />
+      <point x="259.65222306812564" y="182.0" />
+      <point x="5.7999999999999545" y="13.0" />
+    </edge>
+    <edge source="no.ntnu.trostespel.ServerLauncher" target="no.ntnu.trostespel.GameServer">
+      <point x="0.0" y="-13.0" />
+      <point x="0.0" y="13.0" />
+    </edge>
+    <edge source="no.ntnu.trostespel.GameServer" target="no.ntnu.trostespel.udpServer.GameDataReceiver">
+      <point x="-13.647058823529449" y="-13.0" />
+      <point x="1066.0404411764705" y="652.0" />
+      <point x="352.3532927620581" y="652.0" />
+      <point x="39.5" y="13.0" />
+    </edge>
+    <edge source="no.ntnu.trostespel.dispatch.DispatchProcessor" target="no.ntnu.trostespel.Tickable">
+      <point x="75.0" y="-13.0" />
+      <point x="664.4797794117646" y="394.0" />
+      <point x="905.7297794117646" y="394.0" />
+      <point x="905.7297794117646" y="172.0" />
+      <point x="1014.8140028717908" y="172.0" />
+      <point x="-40.80000000000001" y="13.0" />
+    </edge>
+    <edge source="no.ntnu.trostespel.udpServer.GameDataSender" target="no.ntnu.trostespel.model.ConnectionStatus">
+      <point x="-18.0" y="-13.0" />
+      <point x="1060.154306401459" y="248.0" />
+      <point x="970.9797794117646" y="248.0" />
+      <point x="970.9797794117646" y="56.0" />
+      <point x="633.1272230681257" y="56.0" />
+      <point x="39.5" y="13.0" />
+    </edge>
+    <edge source="no.ntnu.trostespel.dispatch.PlayerUpdateDispatcher" target="no.ntnu.trostespel.Tickable">
+      <point x="28.571428571428555" y="-13.0" />
+      <point x="659.3012079831932" y="460.0" />
+      <point x="916.7297794117646" y="460.0" />
+      <point x="916.7297794117646" y="182.0" />
+      <point x="1035.2140028717909" y="182.0" />
+      <point x="-20.399999999999977" y="13.0" />
+    </edge>
+    <edge source="no.ntnu.trostespel.tcpServer.ConnectionManager" target="no.ntnu.trostespel.model.ConnectionStatus">
+      <point x="-61.875" y="-13.0" />
+      <point x="37.94852941176475" y="278.0" />
+      <point x="87.97722306812568" y="278.0" />
+      <point x="87.97722306812568" y="46.0" />
+      <point x="527.7938897347923" y="46.0" />
+      <point x="-65.83333333333337" y="13.0" />
+    </edge>
+    <edge source="no.ntnu.trostespel.dispatch.PlayerCmdProcessor" target="no.ntnu.trostespel.game.GameStateMaster">
+      <point x="57.33333333333337" y="-13.0" />
+      <point x="855.563112745098" y="268.0" />
+      <point x="1045.0932930511653" y="268.0" />
+      <point x="-66.0625" y="13.0" />
+    </edge>
+    <edge source="no.ntnu.trostespel.game.GameStateMaster" target="no.ntnu.trostespel.game.GlobalUpdater">
+      <point x="0.0" y="-13.0" />
+      <point x="1111.1557930511653" y="172.0" />
+      <point x="1160.8640028717907" y="172.0" />
+      <point x="-34.25" y="13.0" />
+    </edge>
+    <edge source="no.ntnu.trostespel.dispatch.DispatchProcessor" target="no.ntnu.trostespel.dispatch.MovingAverage">
+      <point x="15.0" y="-13.0" />
+      <point x="604.4797794117646" y="354.0" />
+      <point x="657.9797794117646" y="354.0" />
+      <point x="34.25" y="13.0" />
+    </edge>
+    <edge source="no.ntnu.trostespel.dispatch.PlayerUpdateDispatcher" target="no.ntnu.trostespel.game.GameStateMaster">
+      <point x="57.14285714285711" y="-13.0" />
+      <point x="687.8726365546217" y="470.0" />
+      <point x="984.654306401459" y="470.0" />
+      <point x="984.654306401459" y="278.0" />
+      <point x="1063.9682930511653" y="278.0" />
+      <point x="-47.1875" y="13.0" />
+    </edge>
+    <edge source="no.ntnu.trostespel.dispatch.DispatchProcessor" target="no.ntnu.trostespel.model.ConnectionStatus">
+      <point x="60.0" y="-13.0" />
+      <point x="649.4797794117646" y="384.0" />
+      <point x="894.7297794117646" y="384.0" />
+      <point x="894.7297794117646" y="66.0" />
+      <point x="606.7938897347923" y="66.0" />
+      <point x="13.166666666666629" y="13.0" />
+    </edge>
+    <edge source="no.ntnu.trostespel.udpServer.GameDataSender" target="no.ntnu.trostespel.model.Connection">
+      <point x="-54.0" y="-13.0" />
+      <point x="1024.154306401459" y="258.0" />
+      <point x="959.9797794117646" y="258.0" />
+      <point x="959.9797794117646" y="152.0" />
+      <point x="306.0522230681257" y="152.0" />
+      <point x="52.200000000000045" y="13.0" />
+    </edge>
+    <edge source="no.ntnu.trostespel.dispatch.DispatchProcessor" target="no.ntnu.trostespel.dispatch.PacketDeserializer">
+      <point x="-15.0" y="-13.0" />
+      <point x="574.4797794117646" y="354.0" />
+      <point x="492.22977941176464" y="354.0" />
+      <point x="43.0" y="13.0" />
+    </edge>
+    <edge source="no.ntnu.trostespel.GameServer" target="no.ntnu.trostespel.model.ConnectionStatus">
+      <point x="54.58823529411768" y="-13.0" />
+      <point x="1134.2757352941176" y="712.0" />
+      <point x="1298.9540764012027" y="712.0" />
+      <point x="1298.9540764012027" y="46.0" />
+      <point x="659.4605564014589" y="46.0" />
+      <point x="65.83333333333326" y="13.0" />
+    </edge>
+    <edge source="no.ntnu.trostespel.GameServer" target="no.ntnu.trostespel.game.GameStateMaster">
+      <point x="27.294117647058783" y="-13.0" />
+      <point x="1106.9816176470586" y="672.0" />
+      <point x="1181.2737916955766" y="672.0" />
+      <point x="1181.2737916955766" y="278.0" />
+      <point x="1158.3432930511653" y="278.0" />
+      <point x="47.1875" y="13.0" />
+    </edge>
+    <edge source="no.ntnu.trostespel.dispatch.PlayerCmdProcessor" target="no.ntnu.trostespel.model.Connection">
+      <point x="0.0" y="-13.0" />
+      <point x="798.2297794117646" y="162.0" />
+      <point x="294.4522230681256" y="162.0" />
+      <point x="40.59999999999991" y="13.0" />
+    </edge>
+    <edge source="no.ntnu.trostespel.dispatch.PlayerUpdateDispatcher" target="no.ntnu.trostespel.dispatch.DispatchProcessor">
+      <point x="-28.571428571428555" y="-13.0" />
+      <point x="602.1583508403361" y="460.0" />
+      <point x="548.2297794117646" y="460.0" />
+      <point x="-41.25" y="13.0" />
+    </edge>
+    <edge source="no.ntnu.trostespel.dispatch.PlayerUpdateDispatcher" target="no.ntnu.trostespel.model.Connections">
+      <point x="-57.14285714285711" y="-13.0" />
+      <point x="573.5869222689075" y="470.0" />
+      <point x="288.41727941176464" y="470.0" />
+      <point x="7.6875" y="13.0" />
+    </edge>
+    <edge source="no.ntnu.trostespel.udpServer.GameDataSender" target="no.ntnu.trostespel.GameServer">
+      <point x="-48.0" y="13.0" />
+      <point x="1030.154306401459" y="394.0" />
+      <point x="1056.2847888237857" y="394.0" />
+      <point x="1056.2847888237857" y="632.0" />
+      <point x="1079.6875" y="632.0" />
+      <point x="0.0" y="-13.0" />
+    </edge>
+    <edge source="no.ntnu.trostespel.udpServer.GameDataReceiver" target="no.ntnu.trostespel.model.Connection">
+      <point x="-59.25" y="-13.0" />
+      <point x="253.60329276205812" y="556.0" />
+      <point x="203.82352941176464" y="556.0" />
+      <point x="203.82352941176464" y="172.0" />
+      <point x="248.05222306812573" y="172.0" />
+      <point x="-5.7999999999999545" y="13.0" />
+    </edge>
+    <edge source="no.ntnu.trostespel.udpServer.GameDataSender" target="no.ntnu.trostespel.game.GameStateMaster">
+      <point x="18.0" y="-13.0" />
+      <point x="1096.154306401459" y="288.0" />
+      <point x="1101.7182930511653" y="288.0" />
+      <point x="-9.4375" y="13.0" />
+    </edge>
+    <edge source="no.ntnu.trostespel.game.GameStateMaster" target="no.ntnu.trostespel.GameServer">
+      <point x="28.3125" y="13.0" />
+      <point x="1139.4682930511653" y="288.0" />
+      <point x="1174.450262283812" y="288.0" />
+      <point x="1174.450262283812" y="662.0" />
+      <point x="1100.1580882352941" y="662.0" />
+      <point x="20.470588235294144" y="-13.0" />
+    </edge>
+    <edge source="no.ntnu.trostespel.GameServer" target="no.ntnu.trostespel.Tickable">
+      <point x="47.76470588235293" y="-13.0" />
+      <point x="1127.4522058823527" y="702.0" />
+      <point x="1227.6757524798904" y="702.0" />
+      <point x="1227.6757524798904" y="152.0" />
+      <point x="1096.4140028717907" y="152.0" />
+      <point x="40.80000000000001" y="13.0" />
+    </edge>
+    <edge source="no.ntnu.trostespel.dispatch.DispatchProcessor" target="no.ntnu.trostespel.model.Connections">
+      <point x="-75.0" y="-13.0" />
+      <point x="514.4797794117646" y="394.0" />
+      <point x="308.3117496080996" y="394.0" />
+      <point x="308.3117496080996" y="288.0" />
+      <point x="303.79227941176464" y="288.0" />
+      <point x="23.0625" y="13.0" />
+    </edge>
+    <edge source="no.ntnu.trostespel.GameServer" target="no.ntnu.trostespel.model.Connection">
+      <point x="-54.58823529411768" y="-13.0" />
+      <point x="1025.0992647058822" y="712.0" />
+      <point x="0.0" y="712.0" />
+      <point x="0.0" y="132.0" />
+      <point x="201.65222306812564" y="132.0" />
+      <point x="-52.200000000000045" y="13.0" />
+    </edge>
+    <edge source="no.ntnu.trostespel.dispatch.DispatchProcessor" target="no.ntnu.trostespel.dispatch.PlayerCmdProcessor">
+      <point x="30.0" y="-13.0" />
+      <point x="619.4797794117646" y="364.0" />
+      <point x="755.2297794117646" y="364.0" />
+      <point x="-43.0" y="13.0" />
+    </edge>
+    <edge source="no.ntnu.trostespel.GameServer" target="no.ntnu.trostespel.udpServer.GameDataSender">
+      <point x="13.647058823529392" y="-13.0" />
+      <point x="1093.3345588235293" y="652.0" />
+      <point x="1108.3805469894378" y="652.0" />
+      <point x="1108.3805469894378" y="394.0" />
+      <point x="1126.154306401459" y="394.0" />
+      <point x="48.0" y="13.0" />
+    </edge>
+    <edge source="no.ntnu.trostespel.model.Connection" target="no.ntnu.trostespel.model.ConnectionStatus">
+      <point x="-29.0" y="-13.0" />
+      <point x="224.85222306812568" y="56.0" />
+      <point x="554.1272230681257" y="56.0" />
+      <point x="-39.5" y="13.0" />
+    </edge>
+    <edge source="no.ntnu.trostespel.dispatch.DispatchProcessor" target="no.ntnu.trostespel.model.Connection">
+      <point x="-45.0" y="-13.0" />
+      <point x="544.4797794117646" y="374.0" />
+      <point x="352.72977941176464" y="374.0" />
+      <point x="352.72977941176464" y="172.0" />
+      <point x="282.8522230681257" y="172.0" />
+      <point x="29.0" y="13.0" />
+    </edge>
+    <edge source="no.ntnu.trostespel.GameServer" target="no.ntnu.trostespel.tcpServer.ConnectionManager">
+      <point x="-40.94117647058829" y="-13.0" />
+      <point x="1038.7463235294117" y="692.0" />
+      <point x="116.19045836224336" y="692.0" />
+      <point x="116.19045836224336" y="394.0" />
+      <point x="58.57352941176475" y="394.0" />
+      <point x="-41.25" y="13.0" />
+    </edge>
+    <edge source="no.ntnu.trostespel.game.GameStateMaster" target="no.ntnu.trostespel.Tickable">
+      <point x="-50.33333333333334" y="-13.0" />
+      <point x="1060.822459717832" y="182.0" />
+      <point x="1055.6140028717907" y="182.0" />
+      <point x="0.0" y="13.0" />
+    </edge>
+    <edge source="no.ntnu.trostespel.tcpServer.ConnectionManager" target="no.ntnu.trostespel.model.Connections">
+      <point x="61.875" y="-13.0" />
+      <point x="161.69852941176475" y="278.0" />
+      <point x="226.91727941176464" y="278.0" />
+      <point x="-53.8125" y="13.0" />
+    </edge>
+    <edge source="no.ntnu.trostespel.dispatch.PlayerUpdateDispatcher" target="no.ntnu.trostespel.GameServer">
+      <point x="66.66666666666674" y="13.0" />
+      <point x="697.3964460784314" y="642.0" />
+      <point x="1072.8639705882351" y="642.0" />
+      <point x="-6.823529411764753" y="-13.0" />
+    </edge>
+    <edge source="no.ntnu.trostespel.GameServer" target="no.ntnu.trostespel.model.Connections">
+      <point x="-27.29411764705884" y="-13.0" />
+      <point x="1052.393382352941" y="672.0" />
+      <point x="192.82352941176475" y="672.0" />
+      <point x="192.82352941176475" y="288.0" />
+      <point x="242.29227941176464" y="288.0" />
+      <point x="-38.4375" y="13.0" />
+    </edge>
+  </edges>
+  <settings layout="Hierarchic Group" zoom="1.0" x="686.0" y="397.0" />
+  <SelectedNodes />
+  <Categories />
+  <SCOPE>All</SCOPE>
+  <VISIBILITY>private</VISIBILITY>
+</Diagram>
+

@@ -11,7 +11,6 @@ import no.ntnu.trostespel.state.MovableState;
 import no.ntnu.trostespel.state.PlayerState;
 import no.ntnu.trostespel.GameServer;
 import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 import java.util.Comparator;
 import java.util.concurrent.*;
@@ -83,14 +82,14 @@ public class GameStateMaster implements Tickable {
     }
 
     public void onEventsConsumed() {
-        for (MovableState movableState : gameState.getProjectilesStateUpdates()) {
+
+        for (MovableState movableState : gameState.getProjectileEvents()) {
             if (movableState.getAction() == Action.KILL) {
                 movableState.resetObject();
                 movablesPool.returnObject(movableState);
             }
         }
-        gameState.getProjectilesStateUpdates().clear();
-
+        gameState.getProjectileEvents().clear();
     }
 
 

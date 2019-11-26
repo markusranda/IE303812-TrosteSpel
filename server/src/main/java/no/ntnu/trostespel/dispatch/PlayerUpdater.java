@@ -4,7 +4,6 @@ import com.badlogic.gdx.math.Vector2;
 import no.ntnu.trostespel.PlayerActions;
 import no.ntnu.trostespel.config.CommunicationConfig;
 import no.ntnu.trostespel.config.GameRules;
-import no.ntnu.trostespel.entity.Movable;
 import no.ntnu.trostespel.game.GameStateMaster;
 import no.ntnu.trostespel.model.Connection;
 import no.ntnu.trostespel.model.Connections;
@@ -14,7 +13,6 @@ import no.ntnu.trostespel.state.PlayerState;
 
 import java.util.ConcurrentModificationException;
 import java.util.EnumSet;
-import java.util.Queue;
 
 public class PlayerUpdater {
 
@@ -191,7 +189,7 @@ public class PlayerUpdater {
     }
 
     private void putProjectile ( long k, MovableState v){
-        gameState.getProjectilesStateUpdates().add(v);
+        gameState.getProjectileEvents().add(v);
         gameState.getProjectiles().put(k, v);
     }
 

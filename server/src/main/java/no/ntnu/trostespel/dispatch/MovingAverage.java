@@ -10,7 +10,11 @@ public class MovingAverage {
     public MovingAverage(int size) {
         this.size = size;
         samples = new double[size];
-        for (int i = 0; i < size; i++) samples[i] = 1d;
+        for (int i = 0; i < size; i++) {
+            samples[i] = 1d;
+            total += samples[i];
+        }
+
     }
 
     public void accumulate() {
