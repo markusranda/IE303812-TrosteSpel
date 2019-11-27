@@ -16,8 +16,7 @@ import no.ntnu.trostespel.state.PlayerState;
 import java.net.DatagramPacket;
 import java.util.Deque;
 import java.util.Queue;
-import java.util.concurrent.ConcurrentLinkedDeque;
-import java.util.concurrent.ExecutorService;
+import java.util.concurrent.*;
 
 /**
  * Class holding all necessary information to handle a given DatagramPacket
@@ -50,6 +49,7 @@ public class DispatchProcessor implements Tickable {
     private static final double MAX_MA_LENIENCY = (1d / CommunicationConfig.TICKRATE - 1);
     private static final int MAX_ACTIONS_AGE = CommunicationConfig.TICKRATE / 10;
 
+    private volatile Future future = null;
 
     public DispatchProcessor(GameState<PlayerState, MovableState> gameState) {
         this.gameState = gameState;
@@ -71,13 +71,12 @@ public class DispatchProcessor implements Tickable {
      * @param packet   the packet to process
      * @param executor the executor to execute on
      */
-    void tryRun(DatagramPacket packet, ExecutorService executor) {
-        if (running) {
+    void tryRun(DatagramPacket packet, ExecutorService executor) throws ExecutionException, InterruptedException {
+        if (future != null && !future.isDone()) {
             enqueueTask(packet);
         } else {
-            running = true;
             enqueueTask(packet);
-            executor.execute(this.worker);
+            future = executor.submit(this.worker);
         }
     }
 

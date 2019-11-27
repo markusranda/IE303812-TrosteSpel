@@ -38,7 +38,7 @@ public class GameDataSender extends ThreadPoolExecutor {
     private long time;
 
     public GameDataSender() {
-        super(1, Integer.MAX_VALUE, CommunicationConfig.RETRY_CONNECTION_TIMEOUT, TimeUnit.MILLISECONDS, new SynchronousQueue<>(),
+        super(1, Integer.MAX_VALUE, CommunicationConfig.TICKRATE*10, TimeUnit.MILLISECONDS, new SynchronousQueue<>(),
                 new ThreadFactoryBuilder().setNameFormat("GameDataSender-%d").build());
         this.gameStateMaster = GameStateMaster.getInstance();
         LogManager.getLogger(tag).trace("Created " + this.getClass().getName());

@@ -25,7 +25,12 @@ public class PlayerUpdateDispatcher extends ThreadPoolExecutor {
     private AtomicLong tickCounter;
 
     public PlayerUpdateDispatcher() {
-        super(2, CommunicationConfig.MAX_PLAYERS * 3, CommunicationConfig.RETRY_CONNECTION_TIMEOUT, TimeUnit.MILLISECONDS, new SynchronousQueue<>(),
+        super(
+                1,
+                CommunicationConfig.MAX_PLAYERS * 3,
+                CommunicationConfig.RETRY_CONNECTION_TIMEOUT,
+                TimeUnit.MILLISECONDS,
+                new SynchronousQueue<>(),
                 new ThreadFactoryBuilder().setNameFormat("Dispathcher-thread-%d").build());
         gameStateMaster = GameStateMaster.getInstance();
         connections = Connections.getInstance();
@@ -41,13 +46,22 @@ public class PlayerUpdateDispatcher extends ThreadPoolExecutor {
     public void dispatch(DatagramPacket packet) {
         SocketAddress socketAddr = packet.getSocketAddress();
         DispatchProcessor worker = workers.get(socketAddr);
-        if (worker != null) {
-            worker.tryRun(packet, this);
-        } else {
-            worker = new DispatchProcessor(gameStateMaster.getGameState());
-            GameServer.observe(worker);
-            workers.put(socketAddr, worker);
-            worker.tryRun(packet, this);
+        try {
+            if (worker != null) {
+                worker.tryRun(packet, this);
+            } else {
+                System.out.println("NEW DISPATCHPROCESSOR FOR " + socketAddr);
+                worker = new DispatchProcessor(gameStateMaster.getGameState());
+                GameServer.observe(worker);
+                workers.put(socketAddr, worker);
+                worker.tryRun(packet, this);
+            }
+        } catch (ExecutionException e) {
+            e.printStackTrace();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
         }
     }
+
+
 }
